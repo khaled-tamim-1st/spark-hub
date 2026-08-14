@@ -10,6 +10,12 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: content
+    description: Public Spark Hub content
+  - name: leads
+    description: Contact enquiries
+  - name: admin
+    description: Content management
 paths:
   /healthz:
     get:
@@ -24,7 +30,378 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /overview:
+    get:
+      operationId: getOverview
+      tags: [content]
+      summary: Get homepage overview content
+      responses:
+        "200":
+          description: Homepage overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Overview"
+  /services:
+    get:
+      operationId: listServices
+      tags: [content]
+      summary: List services
+      responses:
+        "200":
+          description: Services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+    post:
+      operationId: createService
+      tags: [admin]
+      summary: Create a service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "201":
+          description: Created service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+  /services/{id}:
+    patch:
+      operationId: updateService
+      tags: [admin]
+      summary: Update a service
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceUpdate"
+      responses:
+        "200":
+          description: Updated service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+    delete:
+      operationId: deleteService
+      tags: [admin]
+      summary: Delete a service
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Service deleted
+  /case-studies:
+    get:
+      operationId: listCaseStudies
+      tags: [content]
+      summary: List case studies
+      responses:
+        "200":
+          description: Case studies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseStudy"
+    post:
+      operationId: createCaseStudy
+      tags: [admin]
+      summary: Create a case study
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseStudyInput"
+      responses:
+        "201":
+          description: Created case study
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseStudy"
+  /case-studies/{id}:
+    get:
+      operationId: getCaseStudy
+      tags: [content]
+      summary: Get a case study by slug
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Case study
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseStudy"
+        "404":
+          description: Case study not found
+    patch:
+      operationId: updateCaseStudy
+      tags: [admin]
+      summary: Update a case study
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseStudyUpdate"
+      responses:
+        "200":
+          description: Updated case study
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseStudy"
+    delete:
+      operationId: deleteCaseStudy
+      tags: [admin]
+      summary: Delete a case study
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Case study deleted
+  /reels:
+    get:
+      operationId: listReels
+      tags: [content]
+      summary: List video reels
+      responses:
+        "200":
+          description: Reels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reel"
+    post:
+      operationId: createReel
+      tags: [admin]
+      summary: Create a reel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReelInput"
+      responses:
+        "201":
+          description: Created reel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reel"
+  /reels/{id}:
+    patch:
+      operationId: updateReel
+      tags: [admin]
+      summary: Update a reel
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReelUpdate"
+      responses:
+        "200":
+          description: Updated reel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reel"
+    delete:
+      operationId: deleteReel
+      tags: [admin]
+      summary: Delete a reel
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Reel deleted
+  /posts:
+    get:
+      operationId: listPosts
+      tags: [content]
+      summary: List social posts
+      responses:
+        "200":
+          description: Posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+    post:
+      operationId: createPost
+      tags: [admin]
+      summary: Create a post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostInput"
+      responses:
+        "201":
+          description: Created post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+  /posts/{id}:
+    patch:
+      operationId: updatePost
+      tags: [admin]
+      summary: Update a post
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostUpdate"
+      responses:
+        "200":
+          description: Updated post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+    delete:
+      operationId: deletePost
+      tags: [admin]
+      summary: Delete a post
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Post deleted
+  /testimonials:
+    get:
+      operationId: listTestimonials
+      tags: [content]
+      summary: List testimonials and client logos
+      responses:
+        "200":
+          description: Testimonials
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Testimonial"
+    post:
+      operationId: createTestimonial
+      tags: [admin]
+      summary: Create a testimonial
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestimonialInput"
+      responses:
+        "201":
+          description: Created testimonial
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Testimonial"
+  /testimonials/{id}:
+    delete:
+      operationId: deleteTestimonial
+      tags: [admin]
+      summary: Delete a testimonial
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Testimonial deleted
+  /blog:
+    get:
+      operationId: listBlogPosts
+      tags: [content]
+      summary: List blog posts
+      responses:
+        "200":
+          description: Blog posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BlogPost"
+  /blog/{slug}:
+    get:
+      operationId: getBlogPost
+      tags: [content]
+      summary: Get a blog post by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Blog post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPost"
+        "404":
+          description: Blog post not found
+  /contact:
+    post:
+      operationId: createContactLead
+      tags: [leads]
+      summary: Submit a contact enquiry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactLeadInput"
+      responses:
+        "201":
+          description: Contact enquiry received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactLead"
 components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +410,193 @@ components:
           type: string
       required:
         - status
+    Overview:
+      type: object
+      required: [eyebrow, headline, intro, vision, mission]
+      properties:
+        eyebrow: { type: string }
+        headline: { type: string }
+        intro: { type: string }
+        vision: { type: string }
+        mission: { type: string }
+        founderName: { type: string }
+        founderRole: { type: string }
+        founderBio: { type: string }
+        contactEmail: { type: string }
+        contactPhone: { type: string }
+        contactOffice: { type: string }
+    Service:
+      type: object
+      required: [id, title, category, summary, details, displayOrder]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        category:
+          type: string
+          enum: [strategy, marketing, creative, business, media, training, software]
+        summary: { type: string }
+        details:
+          type: array
+          items: { type: string }
+        displayOrder: { type: integer }
+    ServiceInput:
+      type: object
+      required: [title, category, summary, details, displayOrder]
+      properties:
+        title: { type: string, minLength: 1 }
+        category:
+          type: string
+          enum: [strategy, marketing, creative, business, media, training, software]
+        summary: { type: string }
+        details:
+          type: array
+          items: { type: string }
+        displayOrder: { type: integer }
+    ServiceUpdate:
+      allOf:
+        - $ref: "#/components/schemas/ServiceInput"
+    CaseStudy:
+      type: object
+      required: [id, slug, title, client, category, summary, problem, solution, result, metric, imageUrl, imageAlt, displayOrder]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        title: { type: string }
+        client: { type: string }
+        category: { type: string }
+        summary: { type: string }
+        problem: { type: string }
+        solution: { type: string }
+        result: { type: string }
+        metric: { type: string }
+        imageUrl: { type: string }
+        imageAlt: { type: string }
+        displayOrder: { type: integer }
+    CaseStudyInput:
+      type: object
+      required: [slug, title, client, category, summary, problem, solution, result, metric, imageUrl, imageAlt, displayOrder]
+      properties:
+        slug: { type: string, minLength: 1 }
+        title: { type: string, minLength: 1 }
+        client: { type: string }
+        category: { type: string }
+        summary: { type: string }
+        problem: { type: string }
+        solution: { type: string }
+        result: { type: string }
+        metric: { type: string }
+        imageUrl: { type: string }
+        imageAlt: { type: string }
+        displayOrder: { type: integer }
+    CaseStudyUpdate:
+      allOf:
+        - $ref: "#/components/schemas/CaseStudyInput"
+    Reel:
+      type: object
+      required: [id, videoUrl, thumbnailUrl, thumbnailAlt, title, client, category, displayOrder]
+      properties:
+        id: { type: integer }
+        videoUrl: { type: string }
+        thumbnailUrl: { type: string }
+        thumbnailAlt: { type: string }
+        title: { type: string }
+        client: { type: string }
+        category: { type: string }
+        displayOrder: { type: integer }
+    ReelInput:
+      type: object
+      required: [videoUrl, thumbnailUrl, thumbnailAlt, title, client, category, displayOrder]
+      properties:
+        videoUrl: { type: string }
+        thumbnailUrl: { type: string }
+        thumbnailAlt: { type: string }
+        title: { type: string, minLength: 1 }
+        client: { type: string }
+        category: { type: string }
+        displayOrder: { type: integer }
+    ReelUpdate:
+      allOf:
+        - $ref: "#/components/schemas/ReelInput"
+    Post:
+      type: object
+      required: [id, imageUrls, imageAlt, caption, client, category, displayOrder]
+      properties:
+        id: { type: integer }
+        imageUrls:
+          type: array
+          items: { type: string }
+        imageAlt: { type: string }
+        caption: { type: string }
+        client: { type: string }
+        category: { type: string }
+        displayOrder: { type: integer }
+    PostInput:
+      type: object
+      required: [imageUrls, imageAlt, caption, client, category, displayOrder]
+      properties:
+        imageUrls:
+          type: array
+          items: { type: string }
+        imageAlt: { type: string }
+        caption: { type: string }
+        client: { type: string }
+        category: { type: string }
+        displayOrder: { type: integer }
+    PostUpdate:
+      allOf:
+        - $ref: "#/components/schemas/PostInput"
+    Testimonial:
+      type: object
+      required: [id, client, quote, person, role, logoText, displayOrder]
+      properties:
+        id: { type: integer }
+        client: { type: string }
+        quote: { type: string }
+        person: { type: string }
+        role: { type: string }
+        logoText: { type: string }
+        displayOrder: { type: integer }
+    TestimonialInput:
+      type: object
+      required: [client, quote, person, role, logoText, displayOrder]
+      properties:
+        client: { type: string }
+        quote: { type: string }
+        person: { type: string }
+        role: { type: string }
+        logoText: { type: string }
+        displayOrder: { type: integer }
+    BlogPost:
+      type: object
+      required: [id, slug, title, excerpt, body, category, publishedAt, imageUrl, imageAlt]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        title: { type: string }
+        excerpt: { type: string }
+        body: { type: string }
+        category: { type: string }
+        publishedAt: { type: string, format: date }
+        imageUrl: { type: string }
+        imageAlt: { type: string }
+    ContactLead:
+      type: object
+      required: [id, name, email, message, budget, service, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        message: { type: string }
+        budget: { type: string }
+        service: { type: string }
+        createdAt: { type: string, format: date-time }
+    ContactLeadInput:
+      type: object
+      required: [name, email, message, budget, service]
+      properties:
+        name: { type: string, minLength: 1 }
+        email: { type: string, format: email }
+        message: { type: string, minLength: 1 }
+        budget: { type: string }
+        service: { type: string }
 

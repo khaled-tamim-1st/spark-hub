@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Spark Hub Studio"
+description = "A portfolio and content platform for Spark Hub, a multidisciplinary growth partner combining strategy, marketing, operations, training, media production, and software solutions for ambitious organizations."
+version = "1.0.0"
+id = "artifacts/spark-hub-studio"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23708
+
+[services.development]
+run = "pnpm --filter @workspace/spark-hub-studio run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/spark-hub-studio", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/spark-hub-studio/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23708"
+BASE_PATH = "/"

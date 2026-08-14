@@ -1,0 +1,11 @@
+cd artifacts/api-server
+pnpm run dev
+
+
+cd artifacts/spark-hub-studio
+$env:PORT="5173"; $env:BASE_PATH="/"
+pnpm run dev
+
+
+
+color: #e9be58
