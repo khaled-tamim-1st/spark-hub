@@ -16,7 +16,9 @@
 
 export interface Env {
   API_BASE_URL: string;
-  ASSETS: Fetcher;
+  ASSETS: {
+  fetch(request: Request): Promise<Response>;
+};
 }
 
 /**
