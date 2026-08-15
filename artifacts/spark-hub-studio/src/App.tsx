@@ -1990,7 +1990,7 @@ function Contact() {
               </p>
 
               <p className="flex gap-3">
-                <Facebook
+                <Instagram
                   size={14}
                   className="text-primary"
                 />
