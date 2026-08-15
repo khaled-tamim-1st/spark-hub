@@ -71,7 +71,7 @@ export default {
 
     // Bots get fully server-rendered HTML for every public page —
     // except the admin app, which is never rendered or indexed.
-    if (isBot(request) && !isAdminPath(url.pathname)) {
+    if (!isAdminPath(url.pathname)) {
       const upstream = await fetch(`${env.API_BASE_URL}/render${url.pathname}`, {
         headers: { 'User-Agent': request.headers.get('User-Agent') || '' },
       });
