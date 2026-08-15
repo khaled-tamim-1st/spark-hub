@@ -9,3 +9,9 @@ pnpm run dev
 pnpm --filter @workspace/db run push
 
 color: #e9be58
+
+
+
+git add .
+git commit -m "test worker render routing"
+git push
