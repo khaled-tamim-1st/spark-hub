@@ -1,176 +1,82 @@
-/**
- * Spark Hub Studio — Cloudflare Worker
- *
- * Human visitors:
- *   Worker → static React SPA
- *
- * Bots / crawlers:
- *   Worker → API /render/... → server-rendered HTML
- *
- * Sitemap:
- *   Worker → API /sitemap.xml
- *
- * API:
- *   Worker → API backend
- */
-
 export interface Env {
   API_BASE_URL: string;
-  ASSETS: {
-  fetch(request: Request): Promise<Response>;
-};
+  ASSETS: Fetcher;
 }
 
-/**
- * Crawlers, search engines, AI crawlers and link-preview bots.
- */
 const BOT_UA_PATTERN =
   /bot|crawl|spider|slurp|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|embedly|quora link preview|pinterest|redditbot|applebot|petalbot|gptbot|claudebot|anthropic|perplexitybot|ccbot|bytespider|amazonbot|google-extended|omgili/i;
 
 const ADMIN_PATHS = ['/admin', '/sign-in', '/sign-up'];
 
 function isBot(request: Request): boolean {
-  const userAgent = request.headers.get('User-Agent') || '';
-  return BOT_UA_PATTERN.test(userAgent);
+  const ua = request.headers.get('User-Agent') || '';
+  return BOT_UA_PATTERN.test(ua);
 }
 
 function isAdminPath(pathname: string): boolean {
-  return ADMIN_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`)
-  );
+  return ADMIN_PATHS.some(p => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
-    /**
-     * ---------------------------------------------------------
-     * 1. Sitemap
-     * ---------------------------------------------------------
-     */
+    // 1. خريطة الموقع sitemap.xml
     if (url.pathname === '/sitemap.xml') {
-      const sitemapUrl = new URL('/sitemap.xml', env.API_BASE_URL);
-
-      const upstream = await fetch(sitemapUrl, {
+      const res = await fetch(`${env.API_BASE_URL}/sitemap.xml`);
+      return new Response(res.body, {
+        status: res.status,
         headers: {
-          'User-Agent':
-            request.headers.get('User-Agent') || 'SparkHub-Worker',
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Cache-Control': 'public, max-age=3600',
         },
       });
-
-      const headers = new Headers(upstream.headers);
-      headers.set('Content-Type', 'application/xml; charset=utf-8');
-      headers.set(
-        'Cache-Control',
-        'public, max-age=300, s-maxage=300'
-      );
-
-      return new Response(upstream.body, {
-        status: upstream.status,
-        headers,
-      });
     }
 
-    /**
-     * ---------------------------------------------------------
-     * 2. Proxy /api/* to backend
-     * ---------------------------------------------------------
-     */
-    if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
-      const apiUrl = new URL(
-        `${url.pathname}${url.search}`,
-        env.API_BASE_URL
-      );
-
-      return fetch(
-        new Request(apiUrl, request)
-      );
+    // 2. تمرير طلبات الـ API مباشرة للباك إند
+    if (url.pathname.startsWith('/api/') || url.pathname === '/api') {
+      const apiUrl = new URL(url.pathname + url.search, env.API_BASE_URL);
+      return fetch(new Request(apiUrl, request));
     }
 
-    /**
-     * ---------------------------------------------------------
-     * 3. Static assets
-     *
-     * JS / CSS / images / fonts / favicon etc.
-     * should NEVER go through SSR.
-     * ---------------------------------------------------------
-     */
-    const isAssetRequest =
-      /\.[a-zA-Z0-9]+$/.test(url.pathname) &&
-      url.pathname !== '/';
-
+    // 3. تمرير الملفات الثابتة (الصور، الـ CSS، الخطوط، الـ JS)
+    const isAssetRequest = /\.[a-zA-Z0-9]+$/.test(url.pathname) && url.pathname !== '/';
     if (isAssetRequest) {
       return env.ASSETS.fetch(request);
     }
 
-    /**
-     * ---------------------------------------------------------
-     * 4. Admin routes
-     *
-     * Never SSR these.
-     * Always serve the normal SPA.
-     * ---------------------------------------------------------
-     */
-    if (isAdminPath(url.pathname)) {
-      return env.ASSETS.fetch(
-        new Request(new URL('/', url), request)
-      );
+    // 4. توجيه البوتات ومحركات البحث للـ SSR
+    if (isBot(request) && !isAdminPath(url.pathname)) {
+      try {
+        const renderUrl = `${env.API_BASE_URL}/render${url.pathname}${url.search}`;
+        const upstream = await fetch(renderUrl, {
+          headers: { 'User-Agent': request.headers.get('User-Agent') || '' },
+        });
+
+        const upstreamBody = await upstream.text();
+
+        return new Response(upstreamBody, {
+          status: upstream.status,
+          headers: {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Vary': 'User-Agent',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          },
+        });
+      } catch (err) {
+        // في حال حدوث أي خطأ طارئ يرجع للـ SPA
+        return env.ASSETS.fetch(new Request(new URL('/', url), request));
+      }
     }
 
-    /**
-     * ---------------------------------------------------------
-     * 5. BOT SSR
-     *
-     * Googlebot / GPTBot / Facebook crawler / etc.
-     * gets real HTML from the API.
-     * ---------------------------------------------------------
-     */
-    if (isBot(request)) {
-      const renderUrl = new URL(
-        `/render${url.pathname}${url.search}`,
-        env.API_BASE_URL
-      );
+    // 5. الزوار العاديون يحصلون على تطبيق الـ React SPA
+    const response = await env.ASSETS.fetch(new Request(new URL('/', url), request));
+    const newHeaders = new Headers(response.headers);
+    newHeaders.set('Vary', 'User-Agent');
 
-      const upstream = await fetch(renderUrl, {
-        headers: {
-          'User-Agent':
-            request.headers.get('User-Agent') || 'SparkHub-Worker',
-          Accept: 'text/html',
-        },
-      });
-
-      const headers = new Headers(upstream.headers);
-
-      headers.set(
-        'Content-Type',
-        'text/html; charset=utf-8'
-      );
-
-      /**
-       * During testing, don't let Cloudflare cache
-       * an incorrect SPA response.
-       */
-      headers.set(
-        'Cache-Control',
-        'no-store, no-cache, must-revalidate'
-      );
-
-      return new Response(upstream.body, {
-        status: upstream.status,
-        headers,
-      });
-    }
-
-    /**
-     * ---------------------------------------------------------
-     * 6. HUMAN VISITORS
-     *
-     * Normal React SPA.
-     * ---------------------------------------------------------
-     */
-    return env.ASSETS.fetch(
-      new Request(new URL('/', url), request)
-    );
+    return new Response(response.body, {
+      status: response.status,
+      headers: newHeaders,
+    });
   },
 };
