@@ -3657,10 +3657,9 @@ function Router() {
 /*                                     App                                    */
 /* -------------------------------------------------------------------------- */
 
-const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-);
+const clerkPubKey =
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  'pk_test_cGxlYXNhbnQtcmFwdG9yLTc4LmNsZXJrLmFjY291bnRzLmRldiQ';
 
 const clerkProxyUrl =
   import.meta.env.VITE_CLERK_PROXY_URL;
@@ -3669,7 +3668,6 @@ function App() {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey}
-      proxyUrl={clerkProxyUrl}
       appearance={{
         theme: dark,
         variables: {

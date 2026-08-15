@@ -15,3 +15,7 @@ color: #e9be58
 git add .
 git commit -m "test worker render routing"
 git push
+
+
+cd cloud-flare-worker
+npx wrangler deploy
