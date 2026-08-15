@@ -45,6 +45,9 @@ function isAdminPath(pathname: string): boolean {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    return new Response("WORKER TEST 123", {
+  headers: { "Content-Type": "text/plain" },
+});
     const url = new URL(request.url);
 
     // Always proxy the sitemap straight from the API — every crawler
