@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "spark-hub-studio",
+  "name": "spark-hub",
   "main": "worker.ts",
   "compatibility_date": "2026-08-01",
   "assets": {
@@ -8,6 +8,6 @@
     "not_found_handling": "single-page-application"
   },
   "vars": {
-    "API_BASE_URL": "https://api.sparkhubeg.com"
+    "API_BASE_URL": "https://api.spark-hub.online"
   }
 }
