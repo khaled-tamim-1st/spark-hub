@@ -94,6 +94,13 @@ export const teamTable = pgTable("team", {
   imageUrl: text("image_url"),
 });
 
+export const clientLogosTable = pgTable("client_logos", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  imageUrl: text("image_url").notNull(),
+  displayOrder: integer("display_order").notNull().default(0),
+});
+
 export const insertServiceSchema = createInsertSchema(servicesTable).omit({ id: true });
 export const insertCaseStudySchema = createInsertSchema(caseStudiesTable).omit({ id: true });
 export const insertReelSchema = createInsertSchema(reelsTable).omit({ id: true });
@@ -101,6 +108,8 @@ export const insertPostSchema = createInsertSchema(postsTable).omit({ id: true }
 export const insertTestimonialSchema = createInsertSchema(testimonialsTable).omit({ id: true });
 export const insertBlogPostSchema = createInsertSchema(blogPostsTable).omit({ id: true });
 export const insertContactLeadSchema = createInsertSchema(contactLeadsTable).omit({ id: true, createdAt: true });
+export const insertTeamSchema = createInsertSchema(teamTable).omit({ id: true });
+export const insertClientLogoSchema = createInsertSchema(clientLogosTable).omit({ id: true });
 
 export type InsertService = z.infer<typeof insertServiceSchema>;
 export type Service = typeof servicesTable.$inferSelect;
@@ -116,3 +125,7 @@ export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 export type BlogPost = typeof blogPostsTable.$inferSelect;
 export type InsertContactLead = z.infer<typeof insertContactLeadSchema>;
 export type ContactLead = typeof contactLeadsTable.$inferSelect;
+export type InsertTeam = z.infer<typeof insertTeamSchema>;
+export type TeamMember = typeof teamTable.$inferSelect;
+export type InsertClientLogo = z.infer<typeof insertClientLogoSchema>;
+export type ClientLogo = typeof clientLogosTable.$inferSelect;

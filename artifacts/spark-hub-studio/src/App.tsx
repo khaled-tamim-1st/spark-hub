@@ -40,8 +40,10 @@ import {
   ChevronDown,
   ChevronRight,
   ExternalLink,
+  FileText,
   Film,
   Grid2X2,
+  Image,
   Instagram,
   Loader2,
   Mail,
@@ -91,7 +93,16 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { SignalGame } from '@/components/signal-game';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes cache
+      gcTime: 1000 * 60 * 30, // 30 minutes garbage collection
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const nav = [
   ['/work', 'Work'],
@@ -357,7 +368,7 @@ function Footer() {
           </a>
 
           <p className="mt-7 mono text-[10px] text-muted-foreground">
-            Sohag / REMOTE / EVERYWHERE
+            EGYPT / REMOTE / EVERYWHERE
           </p>
         </div>
       </div>
@@ -703,6 +714,7 @@ function Home() {
   const services = useListServices();
   const work = useListCaseStudies();
   const testimonials = useListTestimonials();
+  const clientLogos = useListClientLogos();
 
   const o = overview.data;
 
@@ -713,7 +725,7 @@ function Home() {
           <div className="animate-rise relative z-10">
             <p className="eyebrow mb-8 text-primary">
               {o?.eyebrow ||
-                'Independent growth studio / Sohag + remote'}
+                'Independent growth studio / Egypt + remote'}
             </p>
 
             <h1 className="display max-w-4xl text-[clamp(4rem,10vw,9.5rem)] leading-[.82] tracking-[-.065em]">
@@ -897,63 +909,60 @@ function Home() {
 
       <SignalGame />
 
-      {/* Trusted by */}
-      <section className="border-t border-border bg-card">
-        <PageFrame>
-          <SectionHead
-            kicker="Trusted by / built through partnership"
-            title="Good work travels."
-            intro="A few of the teams and organizations who have trusted Spark Hub with the work that matters."
-          />
+      {!!clientLogos.data?.length && (
+        <section className="border-t border-border bg-card">
+          <PageFrame>
+            <SectionHead
+              kicker="Trusted by / built through partnership"
+              title="Good work travels."
+              intro="A few of the teams and organizations who have trusted Spark Hub with the work that matters."
+            />
 
-          <div className="mt-16 space-y-3">
-            {[
-              { reverse: false, start: 1, end: 10 },
-              { reverse: true, start: 11, end: 20 },
-              { reverse: false, start: 21, end: 30 },
-            ].map((row) => (
-              <div
-                key={row.start}
-                className="relative overflow-hidden border-y border-border/70 py-6"
-              >
+            <div className="mt-16 space-y-3">
+              {[
+                { reverse: false },
+                { reverse: true },
+              ].map((row, rowIndex) => (
                 <div
-                  className={`trusted-marquee-track ${
-                    row.reverse ? 'trusted-marquee-reverse' : ''
-                  }`}
+                  key={rowIndex}
+                  className="relative overflow-hidden border-y border-border/70 py-6"
                 >
-                  {Array.from(
-                    { length: row.end - row.start + 1 },
-                    (_, index) => {
-                      const clientNumber = row.start + index;
-
-                      return (
+                  <div
+                    className={`trusted-marquee-track ${
+                      row.reverse ? 'trusted-marquee-reverse' : ''
+                    }`}
+                  >
+                    {[...clientLogos.data!, ...clientLogos.data!].map(
+                      (logo, index) => (
                         <div
-                          key={clientNumber}
+                          key={`${logo.id}-${index}`}
                           className="flex min-w-[12rem] items-center justify-center px-6 md:min-w-[15rem]"
                         >
                           <img
-                            src="/logo.png"
-                            alt={`Client ${clientNumber}`}
+                            src={logo.imageUrl}
+                            alt={logo.name}
+                            loading="lazy"
+                            decoding="async"
                             className="block h-12 w-auto object-contain opacity-75 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 md:h-14"
                           />
                         </div>
-                      );
-                    },
-                  )}
+                      ),
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          <div className="mt-10 flex items-center gap-4">
-            <span className="h-px flex-1 bg-border" />
-            <span className="mono text-[10px] tracking-[.16em] text-muted-foreground">
-              PARTNERS / 01—30
-            </span>
-            <span className="h-px flex-1 bg-border" />
-          </div>
-        </PageFrame>
-      </section>
+            <div className="mt-10 flex items-center gap-4">
+              <span className="h-px flex-1 bg-border" />
+              <span className="mono text-[10px] tracking-[.16em] text-muted-foreground">
+                PARTNERS / {String(clientLogos.data!.length).padStart(2, '0')}
+              </span>
+              <span className="h-px flex-1 bg-border" />
+            </div>
+          </PageFrame>
+        </section>
+      )}
 
     </Shell>
   );
@@ -1057,6 +1066,12 @@ function WorkDetail() {
   const { id = '' } = useParams<{ id: string }>();
   const query = useGetCaseStudy(id);
   const item = query.data;
+
+  useEffect(() => {
+    if (item?.title) {
+      document.title = `${item.title} — Spark Hub Studio`;
+    }
+  }, [item?.title]);
 
   return (
     <Shell>
@@ -1670,6 +1685,132 @@ function useDeleteTeamMember() {
   });
 }
 
+type ClientLogo = { id: number; name: string; imageUrl: string; displayOrder: number };
+
+function useListClientLogos() {
+  return useQuery<ClientLogo[]>({
+    queryKey: ['/api/client-logos'],
+    queryFn: () => fetch('/api/client-logos').then(r => r.json()),
+  });
+}
+
+type ClientLogoInput = { name: string; imageUrl: string; displayOrder: number };
+
+function useCreateClientLogo() {
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: ClientLogoInput) => {
+      const token = await getToken();
+      const res = await fetch('/api/client-logos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create logo');
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/client-logos'] }),
+  });
+}
+
+function useUpdateClientLogo() {
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: ClientLogoInput }) => {
+      const token = await getToken();
+      const res = await fetch(`/api/client-logos/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update logo');
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/client-logos'] }),
+  });
+}
+
+function useDeleteClientLogo() {
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const token = await getToken();
+      const res = await fetch(`/api/client-logos/${id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error('Failed to delete logo');
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/client-logos'] }),
+  });
+}
+
+type BlogPostInput = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  body: string;
+  category: string;
+  publishedAt: string;
+  imageUrl: string;
+  imageAlt: string;
+};
+
+function useCreateBlogPost() {
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: BlogPostInput) => {
+      const token = await getToken();
+      const res = await fetch('/api/blog', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create post');
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/blog'] }),
+  });
+}
+
+function useUpdateBlogPost() {
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: BlogPostInput }) => {
+      const token = await getToken();
+      const res = await fetch(`/api/blog/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update post');
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/blog'] }),
+  });
+}
+
+function useDeleteBlogPost() {
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const token = await getToken();
+      const res = await fetch(`/api/blog/${id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error('Failed to delete post');
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/blog'] }),
+  });
+}
+
 function About() {
   const overview = useGetOverview();
   const o = overview.data;
@@ -1729,7 +1870,7 @@ function About() {
               </p>
 
               <p className="mt-3 display text-3xl">
-                Sohag / Everywhere
+                Egypt / Everywhere
               </p>
             </div>
           </div>
@@ -2080,6 +2221,12 @@ function BlogDetail() {
   const query = useGetBlogPost(slug);
   const post = query.data;
 
+  useEffect(() => {
+    if (post?.title) {
+      document.title = `${post.title} — Spark Hub Studio`;
+    }
+  }, [post?.title]);
+
   return (
     <Shell>
       <PageFrame>
@@ -2162,6 +2309,8 @@ type AdminKind =
   | 'reels'
   | 'posts'
   | 'team'
+  | 'blog'
+  | 'logos'
   | 'messages';
 
 function AdminField({
@@ -2214,11 +2363,19 @@ function AdminWorkspace() {
   const reels = useListReels();
   const posts = useListPosts();
   const team = useListTeam();
+  const blog = useListBlogPosts();
+  const logos = useListClientLogos();
   const messages = useListMessages();
   const deleteMessage = useDeleteMessage();
   const createTeamMember = useCreateTeamMember();
   const updateTeamMember = useUpdateTeamMember();
   const deleteTeamMember = useDeleteTeamMember();
+  const createBlogPost = useCreateBlogPost();
+  const updateBlogPost = useUpdateBlogPost();
+  const deleteBlogPost = useDeleteBlogPost();
+  const createClientLogo = useCreateClientLogo();
+  const updateClientLogo = useUpdateClientLogo();
+  const deleteClientLogo = useDeleteClientLogo();
 
   const createService = useCreateService();
   const updateService = useUpdateService();
@@ -2244,6 +2401,8 @@ function AdminWorkspace() {
     ['reels', 'Reels', Film],
     ['posts', 'Posts', Instagram],
     ['team', 'Team', Users],
+    ['blog', 'Blog', FileText],
+    ['logos', 'Client logos', Image],
     ['messages', 'Messages', Mail],
   ];
 
@@ -2277,6 +2436,18 @@ function AdminWorkspace() {
       query: team,
       rows: team.data || [],
       emptyLabel: 'team',
+    },
+    blog: {
+      label: 'Blog',
+      query: blog,
+      rows: blog.data || [],
+      emptyLabel: 'posts',
+    },
+    logos: {
+      label: 'Client logos',
+      query: logos,
+      rows: logos.data || [],
+      emptyLabel: 'logos',
     },
     messages: {
       label: 'Messages',
@@ -2484,6 +2655,49 @@ function AdminWorkspace() {
       return;
     }
 
+    if (tab === 'blog') {
+      const data: BlogPostInput = {
+        slug: String(form.get('slug') || ''),
+        title: String(form.get('title') || ''),
+        excerpt: String(form.get('excerpt') || ''),
+        body: String(form.get('body') || ''),
+        category: String(form.get('category') || ''),
+        publishedAt: String(form.get('publishedAt') || ''),
+        imageUrl: String(form.get('imageUrl') || ''),
+        imageAlt: String(form.get('imageAlt') || ''),
+      };
+
+      if (editing) {
+        updateBlogPost.mutate(
+          { id: editing.id, data },
+          { onSuccess: done },
+        );
+      } else {
+        createBlogPost.mutate(data, { onSuccess: done });
+      }
+
+      return;
+    }
+
+    if (tab === 'logos') {
+      const data: ClientLogoInput = {
+        name: String(form.get('name') || ''),
+        imageUrl: String(form.get('imageUrl') || ''),
+        displayOrder: Number(form.get('displayOrder') || 0),
+      };
+
+      if (editing) {
+        updateClientLogo.mutate(
+          { id: editing.id, data },
+          { onSuccess: done },
+        );
+      } else {
+        createClientLogo.mutate(data, { onSuccess: done });
+      }
+
+      return;
+    }
+
     const data = {
       imageUrls: String(
         form.get('imageUrls') || '',
@@ -2538,7 +2752,11 @@ function AdminWorkspace() {
             ? 'reel'
             : tab === 'team'
               ? 'team member'
-              : 'post';
+              : tab === 'blog'
+                ? 'post'
+                : tab === 'logos'
+                  ? 'logo'
+                  : 'post';
 
     if (
       !window.confirm(
@@ -2579,6 +2797,14 @@ function AdminWorkspace() {
       deleteTeamMember.mutate(id, options);
     }
 
+    if (tab === 'blog') {
+      deleteBlogPost.mutate(id, options);
+    }
+
+    if (tab === 'logos') {
+      deleteClientLogo.mutate(id, options);
+    }
+
     if (tab === 'posts') {
       deletePost.mutate(
         { id },
@@ -2597,7 +2823,11 @@ function AdminWorkspace() {
     createPost.isPending ||
     updatePost.isPending ||
     createTeamMember.isPending ||
-    updateTeamMember.isPending;
+    updateTeamMember.isPending ||
+    createBlogPost.isPending ||
+    updateBlogPost.isPending ||
+    createClientLogo.isPending ||
+    updateClientLogo.isPending;
 
   const openNew = () => {
     setEditing(null);
@@ -2878,7 +3108,9 @@ function AdminForm({
           ? 'reel'
           : kind === 'team'
             ? 'team member'
-            : 'post';
+            : kind === 'logos'
+              ? 'client logo'
+              : 'post';
 
   const field = (
     name: string,
@@ -3196,7 +3428,78 @@ function AdminForm({
             </>
           )}
 
+          {kind === 'blog' && (
+            <>
+              {field(
+                'title',
+                'Title',
+                'How we think about growth',
+              )}
+
+              {field(
+                'slug',
+                'Slug',
+                'how-we-think-about-growth',
+              )}
+
+              {area(
+                'excerpt',
+                'Excerpt',
+                'A one or two sentence summary',
+                editing?.excerpt ?? '',
+              )}
+
+              {area(
+                'body',
+                'Body',
+                'The full post (blank lines separate paragraphs)',
+                editing?.body ?? '',
+              )}
+
+              {field(
+                'category',
+                'Category',
+                'Strategy',
+              )}
+
+              {field(
+                'publishedAt',
+                'Published date',
+                '2026-08-14',
+              )}
+
+              {field(
+                'imageUrl',
+                'Image URL',
+                '/media/blog/cover.jpg',
+              )}
+
+              {field(
+                'imageAlt',
+                'Image alt text',
+                'Describe the image',
+              )}
+            </>
+          )}
+
+          {kind === 'logos' && (
+            <>
+              {field(
+                'name',
+                'Client name',
+                'Acme Corp',
+              )}
+
+              {field(
+                'imageUrl',
+                'Logo image URL',
+                'https://res.cloudinary.com/.../logo.png',
+              )}
+            </>
+          )}
+
           {kind !== 'team' &&
+            kind !== 'blog' &&
             field(
               'displayOrder',
               'Display order',
@@ -3263,6 +3566,28 @@ function Admin() {
 
 function Router() {
   const [location] = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    const titles: Record<string, string> = {
+      '/': 'Spark Hub Studio — Where Strategy Meets Growth',
+      '/work': 'Selected Work — Spark Hub Studio',
+      '/services': 'Services — Spark Hub Studio',
+      '/reels': 'Reels & Media — Spark Hub Studio',
+      '/posts': 'Posts & Campaigns — Spark Hub Studio',
+      '/about': 'About The Studio — Spark Hub Studio',
+      '/contact': 'Contact Us — Spark Hub Studio',
+      '/blog': 'Notes & Insights — Spark Hub Studio',
+      '/admin': 'Admin Workspace — Spark Hub Studio',
+      '/sign-in': 'Sign In — Spark Hub Studio',
+      '/sign-up': 'Sign Up — Spark Hub Studio',
+    };
+
+    if (titles[location]) {
+      document.title = titles[location];
+    }
+  }, [location]);
 
   return (
     <ErrorBoundary resetKey={location}>

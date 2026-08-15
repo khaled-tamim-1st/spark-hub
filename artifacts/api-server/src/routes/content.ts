@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Response } from "express";
 import { asc, desc, eq } from "drizzle-orm";
-import { db, servicesTable, caseStudiesTable, reelsTable, postsTable, testimonialsTable, blogPostsTable, contactLeadsTable, teamTable } from "@workspace/db";
+import { db, servicesTable, caseStudiesTable, reelsTable, postsTable, testimonialsTable, blogPostsTable, contactLeadsTable, teamTable, clientLogosTable } from "@workspace/db";
 import {
   CreateCaseStudyBody,
   CreateCaseStudyResponse,
@@ -48,7 +48,7 @@ import { requireAuth } from "../middleware/auth";
 const router: IRouter = Router();
 
 const overview = {
-  eyebrow: "Independent growth studio / Cairo + remote",
+  eyebrow: "Independent growth studio / Egypt + remote",
   headline: "Where strategy meets growth.",
   intro: "Spark Hub helps ambitious organizations turn good intent into intelligent momentum.",
   vision: "Growth is not a department.",
@@ -307,6 +307,38 @@ router.get("/blog/:slug", async (req, res): Promise<void> => {
   res.json(GetBlogPostResponse.parse(row));
 });
 
+router.post("/blog", requireAuth, async (req, res): Promise<void> => {
+  const { slug, title, excerpt, body, category, publishedAt, imageUrl, imageAlt } = req.body ?? {};
+  if (!slug || !title || !excerpt || !body || !category || !publishedAt || !imageUrl || !imageAlt) {
+    invalid(res, "slug, title, excerpt, body, category, publishedAt, imageUrl and imageAlt are required");
+    return;
+  }
+  const [row] = await db
+    .insert(blogPostsTable)
+    .values({ slug, title, excerpt, body, category, publishedAt, imageUrl, imageAlt })
+    .returning();
+  res.status(201).json(row);
+});
+
+router.patch("/blog/:id", requireAuth, async (req, res): Promise<void> => {
+  const { slug, title, excerpt, body, category, publishedAt, imageUrl, imageAlt } = req.body ?? {};
+  if (!slug || !title || !excerpt || !body || !category || !publishedAt || !imageUrl || !imageAlt) {
+    invalid(res, "slug, title, excerpt, body, category, publishedAt, imageUrl and imageAlt are required");
+    return;
+  }
+  const [row] = await db
+    .update(blogPostsTable)
+    .set({ slug, title, excerpt, body, category, publishedAt, imageUrl, imageAlt })
+    .where(eq(blogPostsTable.id, Number(req.params.id)))
+    .returning();
+  res.json(row);
+});
+
+router.delete("/blog/:id", requireAuth, async (req, res): Promise<void> => {
+  await db.delete(blogPostsTable).where(eq(blogPostsTable.id, Number(req.params.id)));
+  res.status(204).send();
+});
+
 router.get("/team", async (_req, res): Promise<void> => {
   const rows = await db.select().from(teamTable).orderBy(asc(teamTable.id));
   res.json(rows);
@@ -341,6 +373,43 @@ router.patch("/team/:id", requireAuth, async (req, res): Promise<void> => {
 
 router.delete("/team/:id", requireAuth, async (req, res): Promise<void> => {
   await db.delete(teamTable).where(eq(teamTable.id, Number(req.params.id)));
+  res.status(204).send();
+});
+
+router.get("/client-logos", async (_req, res): Promise<void> => {
+  const rows = await db.select().from(clientLogosTable).orderBy(asc(clientLogosTable.displayOrder), asc(clientLogosTable.id));
+  res.json(rows);
+});
+
+router.post("/client-logos", requireAuth, async (req, res): Promise<void> => {
+  const { name, imageUrl, displayOrder } = req.body ?? {};
+  if (!name || !imageUrl) {
+    invalid(res, "name and imageUrl are required");
+    return;
+  }
+  const [row] = await db
+    .insert(clientLogosTable)
+    .values({ name, imageUrl, displayOrder: Number(displayOrder) || 0 })
+    .returning();
+  res.status(201).json(row);
+});
+
+router.patch("/client-logos/:id", requireAuth, async (req, res): Promise<void> => {
+  const { name, imageUrl, displayOrder } = req.body ?? {};
+  if (!name || !imageUrl) {
+    invalid(res, "name and imageUrl are required");
+    return;
+  }
+  const [row] = await db
+    .update(clientLogosTable)
+    .set({ name, imageUrl, displayOrder: Number(displayOrder) || 0 })
+    .where(eq(clientLogosTable.id, Number(req.params.id)))
+    .returning();
+  res.json(row);
+});
+
+router.delete("/client-logos/:id", requireAuth, async (req, res): Promise<void> => {
+  await db.delete(clientLogosTable).where(eq(clientLogosTable.id, Number(req.params.id)));
   res.status(204).send();
 });
 

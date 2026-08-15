@@ -57,6 +57,12 @@ export default {
       });
     }
 
+    // Proxy all /api requests directly to the API backend
+    if (url.pathname.startsWith('/api/') || url.pathname === '/api') {
+      const apiUrl = new URL(url.pathname + url.search, env.API_BASE_URL);
+      return fetch(new Request(apiUrl, request));
+    }
+
     // Let real files (JS, CSS, images, fonts...) pass through untouched.
     const isAssetRequest = /\.[a-zA-Z0-9]+$/.test(url.pathname) && url.pathname !== '/';
     if (isAssetRequest) {
