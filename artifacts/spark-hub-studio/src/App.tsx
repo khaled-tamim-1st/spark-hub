@@ -40,6 +40,7 @@ import {
   ChevronDown,
   ChevronRight,
   ExternalLink,
+  Facebook,
   FileText,
   Film,
   Grid2X2,
@@ -360,11 +361,11 @@ function Footer() {
           <p className="eyebrow text-primary">Say hello</p>
 
           <a
-            href="mailto:hello@sparkhub.co"
+            href="mailto:hello@spark-hub.online"
             className="mt-5 block text-sm text-muted-foreground hover:text-foreground"
             data-testid="link-footer-email"
           >
-            hello@sparkhub.co
+            hello@spark-hub.online
           </a>
 
           <p className="mt-7 mono text-[10px] text-muted-foreground">
@@ -1985,15 +1986,15 @@ function Contact() {
                   size={14}
                   className="text-primary"
                 />
-                hello@sparkhub.co
+                hello@spark-hub.online
               </p>
 
               <p className="flex gap-3">
-                <Instagram
+                <Facebook
                   size={14}
                   className="text-primary"
                 />
-                @sparkhubstudio
+                @sparkstudioo1
               </p>
             </div>
           </div>

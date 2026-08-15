@@ -31,6 +31,7 @@ export function renderShell({ title, description, path, image, bodyHtml }: Shell
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="google-site-verification" content="gx87jzqiQqonrST48CL4BIaT2EUtfWFi64nuLAJYdNc" />
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>${esc(title)}</title>
