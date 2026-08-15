@@ -65,18 +65,11 @@ export default {
         });
       } catch (err) {
         // في حال حدوث أي خطأ طارئ يرجع للـ SPA
-        return env.ASSETS.fetch(new Request(new URL('/', url), request));
+        return env.ASSETS.fetch(request);
       }
     }
 
     // 5. الزوار العاديون يحصلون على تطبيق الـ React SPA
-    const response = await env.ASSETS.fetch(new Request(new URL('/', url), request));
-    const newHeaders = new Headers(response.headers);
-    newHeaders.set('Vary', 'User-Agent');
-
-    return new Response(response.body, {
-      status: response.status,
-      headers: newHeaders,
-    });
+    return env.ASSETS.fetch(request);
   },
 };
