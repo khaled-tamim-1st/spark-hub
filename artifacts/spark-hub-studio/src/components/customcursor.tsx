@@ -1,4 +1,6 @@
+
 // src/components/CustomCursor.tsx
+/** 
 import { useEffect, useState } from 'react';
 
 export function CustomCursor() {
@@ -82,3 +84,5 @@ export function CustomCursor() {
     // المكون دا مش بيعرض حاجة مرئية
     return null;
 }
+
+*/
