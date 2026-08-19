@@ -1360,6 +1360,44 @@ function toEmbedUrl(
   };
 }
 
+function getYoutubeId(url?: string | null): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, '');
+    if (host === 'youtu.be') {
+      return parsed.pathname.replace(/^\/+/, '').split('/')[0] || null;
+    }
+    if (host === 'youtube.com' || host === 'm.youtube.com') {
+      const v = parsed.searchParams.get('v');
+      if (v) return v;
+      const parts = parsed.pathname.split('/').filter(Boolean);
+      const embedIndex = parts.indexOf('embed');
+      if (embedIndex >= 0 && parts[embedIndex + 1]) return parts[embedIndex + 1];
+      const shortsIndex = parts.indexOf('shorts');
+      if (shortsIndex >= 0 && parts[shortsIndex + 1]) return parts[shortsIndex + 1];
+    }
+  } catch {
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|watch\?.+&v=))([\w-]{11})/);
+    if (match?.[1]) return match[1];
+  }
+  return null;
+}
+
+function resolveThumbnail(thumbnailUrl?: string | null, ...fallbackUrls: (string | null | undefined)[]): string {
+  if (thumbnailUrl && thumbnailUrl.trim().length > 0 && !thumbnailUrl.includes('placeholder')) {
+    return thumbnailUrl.trim();
+  }
+  for (const fallback of fallbackUrls) {
+    if (!fallback) continue;
+    const ytId = getYoutubeId(fallback);
+    if (ytId) {
+      return `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+    }
+  }
+  return thumbnailUrl || '/media/spark-reels.png';
+}
+
 function ReelLightbox({
   reel,
   onClose,
@@ -1461,15 +1499,13 @@ function Reels() {
                 key={reel.id}
                 data-testid={`link-reel-${reel.id}`}
               >
-                <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-xl">
-                  {reel.thumbnailUrl && (
+                  <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-xl">
                     <img
-                      src={reel.thumbnailUrl}
+                      src={resolveThumbnail(reel.thumbnailUrl, reel.videoUrl)}
                       alt={reel.thumbnailAlt || reel.title}
                       loading='lazy'
                       className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover:scale-105 group-hover:opacity-90"
                     />
-                  )}
 
                   <div className="relative z-10 flex h-full items-center justify-center">
                     <span className="grid h-14 w-14 place-items-center rounded-full border border-primary text-primary">
@@ -1526,6 +1562,7 @@ function PodcastLightbox({
   onClose: () => void;
 }) {
   const embed = toEmbedUrl(podcast.audioUrl);
+  const thumb = resolveThumbnail(podcast.thumbnailUrl, podcast.audioUrl, podcast.youtubeUrl);
 
   return (
     <div
@@ -1582,13 +1619,11 @@ function PodcastLightbox({
           ) : embed.kind === 'audio' ? (
             <div className="p-6">
               <div className="flex items-center gap-4 mb-4">
-                {podcast.thumbnailUrl && (
-                  <img
-                    src={podcast.thumbnailUrl}
-                    alt={podcast.thumbnailAlt || podcast.title}
-                    className="h-20 w-20 rounded-lg object-cover"
-                  />
-                )}
+                <img
+                  src={thumb}
+                  alt={podcast.thumbnailAlt || podcast.title}
+                  className="h-20 w-20 rounded-lg object-cover"
+                />
                 <div>
                   <h4 className="font-semibold">{podcast.title}</h4>
                   <p className="text-xs text-muted-foreground">{podcast.host}</p>
@@ -1689,23 +1724,23 @@ function Podcasts() {
           }
         >
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {(query.data || []).map((podcast) => (
-              <button
-                type="button"
-                onClick={() => setActive(podcast)}
-                className="group text-left"
-                key={podcast.id}
-                data-testid={`card-podcast-${podcast.id}`}
-              >
-                <div className="art-panel relative aspect-[16/10] overflow-hidden rounded-xl bg-card border border-border/40">
-                  {podcast.thumbnailUrl && (
+            {(query.data || []).map((podcast) => {
+              const thumb = resolveThumbnail(podcast.thumbnailUrl, podcast.audioUrl, podcast.youtubeUrl);
+              return (
+                <button
+                  type="button"
+                  onClick={() => setActive(podcast)}
+                  className="group text-left"
+                  key={podcast.id}
+                  data-testid={`card-podcast-${podcast.id}`}
+                >
+                  <div className="art-panel relative aspect-[16/10] overflow-hidden rounded-xl bg-card border border-border/40">
                     <img
-                      src={podcast.thumbnailUrl}
+                      src={thumb}
                       alt={podcast.thumbnailAlt || podcast.title}
                       loading="lazy"
                       className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-95"
                     />
-                  )}
 
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
 
@@ -1750,7 +1785,8 @@ function Podcasts() {
                   />
                 </div>
               </button>
-            ))}
+            );
+          })}
           </div>
         </QueryState>
       </PageFrame>
@@ -2974,28 +3010,16 @@ function AdminWorkspace() {
     }
 
     if (tab === 'reels') {
+      const rawThumb = String(form.get('thumbnailUrl') || '');
+      const videoUrl = String(form.get('videoUrl') || '');
       const data = {
-        videoUrl: String(
-          form.get('videoUrl') || '',
-        ),
-        thumbnailUrl: String(
-          form.get('thumbnailUrl') || '',
-        ),
-        thumbnailAlt: String(
-          form.get('thumbnailAlt') || '',
-        ),
-        title: String(
-          form.get('title') || '',
-        ),
-        client: String(
-          form.get('client') || '',
-        ),
-        category: String(
-          form.get('category') || '',
-        ),
-        displayOrder: number(
-          'displayOrder',
-        ),
+        videoUrl,
+        thumbnailUrl: resolveThumbnail(rawThumb, videoUrl),
+        thumbnailAlt: String(form.get('thumbnailAlt') || form.get('title') || ''),
+        title: String(form.get('title') || ''),
+        client: String(form.get('client') || ''),
+        category: String(form.get('category') || ''),
+        displayOrder: number('displayOrder'),
       };
 
       if (editing) {
@@ -3021,6 +3045,9 @@ function AdminWorkspace() {
     }
 
     if (tab === 'podcasts') {
+      const rawThumb = String(form.get('thumbnailUrl') || '');
+      const audioUrl = String(form.get('audioUrl') || '');
+      const youtubeUrl = String(form.get('youtubeUrl') || '') || null;
       const data: PodcastInput = {
         title: String(form.get('title') || ''),
         episodeNumber: String(form.get('episodeNumber') || '') || null,
@@ -3029,11 +3056,11 @@ function AdminWorkspace() {
         category: String(form.get('category') || ''),
         duration: String(form.get('duration') || '') || null,
         description: String(form.get('description') || '') || null,
-        audioUrl: String(form.get('audioUrl') || ''),
+        audioUrl,
         spotifyUrl: String(form.get('spotifyUrl') || '') || null,
         appleUrl: String(form.get('appleUrl') || '') || null,
-        youtubeUrl: String(form.get('youtubeUrl') || '') || null,
-        thumbnailUrl: String(form.get('thumbnailUrl') || ''),
+        youtubeUrl,
+        thumbnailUrl: resolveThumbnail(rawThumb, audioUrl, youtubeUrl),
         thumbnailAlt: String(form.get('thumbnailAlt') || form.get('title') || ''),
         displayOrder: number('displayOrder'),
       };
@@ -3773,20 +3800,22 @@ function AdminForm({
 
               {field(
                 'videoUrl',
-                'Video URL',
-                'https://www.youtube.com/',
+                'Video URL (YouTube or MP4)',
+                'https://www.youtube.com/watch?v=...',
               )}
 
               {field(
                 'thumbnailUrl',
-                'Thumbnail URL',
-                '/media/spark-reels.png',
+                'Cover Image URL (Optional — auto-fetched from YouTube)',
+                '/media/spark-reels.png or leave empty',
+                false,
               )}
 
               {field(
                 'thumbnailAlt',
                 'Thumbnail alt text',
                 'Describe the thumbnail',
+                false,
               )}
             </>
           )}
@@ -3855,8 +3884,9 @@ function AdminForm({
 
               {field(
                 'thumbnailUrl',
-                'Cover Image URL',
-                '/media/spark-reels.png',
+                'Cover Image URL (Optional — auto-fetched from YouTube)',
+                '/media/spark-reels.png or leave empty',
+                false,
               )}
 
               {field(

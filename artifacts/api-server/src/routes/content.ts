@@ -215,6 +215,44 @@ router.delete("/reels/:id", requireAuth, async (req, res): Promise<void> => {
   res.sendStatus(204);
 });
 
+function extractYoutubeId(url?: string | null): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, '');
+    if (host === 'youtu.be') {
+      return parsed.pathname.replace(/^\/+/, '').split('/')[0] || null;
+    }
+    if (host === 'youtube.com' || host === 'm.youtube.com') {
+      const v = parsed.searchParams.get('v');
+      if (v) return v;
+      const parts = parsed.pathname.split('/').filter(Boolean);
+      const embedIndex = parts.indexOf('embed');
+      if (embedIndex >= 0 && parts[embedIndex + 1]) return parts[embedIndex + 1];
+      const shortsIndex = parts.indexOf('shorts');
+      if (shortsIndex >= 0 && parts[shortsIndex + 1]) return parts[shortsIndex + 1];
+    }
+  } catch {
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|watch\?.+&v=))([\w-]{11})/);
+    if (match?.[1]) return match[1];
+  }
+  return null;
+}
+
+function resolveServerThumbnail(thumbnailUrl?: string | null, ...fallbackUrls: (string | null | undefined)[]): string {
+  if (thumbnailUrl && thumbnailUrl.trim().length > 0) {
+    return thumbnailUrl.trim();
+  }
+  for (const fallback of fallbackUrls) {
+    if (!fallback) continue;
+    const ytId = extractYoutubeId(fallback);
+    if (ytId) {
+      return `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+    }
+  }
+  return '/media/spark-reels.png';
+}
+
 router.get("/podcasts", async (_req, res): Promise<void> => {
   const rows = await db.select().from(podcastsTable).orderBy(asc(podcastsTable.displayOrder), asc(podcastsTable.id));
   res.json(rows);
@@ -222,10 +260,11 @@ router.get("/podcasts", async (_req, res): Promise<void> => {
 
 router.post("/podcasts", requireAuth, async (req, res): Promise<void> => {
   const { title, episodeNumber, host, guest, category, duration, description, audioUrl, spotifyUrl, appleUrl, youtubeUrl, thumbnailUrl, thumbnailAlt, displayOrder } = req.body ?? {};
-  if (!title || !category || !audioUrl || !thumbnailUrl) {
-    invalid(res, "title, category, audioUrl, and thumbnailUrl are required");
+  if (!title || !category || !audioUrl) {
+    invalid(res, "title, category, and audioUrl are required");
     return;
   }
+  const finalThumbnail = resolveServerThumbnail(thumbnailUrl, audioUrl, youtubeUrl);
   const [row] = await db
     .insert(podcastsTable)
     .values({
@@ -240,7 +279,7 @@ router.post("/podcasts", requireAuth, async (req, res): Promise<void> => {
       spotifyUrl: spotifyUrl || null,
       appleUrl: appleUrl || null,
       youtubeUrl: youtubeUrl || null,
-      thumbnailUrl,
+      thumbnailUrl: finalThumbnail,
       thumbnailAlt: thumbnailAlt || title,
       displayOrder: Number(displayOrder) || 0,
     })
@@ -250,10 +289,11 @@ router.post("/podcasts", requireAuth, async (req, res): Promise<void> => {
 
 router.patch("/podcasts/:id", requireAuth, async (req, res): Promise<void> => {
   const { title, episodeNumber, host, guest, category, duration, description, audioUrl, spotifyUrl, appleUrl, youtubeUrl, thumbnailUrl, thumbnailAlt, displayOrder } = req.body ?? {};
-  if (!title || !category || !audioUrl || !thumbnailUrl) {
-    invalid(res, "title, category, audioUrl, and thumbnailUrl are required");
+  if (!title || !category || !audioUrl) {
+    invalid(res, "title, category, and audioUrl are required");
     return;
   }
+  const finalThumbnail = resolveServerThumbnail(thumbnailUrl, audioUrl, youtubeUrl);
   const [row] = await db
     .update(podcastsTable)
     .set({
@@ -268,7 +308,7 @@ router.patch("/podcasts/:id", requireAuth, async (req, res): Promise<void> => {
       spotifyUrl: spotifyUrl || null,
       appleUrl: appleUrl || null,
       youtubeUrl: youtubeUrl || null,
-      thumbnailUrl,
+      thumbnailUrl: finalThumbnail,
       thumbnailAlt: thumbnailAlt || title,
       displayOrder: Number(displayOrder) || 0,
     })
