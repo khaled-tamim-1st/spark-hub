@@ -1259,64 +1259,18 @@ function toEmbedUrl(
     };
   }
 
+  // Check YouTube first using helper
+  const ytId = getYoutubeId(url);
+  if (ytId) {
+    return {
+      kind: 'iframe',
+      src: `https://www.youtube.com/embed/${encodeURIComponent(ytId)}?autoplay=1&rel=0`,
+    };
+  }
+
   try {
     const parsedUrl = new URL(url);
     const host = parsedUrl.hostname.replace(/^www\./, '');
-
-    if (host === 'youtu.be') {
-      const id = parsedUrl.pathname
-        .replace(/^\/+/, '')
-        .split('/')[0];
-
-      if (id) {
-        return {
-          kind: 'iframe',
-          src: `https://www.youtube.com/embed/${encodeURIComponent(
-            id,
-          )}?autoplay=1`,
-        };
-      }
-    }
-
-    if (
-      host === 'youtube.com' ||
-      host === 'm.youtube.com'
-    ) {
-      let id = parsedUrl.searchParams.get('v');
-
-      if (!id) {
-        const parts = parsedUrl.pathname
-          .split('/')
-          .filter(Boolean);
-
-        const embedIndex = parts.indexOf('embed');
-
-        if (
-          embedIndex >= 0 &&
-          parts[embedIndex + 1]
-        ) {
-          id = parts[embedIndex + 1];
-        } else {
-          const shortsIndex = parts.indexOf('shorts');
-
-          if (
-            shortsIndex >= 0 &&
-            parts[shortsIndex + 1]
-          ) {
-            id = parts[shortsIndex + 1];
-          }
-        }
-      }
-
-      if (id) {
-        return {
-          kind: 'iframe',
-          src: `https://www.youtube.com/embed/${encodeURIComponent(
-            id,
-          )}?autoplay=1`,
-        };
-      }
-    }
 
     if (host === 'vimeo.com') {
       const id = parsedUrl.pathname
@@ -1439,12 +1393,12 @@ function ReelLightbox({
           </button>
         </div>
 
-        <div className="art-panel aspect-[9/16] h-[75dvh] max-h-[640px] w-auto overflow-hidden rounded-x1">
+        <div className="art-panel aspect-[9/16] h-[75dvh] max-h-[640px] w-auto overflow-hidden rounded-xl bg-black">
           {embed.kind === 'iframe' ? (
             <iframe
               src={embed.src}
               className="h-full w-full"
-              allow="autoplay; fullscreen; picture-in-picture"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               title={reel.title}
             />
