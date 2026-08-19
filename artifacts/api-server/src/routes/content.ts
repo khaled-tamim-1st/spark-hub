@@ -71,7 +71,7 @@ router.get("/overview", (_req, res): void => {
 
 router.get("/services", async (_req, res): Promise<void> => {
   const rows = await db.select().from(servicesTable).orderBy(asc(servicesTable.displayOrder), asc(servicesTable.id));
-  res.json(ListServicesResponse.parse(rows));
+  res.json(rows);
 });
 
 router.post("/services", requireAuth, async (req, res): Promise<void> => {
@@ -115,7 +115,7 @@ router.delete("/services/:id", requireAuth, async (req, res): Promise<void> => {
 
 router.get("/case-studies", async (_req, res): Promise<void> => {
   const rows = await db.select().from(caseStudiesTable).orderBy(asc(caseStudiesTable.displayOrder), asc(caseStudiesTable.id));
-  res.json(ListCaseStudiesResponse.parse(rows));
+  res.json(rows);
 });
 
 router.get("/case-studies/:id", async (req, res): Promise<void> => {
@@ -129,7 +129,7 @@ router.get("/case-studies/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Case study not found" });
     return;
   }
-  res.json(GetCaseStudyResponse.parse(row));
+  res.json(row);
 });
 
 router.post("/case-studies", requireAuth, async (req, res): Promise<void> => {
@@ -173,7 +173,7 @@ router.delete("/case-studies/:id", requireAuth, async (req, res): Promise<void> 
 
 router.get("/reels", async (_req, res): Promise<void> => {
   const rows = await db.select().from(reelsTable).orderBy(asc(reelsTable.displayOrder), asc(reelsTable.id));
-  res.json(ListReelsResponse.parse(rows));
+  res.json(rows);
 });
 
 router.post("/reels", requireAuth, async (req, res): Promise<void> => {
@@ -292,7 +292,7 @@ router.delete("/podcasts/:id", requireAuth, async (req, res): Promise<void> => {
 
 router.get("/posts", async (_req, res): Promise<void> => {
   const rows = await db.select().from(postsTable).orderBy(asc(postsTable.displayOrder), asc(postsTable.id));
-  res.json(ListPostsResponse.parse(rows));
+  res.json(rows);
 });
 
 router.post("/posts", requireAuth, async (req, res): Promise<void> => {
@@ -336,7 +336,7 @@ router.delete("/posts/:id", requireAuth, async (req, res): Promise<void> => {
 
 router.get("/testimonials", async (_req, res): Promise<void> => {
   const rows = await db.select().from(testimonialsTable).orderBy(asc(testimonialsTable.displayOrder), asc(testimonialsTable.id));
-  res.json(ListTestimonialsResponse.parse(rows));
+  res.json(rows);
 });
 
 router.post("/testimonials", requireAuth, async (req, res): Promise<void> => {
@@ -365,7 +365,7 @@ router.delete("/testimonials/:id", requireAuth, async (req, res): Promise<void> 
 
 router.get("/blog", async (_req, res): Promise<void> => {
   const rows = await db.select().from(blogPostsTable).orderBy(asc(blogPostsTable.publishedAt), asc(blogPostsTable.id));
-  res.json(ListBlogPostsResponse.parse(rows));
+  res.json(rows);
 });
 
 router.get("/blog/:slug", async (req, res): Promise<void> => {
@@ -379,7 +379,7 @@ router.get("/blog/:slug", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Blog post not found" });
     return;
   }
-  res.json(GetBlogPostResponse.parse(row));
+  res.json(row);
 });
 
 router.post("/blog", requireAuth, async (req, res): Promise<void> => {
