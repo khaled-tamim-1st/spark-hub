@@ -1371,25 +1371,25 @@ function ReelLightbox({
         className="flex max-h-[92dvh] flex-col items-center animate-reel-pop"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex w-full max-w-xs items-center justify-between pb-3 sm:max-w-sm">
-          <div>
-            <h3 className="display text-xl">
+        <div className="flex w-full max-w-sm items-center justify-between pb-3" dir="auto">
+          <div className="pr-3 flex-1 min-w-0">
+            <h3 className="font-sans font-bold text-lg sm:text-xl text-foreground leading-snug">
               {reel.title}
             </h3>
 
-            <p className="mono text-[10px] text-muted-foreground">
-              {reel.client}
+            <p className="mt-1 text-xs text-primary font-medium">
+              {reel.client} {reel.category ? `• ${reel.category}` : ''}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground rounded-full p-2"
             aria-label="Close"
             data-testid="button-close-reel-lightbox"
           >
-            <X />
+            <X size={20} />
           </button>
         </div>
 
@@ -1453,40 +1453,39 @@ function Reels() {
                 key={reel.id}
                 data-testid={`link-reel-${reel.id}`}
               >
-                  <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-xl">
+                  <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-xl bg-card border border-border/40">
                     <img
                       src={resolveThumbnail(reel.thumbnailUrl, reel.videoUrl)}
                       alt={reel.thumbnailAlt || reel.title}
                       loading='lazy'
-                      className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover:scale-105 group-hover:opacity-90"
+                      className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-95"
                     />
 
                   <div className="relative z-10 flex h-full items-center justify-center">
-                    <span className="grid h-14 w-14 place-items-center rounded-full border border-primary text-primary">
+                    <span className="grid h-14 w-14 place-items-center rounded-full border border-primary/40 bg-background/60 backdrop-blur-sm text-primary shadow-lg transition duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-background">
                       <Film size={18} />
                     </span>
                   </div>
 
-                  <span className="absolute bottom-4 left-4 eyebrow text-primary">
+                  <span className="absolute bottom-4 left-4 eyebrow text-primary text-[10px]">
                     {reel.category}
                   </span>
                 </div>
 
-                <div className="mt-4 flex justify-between">
-                  <div>
-                    <h3 className="display text-2xl">
+                <div className="mt-3.5 flex items-start justify-between gap-3" dir="auto">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-sans font-bold text-base sm:text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
                       {reel.title}
                     </h3>
 
-                    <p className="mt-1 mono text-[10px] text-muted-foreground">
+                    <p className="mt-1 text-xs text-muted-foreground font-medium">
                       {reel.client}
                     </p>
                   </div>
 
-                  <ExternalLink
-                    size={16}
-                    className="mt-1 text-primary"
-                  />
+                  <span className="mt-1 grid h-7 w-7 place-items-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-background transition-all shrink-0">
+                    <Play size={12} fill="currentColor" />
+                  </span>
                 </div>
               </button>
             ))}
@@ -1528,30 +1527,30 @@ function PodcastLightbox({
         className="flex max-h-[92dvh] w-full max-w-2xl flex-col animate-reel-pop"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex w-full items-center justify-between pb-3">
-          <div>
-            <div className="flex items-center gap-2">
+        <div className="flex w-full items-center justify-between pb-3" dir="auto">
+          <div className="flex-1 min-w-0 pr-3">
+            <div className="flex items-center gap-2 flex-wrap">
               {podcast.episodeNumber && (
-                <span className="rounded bg-primary/10 px-2 py-0.5 mono text-[11px] text-primary">
+                <span className="rounded-md bg-primary/15 px-2.5 py-0.5 font-sans font-semibold text-xs text-primary border border-primary/20">
                   {podcast.episodeNumber}
                 </span>
               )}
-              <span className="eyebrow text-primary text-[10px]">
+              <span className="rounded-md bg-muted/60 px-2.5 py-0.5 font-sans text-xs text-muted-foreground font-medium">
                 {podcast.category}
               </span>
             </div>
-            <h3 className="display text-xl sm:text-2xl mt-1">
+            <h3 className="font-sans font-bold text-xl sm:text-2xl mt-2 text-foreground leading-snug">
               {podcast.title}
             </h3>
-            <p className="mono text-[11px] text-muted-foreground mt-0.5">
-              Host: {podcast.host} {podcast.guest ? `• Guest: ${podcast.guest}` : ''} {podcast.duration ? `• ${podcast.duration}` : ''}
+            <p className="text-xs text-muted-foreground mt-1 font-medium">
+              {podcast.host} {podcast.guest ? `• ${podcast.guest}` : ''} {podcast.duration ? `• ${podcast.duration}` : ''}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground rounded-full p-2"
+            className="text-muted-foreground hover:text-foreground rounded-full p-2 shrink-0"
             aria-label="Close"
             data-testid="button-close-podcast-lightbox"
           >
@@ -1565,7 +1564,7 @@ function PodcastLightbox({
               <iframe
                 src={embed.src}
                 className="h-full w-full"
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 title={podcast.title}
               />
@@ -1579,8 +1578,8 @@ function PodcastLightbox({
                   className="h-20 w-20 rounded-lg object-cover"
                 />
                 <div>
-                  <h4 className="font-semibold">{podcast.title}</h4>
-                  <p className="text-xs text-muted-foreground">{podcast.host}</p>
+                  <h4 className="font-sans font-bold text-base text-foreground">{podcast.title}</h4>
+                  <p className="text-xs text-muted-foreground font-medium">{podcast.host}</p>
                 </div>
               </div>
               <audio src={embed.src} controls autoPlay className="w-full" />
@@ -1603,24 +1602,24 @@ function PodcastLightbox({
         </div>
 
         {podcast.description && (
-          <p className="mt-3 w-full text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+          <p className="mt-3.5 w-full text-sm text-muted-foreground leading-relaxed font-sans" dir="auto">
             {podcast.description}
           </p>
         )}
 
         {(podcast.spotifyUrl || podcast.appleUrl || podcast.youtubeUrl) && (
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-            <span className="mono text-[10px] text-muted-foreground uppercase tracking-wider">Listen on:</span>
+            <span className="font-sans text-xs text-muted-foreground font-medium uppercase tracking-wider">Listen on:</span>
             {podcast.spotifyUrl && (
               <a
                 href={podcast.spotifyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs text-primary hover:bg-primary/15 transition"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3.5 py-1.5 text-xs text-primary hover:bg-primary/15 transition font-medium"
               >
-                <Radio size={12} />
+                <Radio size={13} />
                 Spotify
-                <ExternalLink size={10} />
+                <ExternalLink size={11} />
               </a>
             )}
             {podcast.appleUrl && (
@@ -1628,11 +1627,11 @@ function PodcastLightbox({
                 href={podcast.appleUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs text-primary hover:bg-primary/15 transition"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3.5 py-1.5 text-xs text-primary hover:bg-primary/15 transition font-medium"
               >
-                <Headphones size={12} />
+                <Headphones size={13} />
                 Apple Podcasts
-                <ExternalLink size={10} />
+                <ExternalLink size={11} />
               </a>
             )}
             {podcast.youtubeUrl && (
@@ -1640,11 +1639,11 @@ function PodcastLightbox({
                 href={podcast.youtubeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs text-primary hover:bg-primary/15 transition"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3.5 py-1.5 text-xs text-primary hover:bg-primary/15 transition font-medium"
               >
-                <Film size={12} />
+                <Film size={13} />
                 YouTube
-                <ExternalLink size={10} />
+                <ExternalLink size={11} />
               </a>
             )}
           </div>
@@ -1699,19 +1698,19 @@ function Podcasts() {
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
 
                   <div className="relative z-10 flex h-full items-center justify-center">
-                    <span className="grid h-12 w-12 place-items-center rounded-full border border-primary bg-background/60 backdrop-blur-sm text-primary shadow-lg transition duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-background">
+                    <span className="grid h-12 w-12 place-items-center rounded-full border border-primary/40 bg-background/60 backdrop-blur-sm text-primary shadow-lg transition duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-background">
                       <Headphones size={18} />
                     </span>
                   </div>
 
                   <div className="absolute top-3 left-3 flex items-center gap-1.5">
                     {podcast.episodeNumber && (
-                      <span className="rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
+                      <span className="rounded bg-background/80 px-2 py-0.5 font-sans font-medium text-[10px] text-primary backdrop-blur-sm border border-primary/20">
                         {podcast.episodeNumber}
                       </span>
                     )}
                     {podcast.duration && (
-                      <span className="rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-muted-foreground backdrop-blur-sm">
+                      <span className="rounded bg-background/80 px-2 py-0.5 font-sans text-[10px] text-muted-foreground backdrop-blur-sm">
                         {podcast.duration}
                       </span>
                     )}
@@ -1722,21 +1721,21 @@ function Podcasts() {
                   </span>
                 </div>
 
-                <div className="mt-3.5 flex justify-between gap-2">
-                  <div className="flex-1">
-                    <h3 className="display text-xl leading-snug group-hover:text-primary transition-colors">
+                <div className="mt-3.5 flex items-start justify-between gap-3" dir="auto">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-sans font-bold text-base sm:text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
                       {podcast.title}
                     </h3>
 
-                    <p className="mt-1 mono text-[10px] text-muted-foreground">
-                      {podcast.host} {podcast.guest ? `• Guest: ${podcast.guest}` : ''}
+                    <p className="mt-1.5 text-xs text-muted-foreground font-medium flex items-center gap-1.5 flex-wrap">
+                      <span>{podcast.host}</span>
+                      {podcast.guest && <span>• {podcast.guest}</span>}
                     </p>
                   </div>
 
-                  <Play
-                    size={16}
-                    className="mt-1 text-primary shrink-0 opacity-70 group-hover:opacity-100 transition"
-                  />
+                  <span className="mt-1 grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-background transition-all shrink-0">
+                    <Play size={13} fill="currentColor" />
+                  </span>
                 </div>
               </button>
             );
