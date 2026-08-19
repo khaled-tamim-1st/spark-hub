@@ -44,15 +44,19 @@ import {
   FileText,
   Film,
   Grid2X2,
+  Headphones,
   Image,
   Instagram,
   Loader2,
   Mail,
   Menu,
+  Mic,
   Moon,
   MoveRight,
   Pencil,
+  Play,
   Plus,
+  Radio,
   Send,
   Settings2,
   Sparkles,
@@ -109,6 +113,7 @@ const nav = [
   ['/work', 'Work'],
   ['/services', 'Services'],
   ['/reels', 'Reels'],
+  ['/podcasts', 'Podcasts'],
   ['/posts', 'Journal'],
   ['/about', 'About'],
   ['/blog', 'Notes'],
@@ -326,7 +331,7 @@ function Footer() {
           <p className="eyebrow text-primary">Explore</p>
 
           <div className="mt-5 flex flex-col gap-3 text-sm text-muted-foreground">
-            {nav.slice(0, 3).map(([href, label]) => (
+            {nav.slice(0, 4).map(([href, label]) => (
               <Link
                 key={href}
                 href={href}
@@ -1246,7 +1251,7 @@ function Services() {
 
 function toEmbedUrl(
   url: string,
-): { kind: 'iframe' | 'video'; src: string } {
+): { kind: 'iframe' | 'video' | 'audio'; src: string } {
   if (!url) {
     return {
       kind: 'video',
@@ -1328,12 +1333,29 @@ function toEmbedUrl(
         };
       }
     }
+
+    if (host === 'open.spotify.com') {
+      const parts = parsedUrl.pathname.split('/').filter(Boolean);
+      if (parts.length >= 2) {
+        return {
+          kind: 'iframe',
+          src: `https://open.spotify.com/embed/${parts.slice(0, 2).join('/')}?utm_source=generator&theme=0`,
+        };
+      }
+    }
+
+    if (parsedUrl.pathname.match(/\.(mp3|m4a|wav|aac|ogg)$/i)) {
+      return {
+        kind: 'audio',
+        src: url,
+      };
+    }
   } catch {
-    // Fall through to direct video.
+    // Fall through to direct video/audio.
   }
 
   return {
-    kind: 'video',
+    kind: url.match(/\.(mp3|m4a|wav|aac|ogg)$/i) ? 'audio' : 'video',
     src: url,
   };
 }
@@ -1485,6 +1507,257 @@ function Reels() {
       {active && (
         <ReelLightbox
           reel={active}
+          onClose={() => setActive(null)}
+        />
+      )}
+    </Shell>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  Podcasts                                  */
+/* -------------------------------------------------------------------------- */
+
+function PodcastLightbox({
+  podcast,
+  onClose,
+}: {
+  podcast: any;
+  onClose: () => void;
+}) {
+  const embed = toEmbedUrl(podcast.audioUrl);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 grid place-items-center bg-background/90 p-5 backdrop-blur-sm"
+      onClick={onClose}
+      data-testid="overlay-podcast-lightbox"
+    >
+      <div
+        className="flex max-h-[92dvh] w-full max-w-2xl flex-col animate-reel-pop"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex w-full items-center justify-between pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              {podcast.episodeNumber && (
+                <span className="rounded bg-primary/10 px-2 py-0.5 mono text-[11px] text-primary">
+                  {podcast.episodeNumber}
+                </span>
+              )}
+              <span className="eyebrow text-primary text-[10px]">
+                {podcast.category}
+              </span>
+            </div>
+            <h3 className="display text-xl sm:text-2xl mt-1">
+              {podcast.title}
+            </h3>
+            <p className="mono text-[11px] text-muted-foreground mt-0.5">
+              Host: {podcast.host} {podcast.guest ? `• Guest: ${podcast.guest}` : ''} {podcast.duration ? `• ${podcast.duration}` : ''}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground rounded-full p-2"
+            aria-label="Close"
+            data-testid="button-close-podcast-lightbox"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="art-panel relative w-full overflow-hidden rounded-xl bg-card border border-border/40">
+          {embed.kind === 'iframe' ? (
+            <div className="aspect-video w-full">
+              <iframe
+                src={embed.src}
+                className="h-full w-full"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                allowFullScreen
+                title={podcast.title}
+              />
+            </div>
+          ) : embed.kind === 'audio' ? (
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                {podcast.thumbnailUrl && (
+                  <img
+                    src={podcast.thumbnailUrl}
+                    alt={podcast.thumbnailAlt || podcast.title}
+                    className="h-20 w-20 rounded-lg object-cover"
+                  />
+                )}
+                <div>
+                  <h4 className="font-semibold">{podcast.title}</h4>
+                  <p className="text-xs text-muted-foreground">{podcast.host}</p>
+                </div>
+              </div>
+              <audio src={embed.src} controls autoPlay className="w-full" />
+            </div>
+          ) : embed.src ? (
+            <div className="aspect-video w-full">
+              <video
+                src={embed.src}
+                className="h-full w-full object-cover"
+                controls
+                autoPlay
+                playsInline
+              />
+            </div>
+          ) : (
+            <div className="grid h-48 place-items-center p-6 text-center text-sm text-muted-foreground">
+              No media stream available.
+            </div>
+          )}
+        </div>
+
+        {podcast.description && (
+          <p className="mt-3 w-full text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+            {podcast.description}
+          </p>
+        )}
+
+        {(podcast.spotifyUrl || podcast.appleUrl || podcast.youtubeUrl) && (
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <span className="mono text-[10px] text-muted-foreground uppercase tracking-wider">Listen on:</span>
+            {podcast.spotifyUrl && (
+              <a
+                href={podcast.spotifyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs text-primary hover:bg-primary/15 transition"
+              >
+                <Radio size={12} />
+                Spotify
+                <ExternalLink size={10} />
+              </a>
+            )}
+            {podcast.appleUrl && (
+              <a
+                href={podcast.appleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs text-primary hover:bg-primary/15 transition"
+              >
+                <Headphones size={12} />
+                Apple Podcasts
+                <ExternalLink size={10} />
+              </a>
+            )}
+            {podcast.youtubeUrl && (
+              <a
+                href={podcast.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs text-primary hover:bg-primary/15 transition"
+              >
+                <Film size={12} />
+                YouTube
+                <ExternalLink size={10} />
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Podcasts() {
+  const query = useListPodcasts();
+  const [active, setActive] = useState<any>(null);
+
+  return (
+    <Shell>
+      <PageFrame>
+        <SectionHead
+          kicker="Audio & Conversations"
+          title="Ideas in conversation."
+          intro="Deep dives into brand strategy, leadership, culture, and sustainable growth with industry shapers."
+          typingIntro
+        />
+
+        <QueryState
+          loading={query.isLoading}
+          error={!!query.error}
+          empty={
+            !query.isLoading &&
+            !query.error &&
+            !query.data?.length
+          }
+        >
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {(query.data || []).map((podcast) => (
+              <button
+                type="button"
+                onClick={() => setActive(podcast)}
+                className="group text-left"
+                key={podcast.id}
+                data-testid={`card-podcast-${podcast.id}`}
+              >
+                <div className="art-panel relative aspect-[16/10] overflow-hidden rounded-xl bg-card border border-border/40">
+                  {podcast.thumbnailUrl && (
+                    <img
+                      src={podcast.thumbnailUrl}
+                      alt={podcast.thumbnailAlt || podcast.title}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-95"
+                    />
+                  )}
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+
+                  <div className="relative z-10 flex h-full items-center justify-center">
+                    <span className="grid h-12 w-12 place-items-center rounded-full border border-primary bg-background/60 backdrop-blur-sm text-primary shadow-lg transition duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-background">
+                      <Headphones size={18} />
+                    </span>
+                  </div>
+
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                    {podcast.episodeNumber && (
+                      <span className="rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
+                        {podcast.episodeNumber}
+                      </span>
+                    )}
+                    {podcast.duration && (
+                      <span className="rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-muted-foreground backdrop-blur-sm">
+                        {podcast.duration}
+                      </span>
+                    )}
+                  </div>
+
+                  <span className="absolute bottom-3 left-3 eyebrow text-primary text-[10px]">
+                    {podcast.category}
+                  </span>
+                </div>
+
+                <div className="mt-3.5 flex justify-between gap-2">
+                  <div className="flex-1">
+                    <h3 className="display text-xl leading-snug group-hover:text-primary transition-colors">
+                      {podcast.title}
+                    </h3>
+
+                    <p className="mt-1 mono text-[10px] text-muted-foreground">
+                      {podcast.host} {podcast.guest ? `• Guest: ${podcast.guest}` : ''}
+                    </p>
+                  </div>
+
+                  <Play
+                    size={16}
+                    className="mt-1 text-primary shrink-0 opacity-70 group-hover:opacity-100 transition"
+                  />
+                </div>
+              </button>
+            ))}
+          </div>
+        </QueryState>
+      </PageFrame>
+
+      {active && (
+        <PodcastLightbox
+          podcast={active}
           onClose={() => setActive(null)}
         />
       )}
@@ -1809,6 +2082,104 @@ function useDeleteBlogPost() {
       if (!res.ok) throw new Error('Failed to delete post');
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/blog'] }),
+  });
+}
+
+type Podcast = {
+  id: number;
+  title: string;
+  episodeNumber: string | null;
+  host: string;
+  guest: string | null;
+  category: string;
+  duration: string | null;
+  description: string | null;
+  audioUrl: string;
+  spotifyUrl: string | null;
+  appleUrl: string | null;
+  youtubeUrl: string | null;
+  thumbnailUrl: string;
+  thumbnailAlt: string;
+  displayOrder: number;
+};
+
+type PodcastInput = {
+  title: string;
+  episodeNumber?: string | null;
+  host?: string;
+  guest?: string | null;
+  category: string;
+  duration?: string | null;
+  description?: string | null;
+  audioUrl: string;
+  spotifyUrl?: string | null;
+  appleUrl?: string | null;
+  youtubeUrl?: string | null;
+  thumbnailUrl: string;
+  thumbnailAlt: string;
+  displayOrder?: number;
+};
+
+function useListPodcasts() {
+  return useQuery<Podcast[]>({
+    queryKey: ['/api/podcasts'],
+    queryFn: async () => {
+      const res = await fetch('/api/podcasts');
+      if (!res.ok) throw new Error(`Failed to load podcasts: ${res.status}`);
+      return res.json();
+    },
+  });
+}
+
+function useCreatePodcast() {
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: PodcastInput) => {
+      const token = await getToken();
+      const res = await fetch('/api/podcasts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to create podcast');
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/podcasts'] }),
+  });
+}
+
+function useUpdatePodcast() {
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: PodcastInput }) => {
+      const token = await getToken();
+      const res = await fetch(`/api/podcasts/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update podcast');
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/podcasts'] }),
+  });
+}
+
+function useDeletePodcast() {
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const token = await getToken();
+      const res = await fetch(`/api/podcasts/${id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error('Failed to delete podcast');
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['/api/podcasts'] }),
   });
 }
 
@@ -2308,6 +2679,7 @@ type AdminKind =
   | 'services'
   | 'work'
   | 'reels'
+  | 'podcasts'
   | 'posts'
   | 'team'
   | 'blog'
@@ -2362,6 +2734,7 @@ function AdminWorkspace() {
   const services = useListServices();
   const caseStudies = useListCaseStudies();
   const reels = useListReels();
+  const podcasts = useListPodcasts();
   const posts = useListPosts();
   const team = useListTeam();
   const blog = useListBlogPosts();
@@ -2390,6 +2763,10 @@ function AdminWorkspace() {
   const updateReel = useUpdateReel();
   const deleteReel = useDeleteReel();
 
+  const createPodcast = useCreatePodcast();
+  const updatePodcast = useUpdatePodcast();
+  const deletePodcast = useDeletePodcast();
+
   const createPost = useCreatePost();
   const updatePost = useUpdatePost();
   const deletePost = useDeletePost();
@@ -2400,6 +2777,7 @@ function AdminWorkspace() {
     ['services', 'Services', Settings2],
     ['work', 'Case studies', Grid2X2],
     ['reels', 'Reels', Film],
+    ['podcasts', 'Podcasts', Headphones],
     ['posts', 'Posts', Instagram],
     ['team', 'Team', Users],
     ['blog', 'Blog', FileText],
@@ -2425,6 +2803,12 @@ function AdminWorkspace() {
       query: reels,
       rows: reels.data || [],
       emptyLabel: 'reels',
+    },
+    podcasts: {
+      label: 'Podcasts',
+      query: podcasts,
+      rows: podcasts.data || [],
+      emptyLabel: 'podcasts',
     },
     posts: {
       label: 'Posts',
@@ -2636,6 +3020,36 @@ function AdminWorkspace() {
       return;
     }
 
+    if (tab === 'podcasts') {
+      const data: PodcastInput = {
+        title: String(form.get('title') || ''),
+        episodeNumber: String(form.get('episodeNumber') || '') || null,
+        host: String(form.get('host') || 'Spark Hub'),
+        guest: String(form.get('guest') || '') || null,
+        category: String(form.get('category') || ''),
+        duration: String(form.get('duration') || '') || null,
+        description: String(form.get('description') || '') || null,
+        audioUrl: String(form.get('audioUrl') || ''),
+        spotifyUrl: String(form.get('spotifyUrl') || '') || null,
+        appleUrl: String(form.get('appleUrl') || '') || null,
+        youtubeUrl: String(form.get('youtubeUrl') || '') || null,
+        thumbnailUrl: String(form.get('thumbnailUrl') || ''),
+        thumbnailAlt: String(form.get('thumbnailAlt') || form.get('title') || ''),
+        displayOrder: number('displayOrder'),
+      };
+
+      if (editing) {
+        updatePodcast.mutate(
+          { id: editing.id, data },
+          { onSuccess: done },
+        );
+      } else {
+        createPodcast.mutate(data, { onSuccess: done });
+      }
+
+      return;
+    }
+
     if (tab === 'team') {
       const data: TeamMemberInput = {
         name: String(form.get('name') || ''),
@@ -2751,13 +3165,15 @@ function AdminWorkspace() {
           ? 'service'
           : tab === 'reels'
             ? 'reel'
-            : tab === 'team'
-              ? 'team member'
-              : tab === 'blog'
-                ? 'post'
-                : tab === 'logos'
-                  ? 'logo'
-                  : 'post';
+            : tab === 'podcasts'
+              ? 'podcast'
+              : tab === 'team'
+                ? 'team member'
+                : tab === 'blog'
+                  ? 'post'
+                  : tab === 'logos'
+                    ? 'logo'
+                    : 'post';
 
     if (
       !window.confirm(
@@ -2794,6 +3210,10 @@ function AdminWorkspace() {
       );
     }
 
+    if (tab === 'podcasts') {
+      deletePodcast.mutate(id, options);
+    }
+
     if (tab === 'team') {
       deleteTeamMember.mutate(id, options);
     }
@@ -2821,6 +3241,8 @@ function AdminWorkspace() {
     updateCaseStudy.isPending ||
     createReel.isPending ||
     updateReel.isPending ||
+    createPodcast.isPending ||
+    updatePodcast.isPending ||
     createPost.isPending ||
     updatePost.isPending ||
     createTeamMember.isPending ||
@@ -2919,7 +3341,15 @@ function AdminWorkspace() {
                     ? 'service'
                     : tab === 'reels'
                       ? 'reel'
-                      : 'post'}
+                      : tab === 'podcasts'
+                        ? 'podcast'
+                        : tab === 'team'
+                          ? 'team member'
+                          : tab === 'blog'
+                            ? 'post'
+                            : tab === 'logos'
+                              ? 'logo'
+                              : 'post'}
               </button>
             )}
           </div>
@@ -3107,11 +3537,13 @@ function AdminForm({
         ? 'service'
         : kind === 'reels'
           ? 'reel'
-          : kind === 'team'
-            ? 'team member'
-            : kind === 'logos'
-              ? 'client logo'
-              : 'post';
+          : kind === 'podcasts'
+            ? 'podcast'
+            : kind === 'team'
+              ? 'team member'
+              : kind === 'logos'
+                ? 'client logo'
+                : 'post';
 
   const field = (
     name: string,
@@ -3359,6 +3791,117 @@ function AdminForm({
             </>
           )}
 
+          {kind === 'podcasts' && (
+            <>
+              {field(
+                'title',
+                'Episode Title',
+                'The Future of Brand Momentum',
+              )}
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {field(
+                  'episodeNumber',
+                  'Episode Number',
+                  'EP 01',
+                  false,
+                )}
+
+                {field(
+                  'category',
+                  'Category',
+                  'Brand Strategy',
+                )}
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {field(
+                  'host',
+                  'Host',
+                  'Spark Hub',
+                  false,
+                )}
+
+                {field(
+                  'guest',
+                  'Guest Speaker',
+                  'Guest Name',
+                  false,
+                )}
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {field(
+                  'duration',
+                  'Duration',
+                  '45 mins',
+                  false,
+                )}
+
+                {field(
+                  'displayOrder',
+                  'Display Order',
+                  '0',
+                  false,
+                  'number',
+                )}
+              </div>
+
+              {field(
+                'audioUrl',
+                'Audio / Video Stream URL (Spotify, YouTube, or MP3/MP4)',
+                'https://open.spotify.com/episode/... or YouTube URL',
+              )}
+
+              {field(
+                'thumbnailUrl',
+                'Cover Image URL',
+                '/media/spark-reels.png',
+              )}
+
+              {field(
+                'thumbnailAlt',
+                'Cover Alt Text',
+                'Episode cover thumbnail',
+                false,
+              )}
+
+              {area(
+                'description',
+                'Episode Summary / Description',
+                'A deep conversation exploring...',
+                editing?.description ?? '',
+                false,
+              )}
+
+              <div className="pt-2">
+                <p className="eyebrow text-primary mb-3 text-xs">External Streaming Links (Optional)</p>
+                <div className="space-y-3">
+                  {field(
+                    'spotifyUrl',
+                    'Spotify Link',
+                    'https://open.spotify.com/episode/...',
+                    false,
+                  )}
+
+                  {field(
+                    'appleUrl',
+                    'Apple Podcasts Link',
+                    'https://podcasts.apple.com/...',
+                    false,
+                  )}
+
+                  {field(
+                    'youtubeUrl',
+                    'YouTube Watch Link',
+                    'https://youtube.com/watch?v=...',
+                    false,
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
           {kind === 'posts' && (
             <>
               {area(
@@ -3576,6 +4119,7 @@ function Router() {
       '/work': 'Selected Work — Spark Hub Studio',
       '/services': 'Services — Spark Hub Studio',
       '/reels': 'Reels & Media — Spark Hub Studio',
+      '/podcasts': 'Podcasts & Conversations — Spark Hub Studio',
       '/posts': 'Posts & Campaigns — Spark Hub Studio',
       '/about': 'About The Studio — Spark Hub Studio',
       '/contact': 'Contact Us — Spark Hub Studio',
@@ -3616,6 +4160,11 @@ function Router() {
         <Route
           path="/reels"
           component={Reels}
+        />
+
+        <Route
+          path="/podcasts"
+          component={Podcasts}
         />
 
         <Route

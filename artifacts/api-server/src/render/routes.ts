@@ -5,6 +5,7 @@ import {
   servicesTable,
   caseStudiesTable,
   reelsTable,
+  podcastsTable,
   postsTable,
   testimonialsTable,
   blogPostsTable,
@@ -124,6 +125,23 @@ ${rows.map(r => `<li><h2>${esc(r.title)}</h2><p>${esc(r.client)} — ${esc(r.cat
     title: `Reels — ${SITE_NAME}`,
     description: "Short-form video work and campaign stories.",
     path: "/reels",
+    bodyHtml: body,
+  }));
+});
+
+// ---- Podcasts ----
+router.get("/podcasts", async (_req, res) => {
+  const rows = await db.select().from(podcastsTable).orderBy(asc(podcastsTable.displayOrder), asc(podcastsTable.id));
+  const body = `
+<h1>Podcasts & Audio</h1>
+<p>Deep conversations on brand strategy, leadership, and sustainable growth.</p>
+<ul>
+${rows.map(p => `<li><h2>${esc(p.title)}</h2><p>${p.episodeNumber ? esc(p.episodeNumber) + " • " : ""}${esc(p.host)}${p.guest ? " with " + esc(p.guest) : ""} — ${esc(p.category)} (${esc(p.duration || "")})</p><p>${esc(p.description || "")}</p></li>`).join("\n")}
+</ul>`;
+  res.type("html").send(renderShell({
+    title: `Podcasts & Conversations — ${SITE_NAME}`,
+    description: "Deep conversations on brand strategy, leadership, and sustainable growth from Spark Hub Studio.",
+    path: "/podcasts",
     bodyHtml: body,
   }));
 });

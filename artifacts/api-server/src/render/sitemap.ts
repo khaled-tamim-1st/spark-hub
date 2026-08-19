@@ -9,6 +9,7 @@ const STATIC_ROUTES = [
   { path: "/work", priority: "0.8" },
   { path: "/services", priority: "0.8" },
   { path: "/reels", priority: "0.6" },
+  { path: "/podcasts", priority: "0.7" },
   { path: "/posts", priority: "0.6" },
   { path: "/about", priority: "0.6" },
   { path: "/contact", priority: "0.5" },

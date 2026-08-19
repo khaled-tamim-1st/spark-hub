@@ -101,9 +101,28 @@ export const clientLogosTable = pgTable("client_logos", {
   displayOrder: integer("display_order").notNull().default(0),
 });
 
+export const podcastsTable = pgTable("spark_podcasts", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  episodeNumber: text("episode_number"),
+  host: text("host").notNull().default("Spark Hub"),
+  guest: text("guest"),
+  category: text("category").notNull(),
+  duration: text("duration"),
+  description: text("description"),
+  audioUrl: text("audio_url").notNull(),
+  spotifyUrl: text("spotify_url"),
+  appleUrl: text("apple_url"),
+  youtubeUrl: text("youtube_url"),
+  thumbnailUrl: text("thumbnail_url").notNull(),
+  thumbnailAlt: text("thumbnail_alt").notNull(),
+  displayOrder: integer("display_order").notNull().default(0),
+});
+
 export const insertServiceSchema = createInsertSchema(servicesTable).omit({ id: true });
 export const insertCaseStudySchema = createInsertSchema(caseStudiesTable).omit({ id: true });
 export const insertReelSchema = createInsertSchema(reelsTable).omit({ id: true });
+export const insertPodcastSchema = createInsertSchema(podcastsTable).omit({ id: true });
 export const insertPostSchema = createInsertSchema(postsTable).omit({ id: true });
 export const insertTestimonialSchema = createInsertSchema(testimonialsTable).omit({ id: true });
 export const insertBlogPostSchema = createInsertSchema(blogPostsTable).omit({ id: true });
@@ -117,6 +136,8 @@ export type InsertCaseStudy = z.infer<typeof insertCaseStudySchema>;
 export type CaseStudy = typeof caseStudiesTable.$inferSelect;
 export type InsertReel = z.infer<typeof insertReelSchema>;
 export type Reel = typeof reelsTable.$inferSelect;
+export type InsertPodcast = z.infer<typeof insertPodcastSchema>;
+export type Podcast = typeof podcastsTable.$inferSelect;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type Post = typeof postsTable.$inferSelect;
 export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;

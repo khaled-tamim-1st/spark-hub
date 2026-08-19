@@ -71,6 +71,7 @@ export function renderShell({ title, description, path, image, bodyHtml }: Shell
 <a href="/work">Work</a>
 <a href="/services">Services</a>
 <a href="/reels">Reels</a>
+<a href="/podcasts">Podcasts</a>
 <a href="/posts">Posts</a>
 <a href="/about">About</a>
 <a href="/blog">Blog</a>

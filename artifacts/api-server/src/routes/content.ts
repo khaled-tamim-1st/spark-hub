@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Response } from "express";
 import { asc, desc, eq } from "drizzle-orm";
-import { db, servicesTable, caseStudiesTable, reelsTable, postsTable, testimonialsTable, blogPostsTable, contactLeadsTable, teamTable, clientLogosTable } from "@workspace/db";
+import { db, servicesTable, caseStudiesTable, reelsTable, podcastsTable, postsTable, testimonialsTable, blogPostsTable, contactLeadsTable, teamTable, clientLogosTable } from "@workspace/db";
 import {
   CreateCaseStudyBody,
   CreateCaseStudyResponse,
@@ -210,6 +210,81 @@ router.delete("/reels/:id", requireAuth, async (req, res): Promise<void> => {
   const [row] = await db.delete(reelsTable).where(eq(reelsTable.id, params.data.id)).returning();
   if (!row) {
     res.status(404).json({ error: "Reel not found" });
+    return;
+  }
+  res.sendStatus(204);
+});
+
+router.get("/podcasts", async (_req, res): Promise<void> => {
+  const rows = await db.select().from(podcastsTable).orderBy(asc(podcastsTable.displayOrder), asc(podcastsTable.id));
+  res.json(rows);
+});
+
+router.post("/podcasts", requireAuth, async (req, res): Promise<void> => {
+  const { title, episodeNumber, host, guest, category, duration, description, audioUrl, spotifyUrl, appleUrl, youtubeUrl, thumbnailUrl, thumbnailAlt, displayOrder } = req.body ?? {};
+  if (!title || !category || !audioUrl || !thumbnailUrl) {
+    invalid(res, "title, category, audioUrl, and thumbnailUrl are required");
+    return;
+  }
+  const [row] = await db
+    .insert(podcastsTable)
+    .values({
+      title,
+      episodeNumber: episodeNumber || null,
+      host: host || "Spark Hub",
+      guest: guest || null,
+      category,
+      duration: duration || null,
+      description: description || null,
+      audioUrl,
+      spotifyUrl: spotifyUrl || null,
+      appleUrl: appleUrl || null,
+      youtubeUrl: youtubeUrl || null,
+      thumbnailUrl,
+      thumbnailAlt: thumbnailAlt || title,
+      displayOrder: Number(displayOrder) || 0,
+    })
+    .returning();
+  res.status(201).json(row);
+});
+
+router.patch("/podcasts/:id", requireAuth, async (req, res): Promise<void> => {
+  const { title, episodeNumber, host, guest, category, duration, description, audioUrl, spotifyUrl, appleUrl, youtubeUrl, thumbnailUrl, thumbnailAlt, displayOrder } = req.body ?? {};
+  if (!title || !category || !audioUrl || !thumbnailUrl) {
+    invalid(res, "title, category, audioUrl, and thumbnailUrl are required");
+    return;
+  }
+  const [row] = await db
+    .update(podcastsTable)
+    .set({
+      title,
+      episodeNumber: episodeNumber || null,
+      host: host || "Spark Hub",
+      guest: guest || null,
+      category,
+      duration: duration || null,
+      description: description || null,
+      audioUrl,
+      spotifyUrl: spotifyUrl || null,
+      appleUrl: appleUrl || null,
+      youtubeUrl: youtubeUrl || null,
+      thumbnailUrl,
+      thumbnailAlt: thumbnailAlt || title,
+      displayOrder: Number(displayOrder) || 0,
+    })
+    .where(eq(podcastsTable.id, Number(req.params.id)))
+    .returning();
+  if (!row) {
+    res.status(404).json({ error: "Podcast not found" });
+    return;
+  }
+  res.json(row);
+});
+
+router.delete("/podcasts/:id", requireAuth, async (req, res): Promise<void> => {
+  const [row] = await db.delete(podcastsTable).where(eq(podcastsTable.id, Number(req.params.id))).returning();
+  if (!row) {
+    res.status(404).json({ error: "Podcast not found" });
     return;
   }
   res.sendStatus(204);
