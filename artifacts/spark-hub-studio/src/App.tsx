@@ -1373,7 +1373,7 @@ function ReelLightbox({
       >
         <div className="flex w-full max-w-sm items-center justify-between pb-3" dir="auto">
           <div className="pr-3 flex-1 min-w-0">
-            <h3 className="font-sans font-bold text-lg sm:text-xl text-foreground leading-snug">
+            <h3 className="font-arabic font-bold text-lg sm:text-xl text-foreground leading-snug">
               {reel.title}
             </h3>
 
@@ -1474,7 +1474,7 @@ function Reels() {
 
                 <div className="mt-3.5 flex items-start justify-between gap-3" dir="auto">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-sans font-bold text-base sm:text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                    <h3 className="font-arabic font-bold text-base sm:text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
                       {reel.title}
                     </h3>
 
@@ -1539,7 +1539,7 @@ function PodcastLightbox({
                 {podcast.category}
               </span>
             </div>
-            <h3 className="font-sans font-bold text-xl sm:text-2xl mt-2 text-foreground leading-snug">
+            <h3 className="font-arabic font-bold text-xl sm:text-2xl mt-2 text-foreground leading-snug">
               {podcast.title}
             </h3>
             <p className="text-xs text-muted-foreground mt-1 font-medium">
@@ -1578,7 +1578,7 @@ function PodcastLightbox({
                   className="h-20 w-20 rounded-lg object-cover"
                 />
                 <div>
-                  <h4 className="font-sans font-bold text-base text-foreground">{podcast.title}</h4>
+                  <h4 className="font-arabic font-bold text-base text-foreground">{podcast.title}</h4>
                   <p className="text-xs text-muted-foreground font-medium">{podcast.host}</p>
                 </div>
               </div>
@@ -1723,7 +1723,7 @@ function Podcasts() {
 
                 <div className="mt-3.5 flex items-start justify-between gap-3" dir="auto">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-sans font-bold text-base sm:text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                    <h3 className="font-arabic font-bold text-base sm:text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
                       {podcast.title}
                     </h3>
 
