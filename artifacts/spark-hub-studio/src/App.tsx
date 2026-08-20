@@ -1825,6 +1825,8 @@ type TeamMember = {
   bio: string | null;
   imageUrl: string | null;
   displayOrder?: number | null;
+  category?: 'leadership' | 'team' | string | null;
+  department?: string | null;
   linkedinUrl?: string | null;
   email?: string | null;
 };
@@ -1899,6 +1901,8 @@ type TeamMemberInput = {
   bio: string | null;
   imageUrl: string | null;
   displayOrder?: number;
+  category?: 'leadership' | 'team' | string;
+  department?: string | null;
   linkedinUrl?: string | null;
   email?: string | null;
 };
@@ -2244,94 +2248,192 @@ function About() {
           </div>
         </div>
 
-        {!!members.length && (
+        {/* 1. Leadership Section */}
+        {!!members.filter((m) => m.category === 'leadership').length && (
           <div className="mt-28">
             <div className="mb-10">
               <p className="eyebrow text-primary">
-                The team
+                Leadership & Partners
               </p>
               <h2 className="display text-3xl sm:text-4xl mt-2 text-foreground">
-                Built by builders.
+                Vision, strategy & governance.
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
-                Meet the strategists, creatives, media directors and organizers turning ambition into reality.
+                The senior directors, partners, and advisors shaping business trajectory and high-stakes decisions for our clients.
               </p>
             </div>
 
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {members.map((member) => (
-                <div key={member.id} className="group flex flex-col justify-between border border-border/60 bg-card/40 p-6 rounded-xl transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl">
-                  <div>
-                    <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
-                      {member.imageUrl ? (
-                        <img
-                          src={member.imageUrl}
-                          alt={member.name}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                          loading='lazy'
-                        />
-                      ) : (
-                        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/15 via-background to-muted">
-                          <span className="font-serif text-5xl text-primary font-bold">
-                            {member.name
-                              .split(' ')
-                              .map((name) => name[0])
-                              .slice(0, 2)
-                              .join('')}
+              {members
+                .filter((m) => m.category === 'leadership')
+                .map((member) => (
+                  <div key={member.id} className="group flex flex-col justify-between border border-border/60 bg-card/40 p-6 rounded-xl transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl">
+                    <div>
+                      <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
+                        {member.imageUrl ? (
+                          <img
+                            src={member.imageUrl}
+                            alt={member.name}
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                            loading='lazy'
+                          />
+                        ) : (
+                          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/15 via-background to-muted">
+                            <span className="font-serif text-5xl text-primary font-bold">
+                              {member.name
+                                .split(' ')
+                                .map((name) => name[0])
+                                .slice(0, 2)
+                                .join('')}
+                            </span>
+                          </div>
+                        )}
+
+                        {typeof member.displayOrder === 'number' && member.displayOrder > 0 && (
+                          <span className="absolute top-3 left-3 rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
+                            #{member.displayOrder}
                           </span>
-                        </div>
+                        )}
+                      </div>
+
+                      <h3 className="mt-5 font-arabic font-bold text-xl sm:text-2xl text-foreground group-hover:text-primary transition-colors" dir="auto">
+                        {member.name}
+                      </h3>
+
+                      {member.position && (
+                        <p className="mt-1 font-sans text-xs font-semibold text-primary tracking-wide">
+                          {member.position}
+                        </p>
                       )}
 
-                      {typeof member.displayOrder === 'number' && member.displayOrder > 0 && (
-                        <span className="absolute top-3 left-3 rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
-                          #{member.displayOrder}
-                        </span>
+                      {member.bio && (
+                        <p className="mt-3 text-sm leading-relaxed text-muted-foreground font-sans" dir="auto">
+                          {member.bio}
+                        </p>
                       )}
                     </div>
 
-                    <h3 className="mt-5 font-arabic font-bold text-xl sm:text-2xl text-foreground group-hover:text-primary transition-colors" dir="auto">
-                      {member.name}
-                    </h3>
-
-                    {member.position && (
-                      <p className="mt-1 font-sans text-xs font-semibold text-primary tracking-wide">
-                        {member.position}
-                      </p>
-                    )}
-
-                    {member.bio && (
-                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground font-sans" dir="auto">
-                        {member.bio}
-                      </p>
+                    {(member.linkedinUrl || member.email) && (
+                      <div className="mt-6 flex items-center gap-3 border-t border-border/40 pt-4">
+                        {member.linkedinUrl && (
+                          <a
+                            href={member.linkedinUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
+                          >
+                            <ExternalLink size={12} />
+                            LinkedIn
+                          </a>
+                        )}
+                        {member.email && (
+                          <a
+                            href={`mailto:${member.email}`}
+                            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
+                          >
+                            <Mail size={12} />
+                            Email
+                          </a>
+                        )}
+                      </div>
                     )}
                   </div>
+                ))}
+            </div>
+          </div>
+        )}
 
-                  {(member.linkedinUrl || member.email) && (
-                    <div className="mt-6 flex items-center gap-3 border-t border-border/40 pt-4">
-                      {member.linkedinUrl && (
-                        <a
-                          href={member.linkedinUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
-                        >
-                          <ExternalLink size={12} />
-                          LinkedIn
-                        </a>
+        {/* 2. Meet The Team Section */}
+        {!!members.filter((m) => m.category !== 'leadership').length && (
+          <div className="mt-28">
+            <div className="mb-10">
+              <p className="eyebrow text-primary">
+                Meet The Team
+              </p>
+              <h2 className="display text-3xl sm:text-4xl mt-2 text-foreground">
+                The makers & specialists.
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
+                Our multidisciplinary execution crew across media buying, cinematography, visual identity, and performance creative.
+              </p>
+            </div>
+
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {members
+                .filter((m) => m.category !== 'leadership')
+                .map((member) => (
+                  <div key={member.id} className="group flex flex-col justify-between border border-border/60 bg-card/40 p-5 rounded-xl transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl">
+                    <div>
+                      <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
+                        {member.imageUrl ? (
+                          <img
+                            src={member.imageUrl}
+                            alt={member.name}
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                            loading='lazy'
+                          />
+                        ) : (
+                          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/15 via-background to-muted">
+                            <span className="font-serif text-4xl text-primary font-bold">
+                              {member.name
+                                .split(' ')
+                                .map((name) => name[0])
+                                .slice(0, 2)
+                                .join('')}
+                            </span>
+                          </div>
+                        )}
+
+                        {typeof member.displayOrder === 'number' && member.displayOrder > 0 && (
+                          <span className="absolute top-3 left-3 rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
+                            #{member.displayOrder}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="mt-4 font-arabic font-bold text-lg text-foreground group-hover:text-primary transition-colors" dir="auto">
+                        {member.name}
+                      </h3>
+
+                      {member.position && (
+                        <p className="mt-1 font-sans text-xs font-semibold text-primary tracking-wide">
+                          {member.position}
+                        </p>
                       )}
-                      {member.email && (
-                        <a
-                          href={`mailto:${member.email}`}
-                          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
-                        >
-                          <Mail size={12} />
-                          Email
-                        </a>
+
+                      {member.bio && (
+                        <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground font-sans" dir="auto">
+                          {member.bio}
+                        </p>
                       )}
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {(member.linkedinUrl || member.email) && (
+                      <div className="mt-5 flex items-center gap-3 border-t border-border/40 pt-3">
+                        {member.linkedinUrl && (
+                          <a
+                            href={member.linkedinUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition font-medium"
+                          >
+                            <ExternalLink size={11} />
+                            LinkedIn
+                          </a>
+                        )}
+                        {member.email && (
+                          <a
+                            href={`mailto:${member.email}`}
+                            className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition font-medium"
+                          >
+                            <Mail size={11} />
+                            Email
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
             </div>
           </div>
         )}
@@ -3085,6 +3187,8 @@ function AdminWorkspace() {
         bio: String(form.get('bio') || '') || null,
         imageUrl: String(form.get('imageUrl') || '') || null,
         displayOrder: Number(form.get('displayOrder') || 0),
+        category: String(form.get('category') || 'team'),
+        department: String(form.get('department') || '') || null,
         linkedinUrl: String(form.get('linkedinUrl') || '') || null,
         email: String(form.get('email') || '') || null,
       };
@@ -3478,7 +3582,16 @@ function AdminWorkspace() {
                         </td>
 
                         <td className="py-5 text-sm text-muted-foreground">
-                          {row.category || row.position}
+                          {tab === 'team' ? (
+                            <div className="flex items-center gap-2">
+                              <span className={`inline-block px-2 py-0.5 rounded text-[10px] mono uppercase font-medium ${row.category === 'leadership' ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-muted text-muted-foreground'}`}>
+                                {row.category === 'leadership' ? '👑 Leadership' : '⚡ Studio Team'}
+                              </span>
+                              <span>{row.position}</span>
+                            </div>
+                          ) : (
+                            row.category || row.position
+                          )}
                         </td>
 
                         <td className="py-5 mono text-xs text-muted-foreground">
@@ -3976,6 +4089,20 @@ function AdminForm({
 
           {kind === 'team' && (
             <>
+              <div className="space-y-2">
+                <label className="eyebrow block text-primary text-[10px]">
+                  Team Category / تصنيف العضو
+                </label>
+                <select
+                  name="category"
+                  defaultValue={editing?.category || 'team'}
+                  className="w-full border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary"
+                >
+                  <option value="leadership">👑 Leadership & Partners (القيادة والشركاء المؤسسين)</option>
+                  <option value="team">⚡ Meet The Team (فريق العمل والاستوديو)</option>
+                </select>
+              </div>
+
               {field(
                 'name',
                 'Name (الاسم)',
@@ -3986,6 +4113,13 @@ function AdminForm({
                 'position',
                 'Position / Role (المسمى الوظيفي)',
                 'Founder & Managing Director',
+                false,
+              )}
+
+              {field(
+                'department',
+                'Department / Specialization (القسم أو التخصص)',
+                'Media Buying / Video Production / Creative Direction',
                 false,
               )}
 

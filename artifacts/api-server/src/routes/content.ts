@@ -460,7 +460,7 @@ router.get("/team", async (_req, res): Promise<void> => {
 });
 
 router.post("/team", requireAuth, async (req, res): Promise<void> => {
-  const { name, position, bio, imageUrl, displayOrder, linkedinUrl, email } = req.body ?? {};
+  const { name, position, bio, imageUrl, displayOrder, category, department, linkedinUrl, email } = req.body ?? {};
   if (!name || typeof name !== "string") {
     invalid(res, "name is required");
     return;
@@ -473,6 +473,8 @@ router.post("/team", requireAuth, async (req, res): Promise<void> => {
       bio: bio || null,
       imageUrl: imageUrl || null,
       displayOrder: typeof displayOrder === "number" ? displayOrder : 0,
+      category: category === "leadership" ? "leadership" : "team",
+      department: department || null,
       linkedinUrl: linkedinUrl || null,
       email: email || null,
     })
@@ -481,7 +483,7 @@ router.post("/team", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.patch("/team/:id", requireAuth, async (req, res): Promise<void> => {
-  const { name, position, bio, imageUrl, displayOrder, linkedinUrl, email } = req.body ?? {};
+  const { name, position, bio, imageUrl, displayOrder, category, department, linkedinUrl, email } = req.body ?? {};
   if (!name || typeof name !== "string") {
     invalid(res, "name is required");
     return;
@@ -494,6 +496,8 @@ router.patch("/team/:id", requireAuth, async (req, res): Promise<void> => {
       bio: bio || null,
       imageUrl: imageUrl || null,
       displayOrder: typeof displayOrder === "number" ? displayOrder : 0,
+      category: category === "leadership" ? "leadership" : "team",
+      department: department || null,
       linkedinUrl: linkedinUrl || null,
       email: email || null,
     })
@@ -503,7 +507,7 @@ router.patch("/team/:id", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.put("/team/:id", requireAuth, async (req, res): Promise<void> => {
-  const { name, position, bio, imageUrl, displayOrder, linkedinUrl, email } = req.body ?? {};
+  const { name, position, bio, imageUrl, displayOrder, category, department, linkedinUrl, email } = req.body ?? {};
   if (!name || typeof name !== "string") {
     invalid(res, "name is required");
     return;
@@ -516,6 +520,8 @@ router.put("/team/:id", requireAuth, async (req, res): Promise<void> => {
       bio: bio || null,
       imageUrl: imageUrl || null,
       displayOrder: typeof displayOrder === "number" ? displayOrder : 0,
+      category: category === "leadership" ? "leadership" : "team",
+      department: department || null,
       linkedinUrl: linkedinUrl || null,
       email: email || null,
     })

@@ -93,6 +93,8 @@ export const teamTable = pgTable("team", {
   bio: text("bio"),
   imageUrl: text("image_url"),
   displayOrder: integer("display_order").notNull().default(0),
+  category: text("category").notNull().default("team"),
+  department: text("department"),
   linkedinUrl: text("linkedin_url"),
   email: text("email"),
 });
