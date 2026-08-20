@@ -2184,26 +2184,121 @@ function useDeletePodcast() {
   });
 }
 
+const isLeadershipMember = (m: TeamMember) => {
+  if (m.category === 'leadership') return true;
+  if (m.category === 'team') return false;
+  const name = (m.name || '').toLowerCase();
+  const pos = (m.position || '').toLowerCase();
+  return (
+    name.includes('randa') ||
+    name.includes('esraa') ||
+    name.includes('tamim') ||
+    name.includes('khaled') ||
+    pos.includes('managing director') ||
+    pos.includes('founder')
+  );
+};
+
+const defaultLeaders: TeamMember[] = [
+  {
+    id: 10,
+    name: 'Dr. Randa Elbanna',
+    position: 'Founder & Managing Director',
+    bio: "Dr. Randa Elbanna brings an operator's eye and a strategist's curiosity to every room. Her work is grounded in one belief: progress becomes possible when people can see the path clearly.",
+    imageUrl: null,
+    displayOrder: 1,
+    category: 'leadership',
+    department: 'Executive & Strategy',
+    linkedinUrl: 'https://linkedin.com',
+    email: 'randa@spark-hub.online',
+  },
+  {
+    id: 11,
+    name: 'Dr. Esraa Al-Sharif',
+    position: 'Executive Director & HR',
+    bio: 'Responsible for organizational architecture, talent development, and cultivating high-performance cultures across scaling companies.',
+    imageUrl: null,
+    displayOrder: 2,
+    category: 'leadership',
+    department: 'People & Talent Development',
+    linkedinUrl: 'https://linkedin.com',
+    email: 'esraa@spark-hub.online',
+  },
+  {
+    id: 12,
+    name: 'Khaled Tamim',
+    position: 'Co-Founder & Business Development',
+    bio: 'Leads growth strategy, strategic partnerships, and commercial pipeline development across regional and international markets.',
+    imageUrl: '/khaled_tamim.png',
+    displayOrder: 3,
+    category: 'leadership',
+    department: 'Commercial & Growth Strategy',
+    linkedinUrl: 'https://linkedin.com',
+    email: 'khaled@spark-hub.online',
+  },
+];
+
+const defaultStudioTeams: TeamMember[] = [
+  {
+    id: 17,
+    name: 'Sales & Commercial Strategy',
+    position: 'Commercial Directors & Pipeline Strategists',
+    department: 'Sales & Commercial',
+    category: 'team',
+    bio: 'Designing high-converting sales funnels, SPIN negotiation frameworks, and commercial pipeline strategies for B2B and consumer brands.',
+    imageUrl: '/media/spark-main-banner.png',
+    displayOrder: 1,
+  },
+  {
+    id: 18,
+    name: 'Performance Media Buying',
+    position: 'Senior Media Buyers & Growth Marketers',
+    department: 'Marketing & Ads',
+    category: 'team',
+    bio: 'Managing multi-channel ad spend across Meta, TikTok, Google, and Snapchat with rigorous conversion tracking and creative testing.',
+    imageUrl: '/media/spark-cover.png',
+    displayOrder: 2,
+  },
+  {
+    id: 19,
+    name: 'Cinematography & Video Production',
+    position: 'Directors, Editors & Colorists',
+    department: 'Video Production',
+    category: 'team',
+    bio: 'Full-cycle production for podcasts, commercial reels, and brand films with broadcast-grade camera rigs and sound engineering.',
+    imageUrl: '/media/spark-reels.png',
+    displayOrder: 3,
+  },
+  {
+    id: 20,
+    name: 'Brand Design & Visual Identity',
+    position: 'Art Directors & Graphic Designers',
+    department: 'Design & Identity',
+    category: 'team',
+    bio: 'Crafting distinct visual language, campaign assets, social media packaging, and editorial layouts built for modern brands.',
+    imageUrl: '/media/spark-brand-poster.png',
+    displayOrder: 4,
+  },
+  {
+    id: 21,
+    name: 'Creative Copywriting & Content',
+    position: 'Content Strategists & Copywriters',
+    department: 'Content & Copywriting',
+    category: 'team',
+    bio: 'Writing viral hooks, podcast conversation narratives, and direct-response sales copy that captures attention and drives conversions.',
+    imageUrl: '/media/spark-campaign-grid.png',
+    displayOrder: 5,
+  },
+];
+
 function About() {
   const overview = useGetOverview();
   const o = overview.data;
 
   const team = useListTeam();
-
-  const members =
-    team.data && team.data.length
-      ? team.data
-      : o?.founderName
-        ? [
-            {
-              id: -1,
-              name: o.founderName,
-              position: o.founderRole || 'Founder',
-              bio: o.founderBio || null,
-              imageUrl: null,
-            },
-          ]
-        : [];
+  const rawMembers = team.data || [];
+  const leaderList = rawMembers.filter(isLeadershipMember);
+  const leaders = leaderList.length > 0 ? leaderList : defaultLeaders;
 
   return (
     <Shell>
@@ -2250,117 +2345,113 @@ function About() {
         </div>
 
         {/* Leadership & Founders Section */}
-        {!!members.filter((m) => m.category === 'leadership').length && (
-          <div className="mt-28">
-            <div className="mb-10">
-              <p className="eyebrow text-primary">
-                Leadership & Partners
-              </p>
-              <h2 className="display text-3xl sm:text-4xl mt-2 text-foreground">
-                Vision, strategy & governance.
-              </h2>
-              <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
-                The senior directors, partners, and advisors shaping business trajectory, talent development, and high-stakes decisions for our clients.
-              </p>
-            </div>
+        <div className="mt-28">
+          <div className="mb-10">
+            <p className="eyebrow text-primary">
+              Leadership & Partners
+            </p>
+            <h2 className="display text-3xl sm:text-4xl mt-2 text-foreground">
+              Vision, strategy & governance.
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
+              The senior directors, partners, and advisors shaping business trajectory, talent development, and high-stakes decisions for our clients.
+            </p>
+          </div>
 
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {members
-                .filter((m) => m.category === 'leadership')
-                .map((member) => (
-                  <div key={member.id} className="group flex flex-col justify-between border border-border/60 bg-card/40 p-6 rounded-xl transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl">
-                    <div>
-                      <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
-                        {member.imageUrl ? (
-                          <img
-                            src={member.imageUrl}
-                            alt={member.name}
-                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                            loading='lazy'
-                          />
-                        ) : (
-                          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/15 via-background to-muted">
-                            <span className="font-serif text-5xl text-primary font-bold">
-                              {member.name
-                                .split(' ')
-                                .map((name) => name[0])
-                                .slice(0, 2)
-                                .join('')}
-                            </span>
-                          </div>
-                        )}
-
-                        {typeof member.displayOrder === 'number' && member.displayOrder > 0 && (
-                          <span className="absolute top-3 left-3 rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
-                            #{member.displayOrder}
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="mt-5 font-arabic font-bold text-xl sm:text-2xl text-foreground group-hover:text-primary transition-colors" dir="auto">
-                        {member.name}
-                      </h3>
-
-                      {member.position && (
-                        <p className="mt-1 font-sans text-xs font-semibold text-primary tracking-wide">
-                          {member.position}
-                        </p>
-                      )}
-
-                      {member.bio && (
-                        <p className="mt-3 text-sm leading-relaxed text-muted-foreground font-sans" dir="auto">
-                          {member.bio}
-                        </p>
-                      )}
-                    </div>
-
-                    {(member.linkedinUrl || member.email) && (
-                      <div className="mt-6 flex items-center gap-3 border-t border-border/40 pt-4">
-                        {member.linkedinUrl && (
-                          <a
-                            href={member.linkedinUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
-                          >
-                            <ExternalLink size={12} />
-                            LinkedIn
-                          </a>
-                        )}
-                        {member.email && (
-                          <a
-                            href={`mailto:${member.email}`}
-                            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
-                          >
-                            <Mail size={12} />
-                            Email
-                          </a>
-                        )}
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {leaders.map((member) => (
+              <div key={member.id} className="group flex flex-col justify-between border border-border/60 bg-card/40 p-6 rounded-xl transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl">
+                <div>
+                  <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
+                    {member.imageUrl ? (
+                      <img
+                        src={member.imageUrl}
+                        alt={member.name}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        loading='lazy'
+                      />
+                    ) : (
+                      <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/15 via-background to-muted">
+                        <span className="font-serif text-5xl text-primary font-bold">
+                          {member.name
+                            .split(' ')
+                            .map((name) => name[0])
+                            .slice(0, 2)
+                            .join('')}
+                        </span>
                       </div>
                     )}
-                  </div>
-                ))}
-            </div>
 
-            {/* Link to Dedicated Team Page */}
-            <div className="mt-20 border border-primary/40 bg-card/60 p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg">
-              <div>
-                <p className="eyebrow text-primary text-xs">Studio Squad & Execution Crew</p>
-                <h3 className="display text-2xl mt-1 text-foreground">Meet Our Specialized Execution Teams</h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-                  Explore our dedicated teams across Sales Strategy, Media Buying, Video Production, Brand Design, and Content Creation.
-                </p>
+                    {typeof member.displayOrder === 'number' && member.displayOrder > 0 && (
+                      <span className="absolute top-3 left-3 rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
+                        #{member.displayOrder}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="mt-5 font-arabic font-bold text-xl sm:text-2xl text-foreground group-hover:text-primary transition-colors" dir="auto">
+                    {member.name}
+                  </h3>
+
+                  {member.position && (
+                    <p className="mt-1 font-sans text-xs font-semibold text-primary tracking-wide">
+                      {member.position}
+                    </p>
+                  )}
+
+                  {member.bio && (
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground font-sans" dir="auto">
+                      {member.bio}
+                    </p>
+                  )}
+                </div>
+
+                {(member.linkedinUrl || member.email) && (
+                  <div className="mt-6 flex items-center gap-3 border-t border-border/40 pt-4">
+                    {member.linkedinUrl && (
+                      <a
+                        href={member.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
+                      >
+                        <ExternalLink size={12} />
+                        LinkedIn
+                      </a>
+                    )}
+                    {member.email && (
+                      <a
+                        href={`mailto:${member.email}`}
+                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
+                      >
+                        <Mail size={12} />
+                        Email
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
-              <Link
-                href="/team"
-                className="inline-flex items-center gap-2 border border-primary bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[.14em] text-primary-foreground transition hover:bg-transparent hover:text-primary whitespace-nowrap"
-              >
-                Meet The Full Team
-                <MoveRight size={14} />
-              </Link>
-            </div>
+            ))}
           </div>
-        )}
+
+          {/* Link to Dedicated Team Page */}
+          <div className="mt-20 border border-primary/40 bg-card/60 p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg">
+            <div>
+              <p className="eyebrow text-primary text-xs">Studio Squad & Execution Crew</p>
+              <h3 className="display text-2xl mt-1 text-foreground">Meet Our Specialized Execution Teams</h3>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+                Explore our dedicated teams across Sales Strategy, Media Buying, Video Production, Brand Design, and Content Creation.
+              </p>
+            </div>
+            <Link
+              href="/team"
+              className="inline-flex items-center gap-2 border border-primary bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[.14em] text-primary-foreground transition hover:bg-transparent hover:text-primary whitespace-nowrap"
+            >
+              Meet The Full Team
+              <MoveRight size={14} />
+            </Link>
+          </div>
+        </div>
       </PageFrame>
     </Shell>
   );
@@ -2374,10 +2465,10 @@ function Team() {
   const team = useListTeam();
   const [selectedDept, setSelectedDept] = useState<string>('all');
 
-  const members = team.data || [];
-  // Studio members (those not marked strictly as leadership, or if only team exists)
-  const studioMembers = members.filter((m) => m.category !== 'leadership');
-  const allStudioList = studioMembers.length ? studioMembers : members;
+  const rawMembers = team.data || [];
+  // Studio members (those strictly not in leadership)
+  const studioList = rawMembers.filter((m) => !isLeadershipMember(m));
+  const allStudioList = studioList.length > 0 ? studioList : defaultStudioTeams;
 
   // Extract unique departments
   const departments = Array.from(
