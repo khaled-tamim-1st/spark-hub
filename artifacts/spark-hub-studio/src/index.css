@@ -68,63 +68,10 @@
 }
 
 /* =========================================================
-   LIGHT THEME
+   STUDIO DARK THEME (LOCKED DEFAULT)
    ========================================================= */
 
-:root {
-  color-scheme: light;
-
-  --background: 40 20% 97%;
-  --foreground: 30 10% 8%;
-
-  --card: 40 18% 94%;
-  --card-foreground: 30 10% 8%;
-  --card-border: 35 10% 82%;
-
-  --popover: 40 20% 97%;
-  --popover-foreground: 30 10% 8%;
-  --popover-border: 35 10% 82%;
-
-  --primary: 43 72% 42%;
-  --primary-foreground: 40 20% 98%;
-
-  --secondary: 40 12% 90%;
-  --secondary-foreground: 30 10% 10%;
-
-  --muted: 40 10% 90%;
-  --muted-foreground: 30 5% 40%;
-
-  --accent: 346 41% 45%;
-  --accent-foreground: 40 20% 98%;
-
-  --destructive: 1 70% 50%;
-  --destructive-foreground: 40 20% 98%;
-
-  --border: 35 10% 82%;
-  --input: 35 10% 82%;
-  --ring: 43 72% 42%;
-
-  --sidebar: 40 15% 92%;
-  --sidebar-foreground: 30 10% 8%;
-  --sidebar-border: 35 10% 82%;
-  --sidebar-primary: 43 72% 42%;
-  --sidebar-primary-foreground: 40 20% 98%;
-  --sidebar-accent: 40 12% 90%;
-  --sidebar-accent-foreground: 30 10% 10%;
-  --sidebar-ring: 43 72% 42%;
-
-  --app-font-sans: 'Manrope', 'Alexandria', 'Cairo', sans-serif;
-  --app-font-serif: 'Playfair Display', 'Alexandria', 'Cairo', Georgia, serif;
-  --app-font-mono: 'DM Mono', 'Alexandria', 'Cairo', monospace;
-  --app-font-arabic: 'Alexandria', 'Cairo', sans-serif;
-
-  --radius: 0.15rem;
-}
-
-/* =========================================================
-   DARK THEME
-   ========================================================= */
-
+:root,
 :root[data-theme='dark'],
 .dark {
   color-scheme: dark;
@@ -152,6 +99,9 @@
   --accent: 346 41% 55%;
   --accent-foreground: 40 15% 96%;
 
+  --destructive: 1 70% 50%;
+  --destructive-foreground: 40 20% 98%;
+
   --border: 220 20% 22%;
   --input: 220 20% 22%;
   --ring: 43 72% 52%;
@@ -164,6 +114,13 @@
   --sidebar-accent: 220 25% 15%;
   --sidebar-accent-foreground: 40 15% 94%;
   --sidebar-ring: 43 72% 52%;
+
+  --app-font-sans: 'Manrope', 'Alexandria', 'Cairo', sans-serif;
+  --app-font-serif: 'Playfair Display', 'Alexandria', 'Cairo', Georgia, serif;
+  --app-font-mono: 'DM Mono', 'Alexandria', 'Cairo', monospace;
+  --app-font-arabic: 'Alexandria', 'Cairo', sans-serif;
+
+  --radius: 0.15rem;
 }
 
 

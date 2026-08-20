@@ -157,53 +157,17 @@ function Logo() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                Theme Toggle                                */
+/*                                Theme Lock (Dark)                           */
 /* -------------------------------------------------------------------------- */
 
 function ThemeToggle() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-
   useEffect(() => {
-    const saved = localStorage.getItem('spark-theme') as
-      | 'dark'
-      | 'light'
-      | null;
-
-    const initialTheme = saved || 'dark';
-
-    setTheme(initialTheme);
-    document.documentElement.setAttribute('data-theme', initialTheme);
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.classList.add('dark');
+    localStorage.removeItem('spark-theme');
   }, []);
 
-  const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-
-    setTheme(nextTheme);
-    localStorage.setItem('spark-theme', nextTheme);
-    document.documentElement.setAttribute('data-theme', nextTheme);
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      className="group relative grid h-10 w-10 place-items-center border border-border bg-background text-primary transition-all duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground"
-      aria-label={
-        theme === 'dark'
-          ? 'Switch to light mode'
-          : 'Switch to dark mode'
-      }
-      data-testid="button-theme-toggle"
-    >
-      <span className="transition-transform duration-300 group-hover:rotate-12">
-        {theme === 'dark' ? (
-          <Sun size={16} strokeWidth={1.8} />
-        ) : (
-          <Moon size={16} strokeWidth={1.8} />
-        )}
-      </span>
-    </button>
-  );
+  return null;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -216,6 +180,7 @@ function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="grain min-h-[100dvh] bg-background">
+      <ThemeToggle />
       <header className="fixed inset-x-0 top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur-md">
         <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 md:px-10">
           <Logo />
@@ -238,8 +203,6 @@ function Shell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="hidden items-center gap-3 sm:flex">
-            <ThemeToggle />
-
             <Link
               href="/contact"
               className="flex items-center gap-2 border border-primary px-4 py-2.5 text-[10px] font-bold uppercase tracking-[.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
@@ -251,8 +214,6 @@ function Shell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2 sm:hidden">
-            <ThemeToggle />
-
             <button
               type="button"
               onClick={() => setOpen((value) => !value)}
