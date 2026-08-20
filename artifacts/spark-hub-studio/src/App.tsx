@@ -2467,8 +2467,7 @@ function Team() {
 
   const rawMembers = team.data || [];
   // Studio members (those strictly not in leadership)
-  const studioList = rawMembers.filter((m) => !isLeadershipMember(m));
-  const allStudioList = studioList.length > 0 ? studioList : defaultStudioTeams;
+  const allStudioList = rawMembers.filter((m) => !isLeadershipMember(m));
 
   // Extract unique departments
   const departments = Array.from(
@@ -2528,97 +2527,104 @@ function Team() {
           </div>
         )}
 
-        {/* Members Grid */}
-        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredMembers.map((member) => (
-            <div
-              key={member.id}
-              className="group flex flex-col justify-between rounded-xl border border-border/60 bg-card/40 p-5 transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl"
-            >
-              <div>
-                <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
-                  {member.imageUrl ? (
-                    <img
-                      src={member.imageUrl}
-                      alt={member.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/15 via-background to-muted">
-                      <span className="font-serif text-4xl font-bold text-primary">
-                        {member.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .slice(0, 2)
-                          .join('')}
+        {/* Members Grid or Empty State */}
+        {filteredMembers.length > 0 ? (
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredMembers.map((member) => (
+              <div
+                key={member.id}
+                className="group flex flex-col justify-between rounded-xl border border-border/60 bg-card/40 p-5 transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl"
+              >
+                <div>
+                  <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
+                    {member.imageUrl ? (
+                      <img
+                        src={member.imageUrl}
+                        alt={member.name}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/15 via-background to-muted">
+                        <span className="font-serif text-4xl font-bold text-primary">
+                          {member.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .slice(0, 2)
+                            .join('')}
+                        </span>
+                      </div>
+                    )}
+
+                    {typeof member.displayOrder === 'number' && member.displayOrder > 0 && (
+                      <span className="absolute top-3 left-3 rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
+                        #{member.displayOrder}
                       </span>
-                    </div>
-                  )}
+                    )}
 
-                  {typeof member.displayOrder === 'number' && member.displayOrder > 0 && (
-                    <span className="absolute top-3 left-3 rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
-                      #{member.displayOrder}
-                    </span>
-                  )}
+                    {member.department && (
+                      <span className="absolute bottom-3 left-3 right-3 rounded bg-background/90 px-2 py-1 mono text-[10px] text-primary text-center backdrop-blur-sm border border-border/60 truncate">
+                        {member.department}
+                      </span>
+                    )}
+                  </div>
 
-                  {member.department && (
-                    <span className="absolute bottom-3 left-3 right-3 rounded bg-background/90 px-2 py-1 mono text-[10px] text-primary text-center backdrop-blur-sm border border-border/60 truncate">
-                      {member.department}
-                    </span>
-                  )}
-                </div>
-
-                <h3
-                  className="mt-4 font-arabic text-lg font-bold text-foreground transition-colors group-hover:text-primary"
-                  dir="auto"
-                >
-                  {member.name}
-                </h3>
-
-                {member.position && (
-                  <p className="mt-1 font-sans text-xs font-semibold text-primary tracking-wide">
-                    {member.position}
-                  </p>
-                )}
-
-                {member.bio && (
-                  <p
-                    className="mt-2.5 font-sans text-xs leading-relaxed text-muted-foreground"
+                  <h3
+                    className="mt-4 font-arabic text-lg font-bold text-foreground transition-colors group-hover:text-primary"
                     dir="auto"
                   >
-                    {member.bio}
-                  </p>
-                )}
-              </div>
+                    {member.name}
+                  </h3>
 
-              {(member.linkedinUrl || member.email) && (
-                <div className="mt-5 flex items-center gap-3 border-t border-border/40 pt-3">
-                  {member.linkedinUrl && (
-                    <a
-                      href={member.linkedinUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-medium text-[11px] text-muted-foreground transition hover:text-primary"
-                    >
-                      <ExternalLink size={11} />
-                      LinkedIn
-                    </a>
+                  {member.position && (
+                    <p className="mt-1 font-sans text-xs font-semibold text-primary tracking-wide">
+                      {member.position}
+                    </p>
                   )}
-                  {member.email && (
-                    <a
-                      href={`mailto:${member.email}`}
-                      className="inline-flex items-center gap-1 font-medium text-[11px] text-muted-foreground transition hover:text-primary"
+
+                  {member.bio && (
+                    <p
+                      className="mt-2.5 font-sans text-xs leading-relaxed text-muted-foreground"
+                      dir="auto"
                     >
-                      <Mail size={11} />
-                      Email
-                    </a>
+                      {member.bio}
+                    </p>
                   )}
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
+
+                {(member.linkedinUrl || member.email) && (
+                  <div className="mt-5 flex items-center gap-3 border-t border-border/40 pt-3">
+                    {member.linkedinUrl && (
+                      <a
+                        href={member.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-medium text-[11px] text-muted-foreground transition hover:text-primary"
+                      >
+                        <ExternalLink size={11} />
+                        LinkedIn
+                      </a>
+                    )}
+                    {member.email && (
+                      <a
+                        href={`mailto:${member.email}`}
+                        className="inline-flex items-center gap-1 font-medium text-[11px] text-muted-foreground transition hover:text-primary"
+                      >
+                        <Mail size={11} />
+                        Email
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-16 border border-border/50 bg-card/30 p-12 text-center rounded-xl">
+            <p className="mono text-xs text-primary uppercase tracking-widest">Studio Squads</p>
+            <p className="text-muted-foreground mt-2 text-sm">No studio team members added yet. Add your specialized sales, marketing, and media teams from the admin dashboard.</p>
+          </div>
+        )}
 
         {/* Bottom CTA */}
         <div className="mt-24 border border-border/60 bg-card/40 p-8 md:p-12 text-center rounded-2xl">
@@ -3784,8 +3790,8 @@ function AdminWorkspace() {
                         <td className="py-5 text-sm text-muted-foreground">
                           {tab === 'team' ? (
                             <div className="flex items-center gap-2">
-                              <span className={`inline-block px-2 py-0.5 rounded text-[10px] mono uppercase font-medium ${row.category === 'leadership' ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-muted text-muted-foreground border border-border/40'}`}>
-                                {row.category === 'leadership' ? 'Leadership' : 'Studio Team'}
+                              <span className={`inline-block px-2 py-0.5 rounded text-[10px] mono uppercase font-medium ${isLeadershipMember(row) ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-muted text-muted-foreground border border-border/40'}`}>
+                                {isLeadershipMember(row) ? 'Leadership' : 'Studio Team'}
                               </span>
                               <span>{row.position}</span>
                             </div>
@@ -4296,7 +4302,7 @@ function AdminForm({
                 </label>
                 <select
                   name="category"
-                  defaultValue={editing?.category || 'team'}
+                  defaultValue={editing ? (isLeadershipMember(editing) ? 'leadership' : 'team') : 'team'}
                   className="w-full border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary"
                 >
                   <option value="leadership">Leadership & Partners</option>
