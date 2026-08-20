@@ -3693,8 +3693,8 @@ function AdminWorkspace() {
                         <td className="py-5 text-sm text-muted-foreground">
                           {tab === 'team' ? (
                             <div className="flex items-center gap-2">
-                              <span className={`inline-block px-2 py-0.5 rounded text-[10px] mono uppercase font-medium ${row.category === 'leadership' ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-muted text-muted-foreground'}`}>
-                                {row.category === 'leadership' ? '👑 Leadership' : '⚡ Studio Team'}
+                              <span className={`inline-block px-2 py-0.5 rounded text-[10px] mono uppercase font-medium ${row.category === 'leadership' ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-muted text-muted-foreground border border-border/40'}`}>
+                                {row.category === 'leadership' ? 'Leadership' : 'Studio Team'}
                               </span>
                               <span>{row.position}</span>
                             </div>
@@ -3876,6 +3876,7 @@ function AdminForm({
         </div>
 
         <form
+          key={`${kind}-${editing?.id ?? 'new'}`}
           onSubmit={onSubmit}
           className="mt-8 space-y-5"
         >
@@ -4200,41 +4201,41 @@ function AdminForm({
             <>
               <div className="space-y-2">
                 <label className="eyebrow block text-primary text-[10px]">
-                  Team Category / تصنيف العضو
+                  Team Tier / Category
                 </label>
                 <select
                   name="category"
                   defaultValue={editing?.category || 'team'}
                   className="w-full border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary"
                 >
-                  <option value="leadership">👑 Leadership & Partners (القيادة والشركاء المؤسسين)</option>
-                  <option value="team">⚡ Meet The Team (فريق العمل والاستوديو)</option>
+                  <option value="leadership">Leadership & Partners</option>
+                  <option value="team">Studio Team</option>
                 </select>
               </div>
 
               {field(
                 'name',
-                'Name (الاسم)',
-                'د. راندا البنا / Dr. Randa Elbanna',
+                'Name',
+                'Dr. Randa Elbanna',
               )}
 
               {field(
                 'position',
-                'Position / Role (المسمى الوظيفي)',
+                'Position / Role',
                 'Founder & Managing Director',
                 false,
               )}
 
               {field(
                 'department',
-                'Department / Specialization (القسم أو التخصص)',
-                'Media Buying / Video Production / Creative Direction',
+                'Department / Specialization',
+                'Executive & Strategy',
                 false,
               )}
 
               <div className="space-y-2">
                 <label className="eyebrow block text-primary text-[10px]">
-                  Display Order (ترتيب الظهور)
+                  Display Order
                 </label>
                 <input
                   type="number"
@@ -4247,24 +4248,24 @@ function AdminForm({
 
               {field(
                 'imageUrl',
-                'Image URL (رابط أو مسار الصورة)',
-                '/media/spark-cover.png',
+                'Image URL',
+                '/khaled_tamim.png',
                 false,
               )}
 
               {/* Quick Image Suggestions */}
               <div className="space-y-1.5">
                 <span className="mono text-[10px] text-muted-foreground uppercase">
-                  Available Media Assets (صور مقترحة من الاستوديو):
+                  Available Media Assets:
                 </span>
                 <div className="flex flex-wrap gap-2 text-xs">
                   {[
+                    '/khaled_tamim.png',
                     '/media/spark-cover.png',
                     '/media/spark-brand-poster.png',
                     '/media/spark-main-banner.png',
                     '/media/spark-reels.png',
                     '/media/spark-campaign-grid.png',
-                    '/khaled_tamim.png',
                   ].map((path) => (
                     <button
                       key={path}
@@ -4283,22 +4284,22 @@ function AdminForm({
 
               {field(
                 'linkedinUrl',
-                'LinkedIn URL (رابط لينكد إن)',
+                'LinkedIn URL',
                 'https://linkedin.com/in/...',
                 false,
               )}
 
               {field(
                 'email',
-                'Email Address (البريد الإلكتروني)',
+                'Email Address',
                 'team@spark-hub.online',
                 false,
               )}
 
               {area(
                 'bio',
-                'Bio / Description (نبذة مختصرة)',
-                'A short bio highlighting their expertise...',
+                'Bio / Description',
+                'A short bio highlighting their expertise and focus...',
                 editing?.bio ?? '',
                 false,
               )}
