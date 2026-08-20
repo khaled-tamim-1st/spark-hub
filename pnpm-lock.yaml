@@ -86,7 +86,7 @@ importers:
         version: 3.9.6
       sharp:
         specifier: ^0.35.3
-        version: 0.35.3
+        version: 0.35.3(@types/node@25.9.5)
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
@@ -334,6 +334,9 @@ importers:
       rollup:
         specifier: ^4.62.4
         version: 4.62.4
+      sharp:
+        specifier: ^0.35.3
+        version: 0.35.3(@types/node@25.9.5)
       sonner:
         specifier: ^2.0.7
         version: 2.0.8(@types/react@19.2.18)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -6989,7 +6992,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  sharp@0.35.3:
+  sharp@0.35.3(@types/node@25.9.5):
     dependencies:
       '@img/colour': 1.1.0
       detect-libc: 2.1.2
@@ -7020,6 +7023,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.35.3
       '@img/sharp-win32-ia32': 0.35.3
       '@img/sharp-win32-x64': 0.35.3
+      '@types/node': 25.9.5
 
   shebang-command@2.0.0:
     dependencies:

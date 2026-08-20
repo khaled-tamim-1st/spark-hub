@@ -1,6 +1,6 @@
 const SITE_NAME = "Spark Hub Studio";
 const SITE_URL = process.env.PUBLIC_SITE_URL || "https://spark-hub.online";
-const DEFAULT_IMAGE = process.env.PUBLIC_DEFAULT_OG_IMAGE || `${SITE_URL}/logo.png`;
+const DEFAULT_IMAGE = process.env.PUBLIC_DEFAULT_OG_IMAGE || `${SITE_URL}/og-image.png`;
 
 export function esc(value: string): string {
   return String(value ?? "")
@@ -46,6 +46,8 @@ export function renderShell({ title, description, path, image, bodyHtml }: Shell
 <meta property="og:url" content="${esc(url)}" />
 <meta property="og:image" content="${esc(ogImage)}" />
 <meta property="og:image:secure_url" content="${esc(ogImage)}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content="${esc(title)}" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary_large_image" />
