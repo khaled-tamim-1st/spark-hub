@@ -148,7 +148,7 @@ function Logo() {
         </strong>
 
         <small className="mono mt-1 block text-[9px] tracking-[.2em] text-muted-foreground">
-          STUDIO / 01
+          STUDIO / Q1
         </small>
       </span>
     </Link>
@@ -726,77 +726,72 @@ function Home() {
 
   return (
     <Shell>
-      <section className="editorial-grid relative overflow-hidden border-b border-border">
-        <PageFrame className="relative min-h-[650px] pb-20 pt-28 md:grid md:grid-cols-[1.2fr_.8fr] md:items-end md:gap-12 md:pb-28 md:pt-36">
-          <div className="animate-rise relative z-10">
-            <p className="eyebrow mb-8 text-primary">
-              {o?.eyebrow ||
-                'Independent growth studio / Egypt + remote'}
+      <section className="editorial-grid relative min-h-[580px] lg:min-h-[660px] overflow-hidden border-b border-border bg-[#080c14]">
+        {/* Right side cinematic studio production background image */}
+        <div className="absolute inset-y-0 right-0 w-full md:w-[68%] lg:w-[62%] pointer-events-none select-none z-0 overflow-hidden">
+          <img
+            src="/media/spark-hero-studio.png"
+            alt="Spark Hub Cinema & Production Studio Set"
+            className="h-full w-full object-cover object-center opacity-90"
+          />
+          {/* Subtle gradient blends matching mockup */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#080c14] via-[#080c14]/50 to-transparent w-full md:w-1/2" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#080c14]/90 via-transparent to-[#080c14]/40" />
+        </div>
+
+        <PageFrame className="relative z-10 min-h-[580px] lg:min-h-[660px] pb-16 pt-24 md:grid md:grid-cols-[1.1fr_.9fr] md:items-center md:gap-8 md:pb-20 md:pt-28">
+          <div className="animate-rise">
+            <p className="eyebrow mb-6 text-primary tracking-[.22em] font-mono text-[11px]">
+              {o?.eyebrow || 'INDEPENDENT GROWTH STUDIO / EGYPT + REMOTE'}
             </p>
 
-            <h1 className="display max-w-4xl text-[clamp(4rem,10vw,9.5rem)] leading-[.82] tracking-[-.065em]">
-              <span className="hero-line">
-                <span className="hero-word hero-word-1">
+            <h1 className="display max-w-4xl text-[clamp(4.2rem,10.2vw,9.5rem)] font-normal leading-[0.82] tracking-[-0.05em] text-foreground">
+              <span className="hero-line block overflow-hidden pb-1">
+                <span className="hero-word hero-word-1 inline-block">
                   Where
                 </span>
               </span>
 
-              <span className="hero-line">
-                <i className="strategy-gold hero-word hero-word-2">
+              <span className="hero-line block overflow-hidden pb-1">
+                <i className="strategy-gold hero-word hero-word-2 inline-block font-serif italic text-primary">
                   strategy
                 </i>
               </span>
 
-              <span className="hero-line">
-                <span className="hero-word hero-word-3">
+              <span className="hero-line block overflow-hidden pb-1">
+                <span className="hero-word hero-word-3 inline-block">
                   meets
                 </span>
               </span>
 
-              <span className="hero-line">
-                <span className="hero-word hero-word-4">
+              <span className="hero-line block overflow-hidden pb-1">
+                <span className="hero-word hero-word-4 inline-block">
                   growth.
                 </span>
               </span>
             </h1>
-
-            <TypingParagraph
-              text={
-                o?.intro ||
-                'Spark Hub helps ambitious organizations turn good intent into intelligent momentum.'
-              }
-              className="mt-10 max-w-md text-lg leading-8 text-muted-foreground"
-            />
-
-            <Link
-              href="/contact"
-              className="mt-10 inline-flex items-center gap-4 border border-primary bg-primary px-5 py-3 text-xs font-bold uppercase tracking-[.14em] text-primary-foreground transition-all hover:bg-transparent hover:text-primary"
-              data-testid="link-hero-contact"
-            >
-              Bring us a challenge
-              <MoveRight size={15} />
-            </Link>
           </div>
 
-          <div className="hidden animate-rise delay-2 md:absolute md:right-40 md:top-55 md:block md:opacity-100">
-            <div className="relative h-72 w-72 border border-primary/45 md:h-96 md:w-96">
-              <div className="absolute inset-8 rounded-full border border-primary/70" />
+          {/* Golden technical geometric HUD graphic over studio camera scene */}
+          <div className="hidden animate-rise delay-2 md:flex md:items-center md:justify-center md:opacity-100">
+            <div className="relative h-72 w-72 md:h-84 md:w-84 lg:h-96 lg:w-96 border border-primary/50">
+              <div className="absolute inset-7 rounded-full border border-primary/70" />
               <div className="absolute inset-20 rounded-full border border-primary/30" />
 
-              <div className="absolute left-1/2 top-1/2 h-px w-[140%] -translate-x-1/2 -rotate-45 bg-primary/60" />
+              <div className="absolute left-1/2 top-1/2 h-px w-[140%] -translate-x-1/2 -rotate-45 bg-primary/50" />
 
-              <p className="absolute bottom-5 left-5 eyebrow text-primary">
-                SH / 2024—25
+              <p className="absolute bottom-4 left-4 font-mono text-[10px] tracking-wider text-primary">
+                SM / 2024-25
               </p>
 
-              <p className="absolute right-5 top-5 mono text-[10px] text-muted-foreground">
+              <p className="absolute right-4 top-4 font-mono text-[10px] tracking-wider text-muted-foreground">
                 01° / 31° N
               </p>
             </div>
           </div>
         </PageFrame>
 
-        <div className="marquee py-3 mono text-[10px] tracking-[.18em] text-muted-foreground">
+        <div className="marquee py-3 mono text-[10px] tracking-[.18em] text-muted-foreground border-t border-border/40">
           <span>
             STRATEGY&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
             MARKETING&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
