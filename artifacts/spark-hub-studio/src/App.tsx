@@ -1824,6 +1824,9 @@ type TeamMember = {
   position: string | null;
   bio: string | null;
   imageUrl: string | null;
+  displayOrder?: number | null;
+  linkedinUrl?: string | null;
+  email?: string | null;
 };
 
 function useListTeam() {
@@ -1890,7 +1893,15 @@ function useDeleteMessage() {
   });
 }
 
-type TeamMemberInput = { name: string; position: string | null; bio: string | null; imageUrl: string | null };
+type TeamMemberInput = {
+  name: string;
+  position: string | null;
+  bio: string | null;
+  imageUrl: string | null;
+  displayOrder?: number;
+  linkedinUrl?: string | null;
+  email?: string | null;
+};
 
 function useCreateTeamMember() {
   const { getToken } = useAuth();
@@ -2235,48 +2246,89 @@ function About() {
 
         {!!members.length && (
           <div className="mt-28">
-            <p className="eyebrow text-primary">
-              The team
-            </p>
+            <div className="mb-10">
+              <p className="eyebrow text-primary">
+                The team
+              </p>
+              <h2 className="display text-3xl sm:text-4xl mt-2 text-foreground">
+                Built by builders.
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
+                Meet the strategists, creatives, media directors and organizers turning ambition into reality.
+              </p>
+            </div>
 
-            <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {members.map((member) => (
-                <div key={member.id}>
-                  <div className="art-panel aspect-[4/5] overflow-hidden">
-                    {member.imageUrl ? (
-                      <img
-                        src={member.imageUrl}
-                        alt={member.name}
-                        className="h-full w-full object-cover"
-                        loading='lazy'
-                      />
-                    ) : (
-                      <div className="grid h-full w-full place-items-center">
-                        <span className="display text-6xl text-primary">
-                          {member.name
-                            .split(' ')
-                            .map((name) => name[0])
-                            .slice(0, 2)
-                            .join('')}
+                <div key={member.id} className="group flex flex-col justify-between border border-border/60 bg-card/40 p-6 rounded-xl transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl">
+                  <div>
+                    <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
+                      {member.imageUrl ? (
+                        <img
+                          src={member.imageUrl}
+                          alt={member.name}
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                          loading='lazy'
+                        />
+                      ) : (
+                        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/15 via-background to-muted">
+                          <span className="font-serif text-5xl text-primary font-bold">
+                            {member.name
+                              .split(' ')
+                              .map((name) => name[0])
+                              .slice(0, 2)
+                              .join('')}
+                          </span>
+                        </div>
+                      )}
+
+                      {typeof member.displayOrder === 'number' && member.displayOrder > 0 && (
+                        <span className="absolute top-3 left-3 rounded bg-background/80 px-2 py-0.5 mono text-[10px] text-primary backdrop-blur-sm border border-primary/20">
+                          #{member.displayOrder}
                         </span>
-                      </div>
+                      )}
+                    </div>
+
+                    <h3 className="mt-5 font-arabic font-bold text-xl sm:text-2xl text-foreground group-hover:text-primary transition-colors" dir="auto">
+                      {member.name}
+                    </h3>
+
+                    {member.position && (
+                      <p className="mt-1 font-sans text-xs font-semibold text-primary tracking-wide">
+                        {member.position}
+                      </p>
+                    )}
+
+                    {member.bio && (
+                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground font-sans" dir="auto">
+                        {member.bio}
+                      </p>
                     )}
                   </div>
 
-                  <h3 className="mt-5 display text-2xl">
-                    {member.name}
-                  </h3>
-
-                  {member.position && (
-                    <p className="mt-1 eyebrow text-primary">
-                      {member.position}
-                    </p>
-                  )}
-
-                  {member.bio && (
-                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                      {member.bio}
-                    </p>
+                  {(member.linkedinUrl || member.email) && (
+                    <div className="mt-6 flex items-center gap-3 border-t border-border/40 pt-4">
+                      {member.linkedinUrl && (
+                        <a
+                          href={member.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
+                        >
+                          <ExternalLink size={12} />
+                          LinkedIn
+                        </a>
+                      )}
+                      {member.email && (
+                        <a
+                          href={`mailto:${member.email}`}
+                          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition font-medium"
+                        >
+                          <Mail size={12} />
+                          Email
+                        </a>
+                      )}
+                    </div>
                   )}
                 </div>
               ))}
@@ -3032,6 +3084,9 @@ function AdminWorkspace() {
         position: String(form.get('position') || '') || null,
         bio: String(form.get('bio') || '') || null,
         imageUrl: String(form.get('imageUrl') || '') || null,
+        displayOrder: Number(form.get('displayOrder') || 0),
+        linkedinUrl: String(form.get('linkedinUrl') || '') || null,
+        email: String(form.get('email') || '') || null,
       };
 
       if (editing) {
@@ -3923,29 +3978,85 @@ function AdminForm({
             <>
               {field(
                 'name',
-                'Name',
-                'Dr. Randa Elbanna',
+                'Name (الاسم)',
+                'د. راندا البنا / Dr. Randa Elbanna',
               )}
 
               {field(
                 'position',
-                'Position',
+                'Position / Role (المسمى الوظيفي)',
                 'Founder & Managing Director',
+                false,
+              )}
+
+              <div className="space-y-2">
+                <label className="eyebrow block text-primary text-[10px]">
+                  Display Order (ترتيب الظهور)
+                </label>
+                <input
+                  type="number"
+                  name="displayOrder"
+                  defaultValue={editing?.displayOrder ?? 0}
+                  className="w-full border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary"
+                  placeholder="1, 2, 3..."
+                />
+              </div>
+
+              {field(
+                'imageUrl',
+                'Image URL (رابط أو مسار الصورة)',
+                '/media/spark-cover.png',
+                false,
+              )}
+
+              {/* Quick Image Suggestions */}
+              <div className="space-y-1.5">
+                <span className="mono text-[10px] text-muted-foreground uppercase">
+                  Available Media Assets (صور مقترحة من الاستوديو):
+                </span>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {[
+                    '/media/spark-cover.png',
+                    '/media/spark-brand-poster.png',
+                    '/media/spark-main-banner.png',
+                    '/media/spark-reels.png',
+                    '/media/spark-campaign-grid.png',
+                    '/khaled_tamim.png',
+                  ].map((path) => (
+                    <button
+                      key={path}
+                      type="button"
+                      onClick={() => {
+                        const input = document.querySelector('input[name="imageUrl"]') as HTMLInputElement;
+                        if (input) input.value = path;
+                      }}
+                      className="rounded border border-border bg-muted/30 px-2 py-1 mono text-[10px] text-muted-foreground hover:border-primary hover:text-primary transition"
+                    >
+                      {path}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {field(
+                'linkedinUrl',
+                'LinkedIn URL (رابط لينكد إن)',
+                'https://linkedin.com/in/...',
+                false,
+              )}
+
+              {field(
+                'email',
+                'Email Address (البريد الإلكتروني)',
+                'team@spark-hub.online',
                 false,
               )}
 
               {area(
                 'bio',
-                'Bio',
-                'A short bio',
+                'Bio / Description (نبذة مختصرة)',
+                'A short bio highlighting their expertise...',
                 editing?.bio ?? '',
-                false,
-              )}
-
-              {field(
-                'imageUrl',
-                'Image URL',
-                '/media/team/randa.jpg',
                 false,
               )}
             </>

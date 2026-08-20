@@ -455,32 +455,70 @@ router.delete("/blog/:id", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.get("/team", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(teamTable).orderBy(asc(teamTable.id));
+  const rows = await db.select().from(teamTable).orderBy(asc(teamTable.displayOrder), asc(teamTable.id));
   res.json(rows);
 });
 
 router.post("/team", requireAuth, async (req, res): Promise<void> => {
-  const { name, position, bio, imageUrl } = req.body ?? {};
+  const { name, position, bio, imageUrl, displayOrder, linkedinUrl, email } = req.body ?? {};
   if (!name || typeof name !== "string") {
     invalid(res, "name is required");
     return;
   }
   const [row] = await db
     .insert(teamTable)
-    .values({ name, position: position || null, bio: bio || null, imageUrl: imageUrl || null })
+    .values({
+      name,
+      position: position || null,
+      bio: bio || null,
+      imageUrl: imageUrl || null,
+      displayOrder: typeof displayOrder === "number" ? displayOrder : 0,
+      linkedinUrl: linkedinUrl || null,
+      email: email || null,
+    })
     .returning();
   res.status(201).json(row);
 });
 
 router.patch("/team/:id", requireAuth, async (req, res): Promise<void> => {
-  const { name, position, bio, imageUrl } = req.body ?? {};
+  const { name, position, bio, imageUrl, displayOrder, linkedinUrl, email } = req.body ?? {};
   if (!name || typeof name !== "string") {
     invalid(res, "name is required");
     return;
   }
   const [row] = await db
     .update(teamTable)
-    .set({ name, position: position || null, bio: bio || null, imageUrl: imageUrl || null })
+    .set({
+      name,
+      position: position || null,
+      bio: bio || null,
+      imageUrl: imageUrl || null,
+      displayOrder: typeof displayOrder === "number" ? displayOrder : 0,
+      linkedinUrl: linkedinUrl || null,
+      email: email || null,
+    })
+    .where(eq(teamTable.id, Number(req.params.id)))
+    .returning();
+  res.json(row);
+});
+
+router.put("/team/:id", requireAuth, async (req, res): Promise<void> => {
+  const { name, position, bio, imageUrl, displayOrder, linkedinUrl, email } = req.body ?? {};
+  if (!name || typeof name !== "string") {
+    invalid(res, "name is required");
+    return;
+  }
+  const [row] = await db
+    .update(teamTable)
+    .set({
+      name,
+      position: position || null,
+      bio: bio || null,
+      imageUrl: imageUrl || null,
+      displayOrder: typeof displayOrder === "number" ? displayOrder : 0,
+      linkedinUrl: linkedinUrl || null,
+      email: email || null,
+    })
     .where(eq(teamTable.id, Number(req.params.id)))
     .returning();
   res.json(row);
