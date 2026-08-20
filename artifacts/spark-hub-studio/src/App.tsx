@@ -727,17 +727,18 @@ function Home() {
   return (
     <Shell>
       <section className="editorial-grid relative min-h-[580px] lg:min-h-[660px] overflow-hidden border-b border-border bg-[#080c14]">
-        {/* Right side cinematic studio production background image */}
+        {/* Right side studio background image (Temporarily paused) */}
+        {/*
         <div className="absolute inset-y-0 right-0 w-full md:w-[68%] lg:w-[62%] pointer-events-none select-none z-0 overflow-hidden">
           <img
             src="/media/spark-hero-studio.png"
             alt="Spark Hub Cinema & Production Studio Set"
             className="h-full w-full object-cover object-center opacity-90"
           />
-          {/* Subtle gradient blends matching mockup */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#080c14] via-[#080c14]/50 to-transparent w-full md:w-1/2" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#080c14]/90 via-transparent to-[#080c14]/40" />
         </div>
+        */}
 
         <PageFrame className="relative z-10 min-h-[580px] lg:min-h-[660px] pb-16 pt-24 md:grid md:grid-cols-[1.1fr_.9fr] md:items-center md:gap-8 md:pb-20 md:pt-28">
           <div className="animate-rise">
