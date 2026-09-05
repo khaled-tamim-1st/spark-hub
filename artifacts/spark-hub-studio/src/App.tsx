@@ -986,10 +986,10 @@ function WorkCard({
   return (
     <Link
       href={`/work/${item.slug}`}
-      className={`group art-panel gold-glow-card block min-h-[320px] p-6 border border-border/60 rounded-xl ${
+      className={`group art-panel gold-glow-card block min-h-[300px] p-6 border border-border/60 rounded-xl transition-all duration-300 ${
         featured
-          ? 'md:min-h-[480px]'
-          : 'md:min-h-[360px]'
+          ? 'md:min-h-[400px]'
+          : 'md:min-h-[340px]'
       }`}
       data-testid={`card-work-${item.id}`}
     >
@@ -1009,7 +1009,11 @@ function WorkCard({
             {item.client}
           </p>
 
-          <h3 className="display mt-2 max-w-lg text-4xl leading-none transition-transform group-hover:translate-x-1 md:text-5xl">
+          <h3 className={`mt-2 max-w-lg font-bold leading-snug transition-transform duration-300 group-hover:translate-x-1 ${
+            featured
+              ? 'text-xl sm:text-2xl md:text-3xl'
+              : 'text-lg sm:text-xl md:text-2xl'
+          }`}>
             {item.title}
           </h3>
 
