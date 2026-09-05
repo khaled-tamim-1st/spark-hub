@@ -738,8 +738,8 @@ function Home() {
               </span>
             </h1>
 
-            {/* Editorial Quote */}
-            <div className="animate-fade delay-3 mt-7 max-w-xl border-l-2 border-primary/60 pl-4 py-1">
+            {/* Editorial Quote (Mobile only) */}
+            <div className="md:hidden animate-fade delay-3 mt-7 max-w-xl border-l-2 border-primary/60 pl-4 py-1">
               <p className="font-sans text-sm sm:text-base italic text-muted-foreground/90 leading-relaxed">
                 “If your business is not on the internet, then your business will be out of business.”
               </p>
@@ -756,9 +756,9 @@ function Home() {
             </div>
           </div>
 
-          {/* Golden technical geometric HUD graphic over studio scene */}
-          <div className="hidden animate-rise delay-2 md:flex md:items-center md:justify-center md:opacity-100">
-            <div className="relative h-72 w-72 md:h-84 md:w-84 lg:h-96 lg:w-96 border border-primary/40 rounded-xl p-4 bg-card/20 backdrop-blur-[2px]">
+          {/* Golden technical geometric HUD graphic over studio scene with integrated studio quote */}
+          <div className="hidden animate-rise delay-2 md:flex md:flex-col md:items-center md:justify-center md:gap-4 lg:gap-5 md:opacity-100">
+            <div className="relative h-64 w-64 md:h-72 md:w-72 lg:h-80 lg:w-80 border border-primary/40 rounded-xl p-4 bg-card/20 backdrop-blur-[2px]">
               {/* Ambient radial gold backlight */}
               <div className="absolute -inset-8 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
 
@@ -766,10 +766,10 @@ function Home() {
               <div className="absolute inset-5 rounded-full border border-dashed border-primary/40 animate-hud-spin" />
 
               {/* Pulsing inner ring */}
-              <div className="absolute inset-14 rounded-full border border-primary/60 animate-hud-pulse shadow-[0_0_20px_rgba(233,190,88,0.2)]" />
+              <div className="absolute inset-12 lg:inset-14 rounded-full border border-primary/60 animate-hud-pulse shadow-[0_0_20px_rgba(233,190,88,0.2)]" />
 
               {/* Inner core circle */}
-              <div className="absolute inset-24 rounded-full border border-primary/30" />
+              <div className="absolute inset-20 lg:inset-24 rounded-full border border-primary/30" />
 
               {/* Crosshairs */}
               <div className="absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 -rotate-45 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
@@ -790,6 +790,30 @@ function Home() {
               <p className="absolute left-4 top-4 font-mono text-[9px] tracking-widest text-primary/80 uppercase">
                 REC ●
               </p>
+            </div>
+
+            {/* Desktop Studio Perspective Quote Card */}
+            <div className="w-64 md:w-72 lg:w-80 rounded-xl border border-primary/30 bg-card/40 backdrop-blur-md p-4 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all hover:border-primary/50">
+              <div className="flex items-center justify-between border-b border-primary/20 pb-2 mb-2.5">
+                <span className="mono text-[9px] uppercase tracking-widest text-primary flex items-center gap-1.5 font-semibold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(233,190,88,0.8)]" />
+                  PERSPECTIVE
+                </span>
+                <span className="mono text-[9px] text-muted-foreground/80">
+                  REF // 01
+                </span>
+              </div>
+              <p className="font-sans text-xs italic text-foreground/90 leading-relaxed">
+                “If your business is not on the internet, then your business will be out of business.”
+              </p>
+              <div className="mt-3 flex items-center justify-between pt-2 border-t border-border/40 text-[10px]">
+                <span className="mono font-semibold text-primary tracking-wider uppercase">
+                  Bill Gates
+                </span>
+                <span className="text-muted-foreground/70 font-mono text-[9px]">
+                  Founder of Microsoft
+                </span>
+              </div>
             </div>
           </div>
         </PageFrame>
