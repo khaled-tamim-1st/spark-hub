@@ -205,7 +205,7 @@ function Shell({ children }: { children: ReactNode }) {
           <div className="hidden items-center gap-3 sm:flex">
             <Link
               href="/contact"
-              className="flex items-center gap-2 border border-primary px-4 py-2.5 text-[10px] font-bold uppercase tracking-[.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+              className="btn-shimmer flex items-center gap-2 border border-primary/80 bg-primary/10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[.16em] text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_rgba(233,190,88,0.35)]"
               data-testid="link-header-contact"
             >
               Start a conversation
@@ -587,12 +587,15 @@ function SectionHead({
   return (
     <div className="mb-12 grid gap-5 md:grid-cols-[1fr_1.7fr] md:items-end">
       <Reveal>
-        <p className="eyebrow text-primary">{kicker}</p>
+        <p className="eyebrow text-primary inline-flex items-center gap-2">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(233,190,88,0.85)]" />
+          {kicker}
+        </p>
       </Reveal>
 
       <div>
         <Reveal delay={100}>
-          <h2 className="display text-5xl leading-[.98] tracking-[-.04em] md:text-7xl">
+          <h2 className="display text-5xl font-extrabold leading-[.98] tracking-[-.03em] md:text-7xl">
             {title}
           </h2>
         </Reveal>
@@ -704,11 +707,12 @@ function Home() {
 
         <PageFrame className="relative z-10 min-h-[580px] lg:min-h-[660px] pb-16 pt-24 md:grid md:grid-cols-[1.1fr_.9fr] md:items-center md:gap-8 md:pb-20 md:pt-28">
           <div className="animate-rise">
-            <p className="eyebrow mb-6 text-primary tracking-[.22em] font-mono text-[11px]">
+            <p className="eyebrow mb-6 text-primary tracking-[.22em] font-mono text-[11px] inline-flex items-center gap-2">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
               {o?.eyebrow || 'INDEPENDENT GROWTH STUDIO / EGYPT + REMOTE'}
             </p>
 
-            <h1 className="display max-w-4xl text-[clamp(4.2rem,10.2vw,9.5rem)] font-normal leading-[0.82] tracking-[-0.05em] text-foreground">
+            <h1 className="display max-w-4xl text-[clamp(4.2rem,10.2vw,9.5rem)] font-extrabold leading-[0.84] tracking-[-0.03em] text-foreground">
               <span className="hero-line block overflow-hidden pb-1">
                 <span className="hero-word hero-word-1 inline-block">
                   Where
@@ -716,9 +720,9 @@ function Home() {
               </span>
 
               <span className="hero-line block overflow-hidden pb-1">
-                <i className="strategy-gold hero-word hero-word-2 inline-block font-serif italic text-primary">
+                <span className="text-gold-gradient hero-word hero-word-2 inline-block font-black">
                   strategy
-                </i>
+                </span>
               </span>
 
               <span className="hero-line block overflow-hidden pb-1">
@@ -735,20 +739,39 @@ function Home() {
             </h1>
           </div>
 
-          {/* Golden technical geometric HUD graphic over studio camera scene */}
+          {/* Golden technical geometric HUD graphic over studio scene */}
           <div className="hidden animate-rise delay-2 md:flex md:items-center md:justify-center md:opacity-100">
-            <div className="relative h-72 w-72 md:h-84 md:w-84 lg:h-96 lg:w-96 border border-primary/50">
-              <div className="absolute inset-7 rounded-full border border-primary/70" />
-              <div className="absolute inset-20 rounded-full border border-primary/30" />
+            <div className="relative h-72 w-72 md:h-84 md:w-84 lg:h-96 lg:w-96 border border-primary/40 rounded-xl p-4 bg-card/20 backdrop-blur-[2px]">
+              {/* Ambient radial gold backlight */}
+              <div className="absolute -inset-8 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
 
-              <div className="absolute left-1/2 top-1/2 h-px w-[140%] -translate-x-1/2 -rotate-45 bg-primary/50" />
+              {/* Rotating dashed ring */}
+              <div className="absolute inset-5 rounded-full border border-dashed border-primary/40 animate-hud-spin" />
 
-              <p className="absolute bottom-4 left-4 font-mono text-[10px] tracking-wider text-primary">
+              {/* Pulsing inner ring */}
+              <div className="absolute inset-14 rounded-full border border-primary/60 animate-hud-pulse shadow-[0_0_20px_rgba(233,190,88,0.2)]" />
+
+              {/* Inner core circle */}
+              <div className="absolute inset-24 rounded-full border border-primary/30" />
+
+              {/* Crosshairs */}
+              <div className="absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 -rotate-45 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+              <div className="absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 rotate-45 bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+
+              {/* Center pulsing core dot */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary shadow-[0_0_12px_rgba(233,190,88,0.9)] animate-ping" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rounded-full bg-primary" />
+
+              <p className="absolute bottom-4 left-4 font-mono text-[10px] tracking-wider text-primary font-semibold">
                 SM / 2024-25
               </p>
 
               <p className="absolute right-4 top-4 font-mono text-[10px] tracking-wider text-muted-foreground">
                 01° / 31° N
+              </p>
+
+              <p className="absolute left-4 top-4 font-mono text-[9px] tracking-widest text-primary/80 uppercase">
+                REC ●
               </p>
             </div>
           </div>
@@ -946,7 +969,7 @@ function WorkCard({
   return (
     <Link
       href={`/work/${item.slug}`}
-      className={`group art-panel block min-h-[320px] p-6 ${
+      className={`group art-panel gold-glow-card block min-h-[320px] p-6 border border-border/60 rounded-xl ${
         featured
           ? 'md:min-h-[480px]'
           : 'md:min-h-[360px]'
@@ -1407,20 +1430,20 @@ function Reels() {
               <button
                 type="button"
                 onClick={() => setActive(reel)}
-                className="group text-left"
+                className="group text-left transition-all duration-300 hover:-translate-y-1"
                 key={reel.id}
                 data-testid={`link-reel-${reel.id}`}
               >
-                  <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-xl bg-card border border-border/40">
+                  <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-xl bg-card border border-border/40 group-hover:border-primary/60 group-hover:shadow-[0_8px_30px_-6px_rgba(233,190,88,0.28)] transition-all duration-500">
                     <img
                       src={resolveThumbnail(reel.thumbnailUrl, reel.videoUrl)}
                       alt={reel.thumbnailAlt || reel.title}
                       loading='lazy'
-                      className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-95"
+                      className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-700 ease-out group-hover:scale-105 group-hover:opacity-95"
                     />
 
                   <div className="relative z-10 flex h-full items-center justify-center">
-                    <span className="grid h-14 w-14 place-items-center rounded-full border border-primary/40 bg-background/60 backdrop-blur-sm text-primary shadow-lg transition duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-background">
+                    <span className="grid h-14 w-14 place-items-center rounded-full border border-primary/40 bg-background/60 backdrop-blur-sm text-primary shadow-lg transition duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-background group-hover:shadow-[0_0_20px_rgba(233,190,88,0.5)]">
                       <Film size={18} />
                     </span>
                   </div>
@@ -1641,22 +1664,22 @@ function Podcasts() {
                 <button
                   type="button"
                   onClick={() => setActive(podcast)}
-                  className="group text-left"
+                  className="group text-left transition-all duration-300 hover:-translate-y-1"
                   key={podcast.id}
                   data-testid={`card-podcast-${podcast.id}`}
                 >
-                  <div className="art-panel relative aspect-[16/10] overflow-hidden rounded-xl bg-card border border-border/40">
+                  <div className="art-panel relative aspect-[16/10] overflow-hidden rounded-xl bg-card border border-border/40 group-hover:border-primary/60 group-hover:shadow-[0_8px_30px_-6px_rgba(233,190,88,0.28)] transition-all duration-500">
                     <img
                       src={thumb}
                       alt={podcast.thumbnailAlt || podcast.title}
                       loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-95"
+                      className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-700 ease-out group-hover:scale-105 group-hover:opacity-95"
                     />
 
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
 
                   <div className="relative z-10 flex h-full items-center justify-center">
-                    <span className="grid h-12 w-12 place-items-center rounded-full border border-primary/40 bg-background/60 backdrop-blur-sm text-primary shadow-lg transition duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-background">
+                    <span className="grid h-12 w-12 place-items-center rounded-full border border-primary/40 bg-background/60 backdrop-blur-sm text-primary shadow-lg transition duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-background group-hover:shadow-[0_0_20px_rgba(233,190,88,0.5)]">
                       <Headphones size={18} />
                     </span>
                   </div>
@@ -2321,14 +2344,14 @@ function About() {
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {leaders.map((member) => (
-              <div key={member.id} className="group flex flex-col justify-between border border-border/60 bg-card/40 p-6 rounded-xl transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl">
+              <div key={member.id} className="gold-glow-card group flex flex-col justify-between border border-border/60 bg-card/40 p-6 rounded-xl transition-all duration-500 hover:bg-card/70">
                 <div>
                   <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
                     {member.imageUrl ? (
                       <img
                         src={member.imageUrl}
                         alt={member.name}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
                         loading='lazy'
                       />
                     ) : (
@@ -2494,7 +2517,7 @@ function Team() {
             {filteredMembers.map((member) => (
               <div
                 key={member.id}
-                className="group flex flex-col justify-between rounded-xl border border-border/60 bg-card/40 p-5 transition-all duration-300 hover:border-primary/60 hover:bg-card hover:shadow-xl"
+                className="gold-glow-card group flex flex-col justify-between rounded-xl border border-border/60 bg-card/40 p-5 transition-all duration-500 hover:bg-card/70"
               >
                 <div>
                   <div className="art-panel relative aspect-[4/5] overflow-hidden rounded-lg bg-muted border border-border/40">
@@ -2502,7 +2525,7 @@ function Team() {
                       <img
                         src={member.imageUrl}
                         alt={member.name}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
                         loading="lazy"
                       />
                     ) : (
