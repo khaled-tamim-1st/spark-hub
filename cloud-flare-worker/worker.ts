@@ -69,7 +69,20 @@ export default {
       }
     }
 
-    // 5. الزوار العاديون يحصلون على تطبيق الـ React SPA
-    return env.ASSETS.fetch(request);
+    // 5. الزوار العاديون يحصلون على تطبيق الـ React SPA مع منع الكاش لـ index.html لضمان ظهور التحديثات فوراً
+    const spaResponse = await env.ASSETS.fetch(request);
+    const contentType = spaResponse.headers.get('content-type') || '';
+    if (contentType.includes('text/html')) {
+      const headers = new Headers(spaResponse.headers);
+      headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      headers.set('Pragma', 'no-cache');
+      headers.set('Expires', '0');
+      return new Response(spaResponse.body, {
+        status: spaResponse.status,
+        headers,
+      });
+    }
+
+    return spaResponse;
   },
 };
