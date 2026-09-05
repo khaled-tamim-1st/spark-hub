@@ -691,7 +691,7 @@ function Home() {
 
   return (
     <Shell>
-      <section className="editorial-grid relative min-h-[580px] lg:min-h-[660px] overflow-hidden border-b border-border bg-[#080c14]">
+      <section className="editorial-grid relative min-h-0 md:min-h-[580px] lg:min-h-[660px] overflow-hidden border-b border-border bg-[#080c14]">
         {/* Right side studio background image (Temporarily paused) */}
         {/*
         <div className="absolute inset-y-0 right-0 w-full md:w-[68%] lg:w-[62%] pointer-events-none select-none z-0 overflow-hidden">
@@ -705,7 +705,7 @@ function Home() {
         </div>
         */}
 
-        <PageFrame className="relative z-10 min-h-[580px] lg:min-h-[660px] pb-16 pt-24 md:grid md:grid-cols-[1.1fr_.9fr] md:items-center md:gap-8 md:pb-20 md:pt-28">
+        <PageFrame className="relative z-10 min-h-0 md:min-h-[580px] lg:min-h-[660px] pb-10 pt-20 md:pb-20 md:pt-28 md:grid md:grid-cols-[1.1fr_.9fr] md:items-center md:gap-8">
           <div className="animate-rise">
             <p className="eyebrow mb-6 text-primary tracking-[.22em] font-mono text-[11px] inline-flex items-center gap-2">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
@@ -737,6 +737,23 @@ function Home() {
                 </span>
               </span>
             </h1>
+
+            {/* Editorial Quote */}
+            <div className="animate-fade delay-3 mt-7 max-w-xl border-l-2 border-primary/60 pl-4 py-1">
+              <p className="font-sans text-sm sm:text-base italic text-muted-foreground/90 leading-relaxed">
+                “If your business is not on the internet, then your business will be out of business.”
+              </p>
+              <div className="mt-2.5 flex items-center gap-2">
+                <span className="h-px w-5 bg-primary/60" />
+                <span className="mono text-[11px] uppercase tracking-widest text-primary font-semibold">
+                  Bill Gates
+                </span>
+                <span className="text-[10px] text-muted-foreground/50">/</span>
+                <span className="text-[10px] text-muted-foreground tracking-wider">
+                  Founder of Microsoft
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Golden technical geometric HUD graphic over studio scene */}
