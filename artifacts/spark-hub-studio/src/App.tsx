@@ -712,27 +712,27 @@ function Home() {
               {o?.eyebrow || 'INDEPENDENT GROWTH STUDIO / EGYPT + REMOTE'}
             </p>
 
-            <h1 className="display max-w-4xl text-[clamp(4.2rem,10.2vw,9.5rem)] font-extrabold leading-[0.92] tracking-[-0.01em] text-foreground">
-              <span className="hero-line block pb-1">
-                <span className="hero-word hero-word-1 inline-block pr-3">
+            <h1 className="display max-w-4xl text-[clamp(4.2rem,10.2vw,9.5rem)] font-extrabold leading-[0.82] tracking-[-0.05em] text-foreground">
+              <span className="hero-line block overflow-hidden pb-1">
+                <span className="hero-word hero-word-1 inline-block">
                   Where
                 </span>
               </span>
 
-              <span className="hero-line block pb-2">
-                <span className="text-gold-gradient hero-word hero-word-2 inline-block font-black pr-8 pb-1">
+              <span className="hero-line block pb-1">
+                <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
                   strategy
                 </span>
               </span>
 
-              <span className="hero-line block pb-1">
-                <span className="hero-word hero-word-3 inline-block pr-3">
+              <span className="hero-line block overflow-hidden pb-1">
+                <span className="hero-word hero-word-3 inline-block">
                   meets
                 </span>
               </span>
 
-              <span className="hero-line block pb-1">
-                <span className="hero-word hero-word-4 inline-block pr-3">
+              <span className="hero-line block overflow-hidden pb-1">
+                <span className="hero-word hero-word-4 inline-block">
                   growth.
                 </span>
               </span>

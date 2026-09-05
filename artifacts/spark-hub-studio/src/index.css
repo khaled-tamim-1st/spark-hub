@@ -436,14 +436,12 @@
   display: block;
   overflow: hidden;
 
-  padding: 0 0.35em 0.35em 0;
-  margin-bottom: -0.35em;
+  padding: 0 0 0.18em;
+  margin-bottom: -0.18em;
 }
 
 .hero-word {
   display: inline-block;
-  padding-right: 0.2em;
-  padding-bottom: 0.15em;
 
   transform: translateY(110%);
   opacity: 0;
@@ -461,7 +459,6 @@
 
 .hero-word-2 {
   animation-delay: 250ms;
-  padding-right: 0.45em;
 }
 
 .hero-word-3 {
