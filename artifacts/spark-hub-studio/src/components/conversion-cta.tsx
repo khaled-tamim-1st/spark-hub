@@ -8,14 +8,15 @@ export function ConversionCta() {
         <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#8f6217] via-[#b88628] to-[#e5b95c] p-8 sm:p-12 md:p-16 lg:p-20 shadow-[0_25px_60px_-15px_rgba(184,134,40,0.35)] border border-[#fff3d1]/30">
           {/* Concentric growth ripple rings radiating from right edge */}
           <div
-            className="pointer-events-none absolute -right-20 sm:-right-10 md:right-0 lg:right-6 top-1/2 -translate-y-1/2 w-[340px] sm:w-[480px] md:w-[600px] lg:w-[720px] aspect-square select-none opacity-90"
+            className="pointer-events-none absolute inset-y-0 right-0 w-full sm:w-[65%] md:w-[55%] lg:w-[48%] overflow-hidden select-none"
             aria-hidden="true"
           >
             <svg
-              viewBox="0 0 600 600"
+              viewBox="0 0 800 500"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="h-full w-full"
+              preserveAspectRatio="xMaxYMid meet"
+              className="h-full w-full overflow-visible"
             >
               <defs>
                 <radialGradient
@@ -24,29 +25,30 @@ export function ConversionCta() {
                   cy="0"
                   r="1"
                   gradientUnits="userSpaceOnUse"
-                  gradientTransform="translate(480 300) rotate(90) scale(200)"
+                  gradientTransform="translate(620 250) rotate(90) scale(240)"
                 >
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-                  <stop offset="35%" stopColor="#ffffff" stopOpacity="0.25" />
+                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+                  <stop offset="35%" stopColor="#ffffff" stopOpacity="0.3" />
                   <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
                 </radialGradient>
               </defs>
 
               {/* Concentric layered rings matching the reference design in champagne light */}
-              <circle cx="480" cy="300" r="290" fill="white" fillOpacity="0.05" />
-              <circle cx="480" cy="300" r="240" fill="white" fillOpacity="0.08" />
-              <circle cx="480" cy="300" r="190" fill="white" fillOpacity="0.12" />
-              <circle cx="480" cy="300" r="145" fill="white" fillOpacity="0.18" />
-              <circle cx="480" cy="300" r="105" fill="white" fillOpacity="0.26" />
-              <circle cx="480" cy="300" r="70" fill="white" fillOpacity="0.42" />
-              <circle cx="480" cy="300" r="40" fill="white" fillOpacity="0.85" />
-              <circle cx="480" cy="300" r="190" fill="url(#sparkCtaGlow)" />
+              <circle cx="620" cy="250" r="420" fill="white" fillOpacity="0.04" />
+              <circle cx="620" cy="250" r="350" fill="white" fillOpacity="0.07" />
+              <circle cx="620" cy="250" r="280" fill="white" fillOpacity="0.11" />
+              <circle cx="620" cy="250" r="215" fill="white" fillOpacity="0.17" />
+              <circle cx="620" cy="250" r="155" fill="white" fillOpacity="0.25" />
+              <circle cx="620" cy="250" r="105" fill="white" fillOpacity="0.38" />
+              <circle cx="620" cy="250" r="60" fill="white" fillOpacity="0.65" />
+              <circle cx="620" cy="250" r="28" fill="white" fillOpacity="0.95" />
+              <circle cx="620" cy="250" r="250" fill="url(#sparkCtaGlow)" />
             </svg>
           </div>
 
           {/* Core glow bloom */}
           <div
-            className="pointer-events-none absolute right-16 top-1/2 -translate-y-1/2 h-44 w-44 rounded-full bg-white/35 blur-2xl"
+            className="pointer-events-none absolute right-16 sm:right-24 md:right-28 lg:right-32 top-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-white/30 blur-3xl"
             aria-hidden="true"
           />
 

@@ -183,9 +183,19 @@ function ThemeToggle() {
 /*                                   Shell                                    */
 /* -------------------------------------------------------------------------- */
 
-function Shell({ children }: { children: ReactNode }) {
+function Shell({
+  children,
+  hideCta = false,
+}: {
+  children: ReactNode;
+  hideCta?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [location] = useLocation();
+
+  const isContactPage =
+    location === '/contact' || location.startsWith('/contact');
+  const showCta = !hideCta && !isContactPage;
 
   return (
     <div className="grain min-h-[100dvh] bg-background">
@@ -279,6 +289,8 @@ function Shell({ children }: { children: ReactNode }) {
       </header>
 
       <main className="pt-[76px]">{children}</main>
+
+      {showCta && <ConversionCta />}
 
       <Footer />
     </div>
@@ -1005,8 +1017,6 @@ function Home() {
           </PageFrame>
         </section>
       )}
-
-      <ConversionCta />
 
     </Shell>
   );
