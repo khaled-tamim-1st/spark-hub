@@ -97,6 +97,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { SignalGame } from '@/components/signal-game';
+import { allPostsData } from '@/data/posts-data';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -144,11 +145,17 @@ function Logo() {
       </span>
 
       <span className="leading-none">
-        <strong className="block text-[13px] font-800 tracking-[.18em]">
+        <strong
+          style={{ fontFamily: "'Tajawal', sans-serif" }}
+          className="block text-[14px] font-extrabold tracking-[.14em]"
+        >
           SPARK HUB
         </strong>
 
-        <small className="mono mt-1 block text-[9px] tracking-[.2em] text-muted-foreground">
+        <small
+          style={{ fontFamily: "'Tajawal', sans-serif" }}
+          className="mt-1 block text-[10px] font-medium tracking-[.16em] text-muted-foreground"
+        >
           STUDIO / Q1
         </small>
       </span>
@@ -191,9 +198,10 @@ function Shell({ children }: { children: ReactNode }) {
                 key={href}
                 href={href}
                 data-testid={`link-nav-${label.toLowerCase()}`}
-                className={`eyebrow transition-colors hover:text-primary ${
+                style={{ fontFamily: "'Tajawal', sans-serif" }}
+                className={`text-[13px] font-bold uppercase tracking-[.12em] transition-colors hover:text-primary ${
                   location === href
-                    ? gold
+                    ? 'text-primary'
                     : 'text-muted-foreground'
                 }`}
               >
@@ -205,7 +213,8 @@ function Shell({ children }: { children: ReactNode }) {
           <div className="hidden items-center gap-3 sm:flex">
             <Link
               href="/contact"
-              className="btn-shimmer flex items-center gap-2 border border-primary/80 bg-primary/10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[.16em] text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_rgba(233,190,88,0.35)]"
+              style={{ fontFamily: "'Tajawal', sans-serif" }}
+              className="btn-shimmer flex items-center gap-2 border border-primary/80 bg-primary/10 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[.14em] text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_rgba(233,190,88,0.35)]"
               data-testid="link-header-contact"
             >
               Start a conversation
@@ -238,7 +247,8 @@ function Shell({ children }: { children: ReactNode }) {
                   key={href}
                   href={href}
                   data-testid={`link-mobile-${label.toLowerCase()}`}
-                  className={`eyebrow ${
+                  style={{ fontFamily: "'Tajawal', sans-serif" }}
+                  className={`text-sm font-bold uppercase tracking-[.12em] transition-colors ${
                     location === href
                       ? 'text-primary'
                       : 'text-muted-foreground'
@@ -251,12 +261,13 @@ function Shell({ children }: { children: ReactNode }) {
               <Link
                 onClick={() => setOpen(false)}
                 href="/contact"
-                className="eyebrow text-primary"
+                style={{ fontFamily: "'Tajawal', sans-serif" }}
+                className="text-sm font-bold uppercase tracking-[.12em] text-primary flex items-center gap-1.5 pt-1"
                 data-testid="link-mobile-contact"
               >
                 Start a conversation{' '}
                 <ArrowUpRight
-                  size={13}
+                  size={14}
                   className="inline"
                 />
               </Link>
@@ -818,7 +829,10 @@ function Home() {
           </div>
         </PageFrame>
 
-        <div className="marquee py-3 mono text-[10px] tracking-[.18em] text-muted-foreground border-t border-border/40">
+        <div
+          style={{ fontFamily: "'Tajawal', sans-serif" }}
+          className="marquee py-3 text-[11px] font-bold tracking-[.2em] text-muted-foreground border-t border-border/40"
+        >
           <span>
             STRATEGY&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
             MARKETING&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
@@ -1786,61 +1800,315 @@ function Podcasts() {
 
 function Posts() {
   const query = useListPosts();
+  const [selectedBrand, setSelectedBrand] = useState<string>('all');
+  const [activeImageModal, setActiveImageModal] = useState<{
+    url: string;
+    alt: string;
+    caption: string;
+    client: string;
+    category: string;
+  } | null>(null);
+
+  const posts =
+    query.data && query.data.length > 0
+      ? query.data
+      : (allPostsData as any[]).map((p, idx) => ({ id: idx + 1, ...p }));
+
+  // Extract unique brands with their count and category
+  const brandsMap = new Map<string, { count: number; category: string }>();
+  posts.forEach((p) => {
+    const existing = brandsMap.get(p.client);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      brandsMap.set(p.client, { count: 1, category: p.category });
+    }
+  });
+
+  const brandsList = Array.from(brandsMap.entries()).map(([client, info]) => ({
+    client,
+    ...info,
+  }));
+
+  const filteredPosts =
+    selectedBrand === 'all'
+      ? posts
+      : posts.filter((p) => p.client === selectedBrand);
+
+  // Grouped by brand when 'all' is selected
+  const groupedByBrand = brandsList.map((b) => ({
+    brand: b.client,
+    category: b.category,
+    posts: posts.filter((p) => p.client === b.client),
+  }));
 
   return (
     <Shell>
       <PageFrame>
         <SectionHead
-          kicker="From the field"
-          title="The journal, in fragments."
-          intro="A visual index of work, people and questions we keep returning to."
+          kicker="Social & Creative Direction"
+          title="Campaigns & Visual Stories."
+          intro="A curated collection of social media designs, commercial campaigns, and digital brand identities executed by Spark Hub Studio."
           typingIntro
         />
 
         <QueryState
-          loading={query.isLoading}
-          error={!!query.error}
-          empty={
-            !query.isLoading &&
-            !query.error &&
-            !query.data?.length
-          }
+          loading={query.isLoading && !posts.length}
+          error={!!query.error && !posts.length}
+          empty={!posts.length}
         >
-          <div className="columns-1 gap-5 sm:columns-2 lg:columns-3 rounded-xl">
-            {(query.data || []).map((post) => (
-              <article
-                key={post.id}
-                className="mb-5 break-inside-avoid bg-card rounded-xl"
-                data-testid={`card-post-${post.id}`}
+          {/* Brand Filter Pills */}
+          <div className="mb-12 flex flex-wrap items-center gap-2 border-b border-border/60 pb-6">
+            <button
+              onClick={() => setSelectedBrand('all')}
+              className={`rounded-full px-4 py-2 text-xs font-mono transition-all ${
+                selectedBrand === 'all'
+                  ? 'bg-primary text-primary-foreground font-semibold shadow-[0_0_15px_rgba(233,190,88,0.35)]'
+                  : 'bg-card border border-border/80 text-muted-foreground hover:border-primary/50 hover:text-foreground'
+              }`}
+            >
+              All Campaigns ({posts.length})
+            </button>
+
+            {brandsList.map((b) => (
+              <button
+                key={b.client}
+                onClick={() => setSelectedBrand(b.client)}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-mono transition-all ${
+                  selectedBrand === b.client
+                    ? 'bg-primary text-primary-foreground font-semibold shadow-[0_0_15px_rgba(233,190,88,0.35)]'
+                    : 'bg-card border border-border/80 text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                }`}
               >
-                {post.imageUrls?.[0] && (
-                  <img
-                    src={post.imageUrls[0]}
-                    alt={post.imageAlt || post.caption}
-                    className="w-full object-cover rounded-t-xl"
-                    loading='lazy'
-                  />
-                )}
-
-                <div className="p-5">
-                  <p className="eyebrow text-primary">
-                    {post.category}
-                  </p>
-
-                  <p className="mt-4 text-sm leading-6">
-                    {post.caption}
-                  </p>
-
-                  <p className="mt-5 mono text-[10px] text-muted-foreground">
-                    {post.client}
-                  </p>
-                </div>
-              </article>
+                <span>{b.client}</span>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] ${
+                    selectedBrand === b.client
+                      ? 'bg-black/30 text-primary-foreground'
+                      : 'bg-primary/10 text-primary'
+                  }`}
+                >
+                  {b.count}
+                </span>
+              </button>
             ))}
           </div>
+
+          {/* If a specific brand is selected */}
+          {selectedBrand !== 'all' ? (
+            <div>
+              <div className="mb-8 flex items-center justify-between border-l-2 border-primary pl-4">
+                <div>
+                  <h2 className="display text-2xl font-bold text-foreground">
+                    {selectedBrand}
+                  </h2>
+                  <p className="mono text-xs text-primary mt-1">
+                    {brandsMap.get(selectedBrand)?.category} • {filteredPosts.length} Creative Designs
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredPosts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    onOpen={() =>
+                      setActiveImageModal({
+                        url: post.imageUrls[0],
+                        alt: post.imageAlt,
+                        caption: post.caption,
+                        client: post.client,
+                        category: post.category,
+                      })
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* Grouped Sections by Brand when All is selected */
+            <div className="space-y-16">
+              {groupedByBrand.map((group) => (
+                <section
+                  key={group.brand}
+                  className="rounded-2xl border border-border/50 bg-card/30 p-6 md:p-8 backdrop-blur-sm"
+                >
+                  {/* Brand Group Header */}
+                  <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/30 text-primary font-mono text-sm font-bold shadow-[0_0_12px_rgba(233,190,88,0.2)]">
+                        {group.brand.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-foreground flex items-center gap-2.5">
+                          {group.brand}
+                        </h2>
+                        <span className="mono text-[11px] text-primary tracking-wider uppercase">
+                          {group.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <span className="mono text-xs text-muted-foreground bg-card border border-border px-3 py-1 rounded-full">
+                        {group.posts.length} Designs
+                      </span>
+                      <button
+                        onClick={() => setSelectedBrand(group.brand)}
+                        className="text-xs font-mono text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        View brand only <ChevronRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Brand Posts Grid */}
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {group.posts.map((post) => (
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        onOpen={() =>
+                          setActiveImageModal({
+                            url: post.imageUrls[0],
+                            alt: post.imageAlt,
+                            caption: post.caption,
+                            client: post.client,
+                            category: post.category,
+                          })
+                        }
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
         </QueryState>
+
+        {/* Full-Screen Lightbox Modal */}
+        {activeImageModal && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 md:p-8 animate-fade"
+            onClick={() => setActiveImageModal(null)}
+          >
+            <div
+              className="relative max-h-[90vh] max-w-4xl w-full bg-[#080c14] border border-primary/40 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col md:flex-row"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setActiveImageModal(null)}
+                className="absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white hover:bg-primary hover:text-black transition-colors"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="flex-1 bg-black flex items-center justify-center p-2 min-h-[300px] md:min-h-[500px]">
+                <img
+                  src={activeImageModal.url}
+                  alt={activeImageModal.alt}
+                  className="max-h-[75vh] w-auto max-w-full object-contain rounded-lg"
+                />
+              </div>
+
+              <div className="w-full md:w-80 p-6 flex flex-col justify-between border-t md:border-t-0 md:border-l border-border/80 bg-card/60">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                    <span className="mono text-xs uppercase tracking-widest text-primary font-semibold">
+                      {activeImageModal.client}
+                    </span>
+                  </div>
+
+                  <p className="mono text-[11px] text-muted-foreground mb-4">
+                    {activeImageModal.category}
+                  </p>
+
+                  <p className="text-sm leading-relaxed text-foreground font-sans">
+                    {activeImageModal.caption}
+                  </p>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between text-xs mono text-muted-foreground">
+                  <span>Spark Hub Studio</span>
+                  <a
+                    href={activeImageModal.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-primary hover:underline"
+                  >
+                    HD Image <ExternalLink size={13} />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </PageFrame>
     </Shell>
+  );
+}
+
+function PostCard({
+  post,
+  onOpen,
+}: {
+  post: any;
+  onOpen: () => void;
+}) {
+  return (
+    <article
+      className="group relative flex flex-col justify-between rounded-xl border border-border/70 bg-card/90 overflow-hidden transition-all duration-300 hover:border-primary/60 hover:shadow-[0_8px_30px_rgba(233,190,88,0.15)] cursor-pointer"
+      onClick={onOpen}
+      data-testid={`card-post-${post.id}`}
+    >
+      <div className="relative aspect-square w-full overflow-hidden bg-black/40">
+        {post.imageUrls?.[0] && (
+          <img
+            src={post.imageUrls[0]}
+            alt={post.imageAlt || post.caption}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <span className="mono text-xs text-primary font-semibold flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
+            Click to expand
+          </span>
+        </div>
+      </div>
+
+      <div className="p-5 flex flex-col flex-1 justify-between">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="eyebrow text-primary">
+              {post.category}
+            </span>
+            <span className="mono text-[10px] text-muted-foreground/70">
+              #{String(post.id).padStart(2, '0')}
+            </span>
+          </div>
+
+          <p className="text-sm leading-relaxed text-foreground font-sans line-clamp-3">
+            {post.caption}
+          </p>
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between">
+          <span className="mono text-[11px] font-semibold text-muted-foreground group-hover:text-primary transition-colors">
+            {post.client}
+          </span>
+          <ArrowUpRight
+            size={15}
+            className="text-primary transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+          />
+        </div>
+      </div>
+    </article>
   );
 }
 
