@@ -98,7 +98,7 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
-import { SignalGame } from '@/components/signal-game';
+import { ConversionCta } from '@/components/conversion-cta';
 import { allPostsData } from '@/data/posts-data';
 
 const queryClient = new QueryClient({
@@ -951,8 +951,6 @@ function Home() {
         </PageFrame>
       </section>
 
-      <SignalGame />
-
       {!!clientLogos.data?.length && (
         <section className="border-t border-border bg-card">
           <PageFrame>
@@ -1007,6 +1005,8 @@ function Home() {
           </PageFrame>
         </section>
       )}
+
+      <ConversionCta />
 
     </Shell>
   );
