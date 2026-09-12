@@ -28,7 +28,9 @@ import {
 import {
   ClerkProvider,
   SignIn,
+  UserButton,
   useAuth,
+  useUser,
 } from '@clerk/react';
 
 import { publishableKeyFromHost } from '@clerk/react/internal';
@@ -2955,6 +2957,7 @@ function Contact() {
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (mutation.isPending) return;
 
     const form = new FormData(event.currentTarget);
 
@@ -4815,7 +4818,9 @@ function Admin() {
   const {
     isLoaded,
     isSignedIn,
+    userId,
   } = useAuth();
+  const { user } = useUser();
 
   if (!isLoaded) {
     return (
@@ -4825,11 +4830,36 @@ function Admin() {
     );
   }
 
-  return isSignedIn ? (
-    <AdminWorkspace />
-  ) : (
-    <AdminSignIn />
-  );
+  if (!isSignedIn) {
+    return <AdminSignIn />;
+  }
+
+  const role =
+    (user?.publicMetadata as Record<string, unknown> | undefined)?.role ||
+    (user?.unsafeMetadata as Record<string, unknown> | undefined)?.role;
+
+  const isAdmin =
+    role === 'admin' ||
+    (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
+
+  if (!isAdmin) {
+    return (
+      <div className="grid min-h-[100dvh] place-items-center bg-background p-6 text-center">
+        <div className="max-w-md space-y-4">
+          <p className="eyebrow text-destructive">Access Restricted</p>
+          <h1 className="text-2xl font-bold text-foreground">Administrator Privileges Required</h1>
+          <p className="text-sm text-muted-foreground">
+            Your account ({user?.primaryEmailAddress?.emailAddress || userId}) does not have administrative access. Please contact system administrators if you believe this is an error.
+          </p>
+          <div className="pt-4 flex justify-center">
+            <UserButton />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <AdminWorkspace />;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -4941,8 +4971,7 @@ function Router() {
 /* -------------------------------------------------------------------------- */
 
 const clerkPubKey =
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
-  'pk_test_cGxlYXNhbnQtcmFwdG9yLTc4LmNsZXJrLmFjY291bnRzLmRldiQ';
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '';
 
 const clerkProxyUrl =
   import.meta.env.VITE_CLERK_PROXY_URL;

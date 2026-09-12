@@ -16,8 +16,20 @@ const STATIC_ROUTES = [
   { path: "/blog", priority: "0.7" },
 ];
 
+function xmlEscape(val: string): string {
+  return String(val ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 function urlEntry(loc: string, priority: string, lastmod?: string): string {
-  return `<url><loc>${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}<priority>${priority}</priority></url>`;
+  const safeLoc = xmlEscape(loc);
+  const safePriority = xmlEscape(priority);
+  const safeLastmod = lastmod ? `<lastmod>${xmlEscape(lastmod)}</lastmod>` : "";
+  return `<url><loc>${safeLoc}</loc>${safeLastmod}<priority>${safePriority}</priority></url>`;
 }
 
 router.get("/sitemap.xml", async (_req, res) => {

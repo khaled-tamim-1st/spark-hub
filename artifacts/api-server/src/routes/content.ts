@@ -43,7 +43,62 @@ import {
   UpdateServiceParams,
   UpdateServiceResponse,
 } from "@workspace/api-zod";
+import crypto from "crypto";
 import { requireAuth } from "../middleware/auth";
+import { contactRateLimiter } from "../middleware/rateLimiter";
+
+export function parsePaginationParams(query: Record<string, unknown>): { limit: number; offset: number } | { error: string } {
+  const rawLimit = query.limit;
+  const rawOffset = query.offset;
+
+  let limit = 50;
+  let offset = 0;
+
+  if (rawLimit !== undefined && rawLimit !== null && rawLimit !== "") {
+    const str = String(rawLimit).trim();
+    if (!/^\d+$/.test(str)) {
+      return { error: "Invalid 'limit' parameter: must be a positive integer between 1 and 50" };
+    }
+    const num = Number(str);
+    if (!Number.isSafeInteger(num) || num < 1 || num > 50) {
+      return { error: "Invalid 'limit' parameter: must be an integer between 1 and 50" };
+    }
+    limit = num;
+  }
+
+  if (rawOffset !== undefined && rawOffset !== null && rawOffset !== "") {
+    const str = String(rawOffset).trim();
+    if (!/^\d+$/.test(str)) {
+      return { error: "Invalid 'offset' parameter: must be a non-negative integer up to 10,000" };
+    }
+    const num = Number(str);
+    if (!Number.isSafeInteger(num) || num < 0 || num > 10000) {
+      return { error: "Invalid 'offset' parameter: must be a non-negative integer up to 10,000" };
+    }
+    offset = num;
+  }
+
+  return { limit, offset };
+}
+
+const recentLeadsCache = new Map<string, number>();
+const LEAD_DEDUPLICATION_WINDOW_MS = 10 * 60 * 1000;
+
+function isDuplicateLead(email: string, message: string): boolean {
+  const now = Date.now();
+  for (const [key, timestamp] of recentLeadsCache.entries()) {
+    if (now - timestamp > LEAD_DEDUPLICATION_WINDOW_MS) {
+      recentLeadsCache.delete(key);
+    }
+  }
+
+  const hash = crypto.createHash("sha256").update(`${email.trim().toLowerCase()}:${message.trim()}`).digest("hex");
+  if (recentLeadsCache.has(hash)) {
+    return true;
+  }
+  recentLeadsCache.set(hash, now);
+  return false;
+}
 
 const router: IRouter = Router();
 
@@ -69,8 +124,13 @@ router.get("/overview", (_req, res): void => {
   res.json(GetOverviewResponse.parse(overview));
 });
 
-router.get("/services", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(servicesTable).orderBy(asc(servicesTable.displayOrder), asc(servicesTable.id));
+router.get("/services", async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(servicesTable).orderBy(asc(servicesTable.displayOrder), asc(servicesTable.id)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
@@ -113,8 +173,13 @@ router.delete("/services/:id", requireAuth, async (req, res): Promise<void> => {
   res.sendStatus(204);
 });
 
-router.get("/case-studies", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(caseStudiesTable).orderBy(asc(caseStudiesTable.displayOrder), asc(caseStudiesTable.id));
+router.get("/case-studies", async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(caseStudiesTable).orderBy(asc(caseStudiesTable.displayOrder), asc(caseStudiesTable.id)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
@@ -171,8 +236,13 @@ router.delete("/case-studies/:id", requireAuth, async (req, res): Promise<void> 
   res.sendStatus(204);
 });
 
-router.get("/reels", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(reelsTable).orderBy(asc(reelsTable.displayOrder), asc(reelsTable.id));
+router.get("/reels", async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(reelsTable).orderBy(asc(reelsTable.displayOrder), asc(reelsTable.id)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
@@ -253,8 +323,13 @@ function resolveServerThumbnail(thumbnailUrl?: string | null, ...fallbackUrls: (
   return '/media/spark-reels.png';
 }
 
-router.get("/podcasts", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(podcastsTable).orderBy(asc(podcastsTable.displayOrder), asc(podcastsTable.id));
+router.get("/podcasts", async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(podcastsTable).orderBy(asc(podcastsTable.displayOrder), asc(podcastsTable.id)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
@@ -330,8 +405,13 @@ router.delete("/podcasts/:id", requireAuth, async (req, res): Promise<void> => {
   res.sendStatus(204);
 });
 
-router.get("/posts", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(postsTable).orderBy(asc(postsTable.displayOrder), asc(postsTable.id));
+router.get("/posts", async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(postsTable).orderBy(asc(postsTable.displayOrder), asc(postsTable.id)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
@@ -374,8 +454,13 @@ router.delete("/posts/:id", requireAuth, async (req, res): Promise<void> => {
   res.sendStatus(204);
 });
 
-router.get("/testimonials", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(testimonialsTable).orderBy(asc(testimonialsTable.displayOrder), asc(testimonialsTable.id));
+router.get("/testimonials", async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(testimonialsTable).orderBy(asc(testimonialsTable.displayOrder), asc(testimonialsTable.id)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
@@ -403,8 +488,13 @@ router.delete("/testimonials/:id", requireAuth, async (req, res): Promise<void> 
   res.sendStatus(204);
 });
 
-router.get("/blog", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(blogPostsTable).orderBy(asc(blogPostsTable.publishedAt), asc(blogPostsTable.id));
+router.get("/blog", async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(blogPostsTable).orderBy(asc(blogPostsTable.publishedAt), asc(blogPostsTable.id)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
@@ -454,8 +544,13 @@ router.delete("/blog/:id", requireAuth, async (req, res): Promise<void> => {
   res.status(204).send();
 });
 
-router.get("/team", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(teamTable).orderBy(asc(teamTable.displayOrder), asc(teamTable.id));
+router.get("/team", async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(teamTable).orderBy(asc(teamTable.displayOrder), asc(teamTable.id)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
@@ -535,8 +630,13 @@ router.delete("/team/:id", requireAuth, async (req, res): Promise<void> => {
   res.status(204).send();
 });
 
-router.get("/client-logos", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(clientLogosTable).orderBy(asc(clientLogosTable.displayOrder), asc(clientLogosTable.id));
+router.get("/client-logos", async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(clientLogosTable).orderBy(asc(clientLogosTable.displayOrder), asc(clientLogosTable.id)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
@@ -572,18 +672,35 @@ router.delete("/client-logos/:id", requireAuth, async (req, res): Promise<void> 
   res.status(204).send();
 });
 
-router.post("/contact", async (req, res): Promise<void> => {
+router.post("/contact", contactRateLimiter, async (req, res): Promise<void> => {
   const parsed = CreateContactLeadBody.safeParse(req.body);
   if (!parsed.success) {
     invalid(res, parsed.error.message);
     return;
   }
+
+  const { name, email, message, budget, service } = parsed.data;
+  if (name.length > 100 || email.length > 150 || message.length > 3000 || budget.length > 100 || service.length > 100) {
+    res.status(400).json({ error: "One or more input fields exceed maximum allowed length" });
+    return;
+  }
+
+  if (isDuplicateLead(email, message)) {
+    res.status(429).json({ error: "Duplicate submission detected. Please wait before submitting the same message again." });
+    return;
+  }
+
   const [row] = await db.insert(contactLeadsTable).values(parsed.data).returning();
   res.status(201).json(CreateContactLeadResponse.parse(row));
 });
 
-router.get("/contact", requireAuth, async (_req, res): Promise<void> => {
-  const rows = await db.select().from(contactLeadsTable).orderBy(desc(contactLeadsTable.createdAt));
+router.get("/contact", requireAuth, async (req, res): Promise<void> => {
+  const pagination = parsePaginationParams(req.query);
+  if ("error" in pagination) {
+    res.status(400).json({ error: pagination.error });
+    return;
+  }
+  const rows = await db.select().from(contactLeadsTable).orderBy(desc(contactLeadsTable.createdAt)).limit(pagination.limit).offset(pagination.offset);
   res.json(rows);
 });
 
