@@ -24,9 +24,8 @@ const overview = {
 
 // ---- Home ----
 router.get("/", async (_req, res) => {
-  const [services, caseStudies, testimonials] = await Promise.all([
+  const [services, testimonials] = await Promise.all([
     db.select().from(servicesTable).orderBy(asc(servicesTable.displayOrder)).limit(8),
-    db.select().from(caseStudiesTable).orderBy(asc(caseStudiesTable.displayOrder)).limit(6),
     db.select().from(testimonialsTable).orderBy(asc(testimonialsTable.displayOrder)).limit(6),
   ]);
 
@@ -35,9 +34,6 @@ router.get("/", async (_req, res) => {
 <p>${esc(overview.intro)}</p>
 <section><h2>Services</h2><ul>
 ${services.map(s => `<li><a href="/services">${esc(s.title)}</a> — ${esc(s.summary)}</li>`).join("\n")}
-</ul></section>
-<section><h2>Selected work</h2><ul>
-${caseStudies.map(c => `<li><a href="/work/${esc(c.slug)}">${esc(c.title)}</a> — ${esc(c.client)}: ${esc(c.summary)}</li>`).join("\n")}
 </ul></section>
 <section><h2>What clients say</h2><ul>
 ${testimonials.map(t => `<li>"${esc(t.quote)}" — ${esc(t.client)}</li>`).join("\n")}
@@ -51,50 +47,13 @@ ${testimonials.map(t => `<li>"${esc(t.quote)}" — ${esc(t.client)}</li>`).join(
   }));
 });
 
-// ---- Work (list) ----
-router.get("/work", async (_req, res) => {
-  const rows = await db.select().from(caseStudiesTable).orderBy(asc(caseStudiesTable.displayOrder));
-  const body = `
-<h1>Selected work</h1>
-<ul>
-${rows.map(c => `<li><a href="/work/${esc(c.slug)}">${esc(c.title)}</a> — ${esc(c.client)} (${esc(c.category)})<br>${esc(c.summary)}</li>`).join("\n")}
-</ul>`;
-  res.type("html").send(renderShell({
-    title: `Selected work — ${SITE_NAME}`,
-    description: "Case studies across strategy, marketing, creative and business growth.",
-    path: "/work",
-    bodyHtml: body,
-  }));
+// ---- Work (redirected to services) ----
+router.get("/work", (_req, res) => {
+  res.redirect(301, "/services");
 });
 
-// ---- Work detail ----
-router.get("/work/:slug", async (req, res) => {
-  const [row] = await db.select().from(caseStudiesTable).where(eq(caseStudiesTable.slug, req.params.slug));
-  if (!row) {
-    res.status(404).type("html").send(renderShell({
-      title: `Not found — ${SITE_NAME}`,
-      description: "This case study could not be found.",
-      path: `/work/${req.params.slug}`,
-      bodyHtml: "<h1>Not found</h1>",
-    }));
-    return;
-  }
-  const body = `
-<h1>${esc(row.title)}</h1>
-<p><strong>Client:</strong> ${esc(row.client)} · <strong>Category:</strong> ${esc(row.category)}</p>
-<img src="${esc(row.imageUrl)}" alt="${esc(row.imageAlt)}" />
-<p>${esc(row.summary)}</p>
-<h2>Problem</h2><p>${esc(row.problem)}</p>
-<h2>Solution</h2><p>${esc(row.solution)}</p>
-<h2>Result</h2><p>${esc(row.result)}</p>
-<p><strong>${esc(row.metric)}</strong></p>`;
-  res.type("html").send(renderShell({
-    title: `${row.title} — ${SITE_NAME}`,
-    description: row.summary,
-    path: `/work/${row.slug}`,
-    image: row.imageUrl,
-    bodyHtml: body,
-  }));
+router.get("/work/:slug", (_req, res) => {
+  res.redirect(301, "/services");
 });
 
 // ---- Services ----

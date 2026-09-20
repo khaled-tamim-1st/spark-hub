@@ -6,7 +6,6 @@ const router: IRouter = Router();
 
 const STATIC_ROUTES = [
   { path: "/", priority: "1.0" },
-  { path: "/work", priority: "0.8" },
   { path: "/services", priority: "0.8" },
   { path: "/reels", priority: "0.6" },
   { path: "/podcasts", priority: "0.7" },
@@ -33,14 +32,12 @@ function urlEntry(loc: string, priority: string, lastmod?: string): string {
 }
 
 router.get("/sitemap.xml", async (_req, res) => {
-  const [caseStudies, blogPosts] = await Promise.all([
-    db.select({ slug: caseStudiesTable.slug }).from(caseStudiesTable),
+  const [blogPosts] = await Promise.all([
     db.select({ slug: blogPostsTable.slug, publishedAt: blogPostsTable.publishedAt }).from(blogPostsTable),
   ]);
 
   const urls = [
     ...STATIC_ROUTES.map(r => urlEntry(`${SITE_URL}${r.path}`, r.priority)),
-    ...caseStudies.map(c => urlEntry(`${SITE_URL}/work/${c.slug}`, "0.7")),
     ...blogPosts.map(p => urlEntry(`${SITE_URL}/blog/${p.slug}`, "0.6", p.publishedAt)),
   ];
 

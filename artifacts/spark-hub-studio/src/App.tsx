@@ -113,7 +113,6 @@ const queryClient = new QueryClient({
 });
 
 const nav = [
-  ['/work', 'Work'],
   ['/services', 'Services'],
   ['/team', 'Team'],
   ['/reels', 'Reels'],
@@ -708,7 +707,6 @@ function QueryState({
 function Home() {
   const overview = useGetOverview();
   const services = useListServices();
-  const work = useListCaseStudies();
   const testimonials = useListTestimonials();
   const clientLogos = useListClientLogos();
 
@@ -920,48 +918,6 @@ function Home() {
           ))}
         </div>
       </PageFrame>
-
-      <section className="bg-card">
-        <PageFrame>
-          <SectionHead
-            kicker="Selected work"
-            title="Proof, not promises."
-            intro="A few partnerships where a sharper point of view became measurable movement."
-            typingIntro
-          />
-
-          <QueryState
-            loading={work.isLoading}
-            error={!!work.error}
-            empty={
-              !work.isLoading &&
-              !work.error &&
-              !work.data?.length
-            }
-          >
-            <div className="grid gap-5 md:grid-cols-2">
-              {(work.data || [])
-                .slice(0, 4)
-                .map((item, index) => (
-                  <WorkCard
-                    key={item.id}
-                    item={item}
-                    featured={index === 0}
-                  />
-                ))}
-            </div>
-          </QueryState>
-
-          <Link
-            href="/work"
-            className="mt-10 inline-flex items-center gap-2 eyebrow text-primary"
-            data-testid="link-home-work"
-          >
-            View all work
-            <ChevronRight size={14} />
-          </Link>
-        </PageFrame>
-      </section>
 
       {!!clientLogos.data?.length && (
         <section className="border-t border-border bg-card">
@@ -3043,11 +2999,11 @@ function Contact() {
                 </p>
 
                 <Link
-                  href="/work"
+                  href="/services"
                   className="mt-8 eyebrow text-primary"
-                  data-testid="link-contact-success-work"
+                  data-testid="link-contact-success-services"
                 >
-                  See the work →
+                  Explore our services →
                 </Link>
               </div>
             ) : (
@@ -4876,6 +4832,14 @@ function Admin() {
 /*                                   Router                                   */
 /* -------------------------------------------------------------------------- */
 
+function RedirectToServices() {
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    setLocation('/services', { replace: true });
+  }, [setLocation]);
+  return null;
+}
+
 function Router() {
   const [location] = useLocation();
 
@@ -4884,7 +4848,6 @@ function Router() {
 
     const titles: Record<string, string> = {
       '/': 'Spark Hub Studio — Where Strategy Meets Growth',
-      '/work': 'Selected Work — Spark Hub Studio',
       '/services': 'Services — Spark Hub Studio',
       '/reels': 'Reels & Media — Spark Hub Studio',
       '/podcasts': 'Podcasts & Conversations — Spark Hub Studio',
@@ -4912,12 +4875,12 @@ function Router() {
 
         <Route
           path="/work"
-          component={Work}
+          component={RedirectToServices}
         />
 
         <Route
           path="/work/:id"
-          component={WorkDetail}
+          component={RedirectToServices}
         />
 
         <Route

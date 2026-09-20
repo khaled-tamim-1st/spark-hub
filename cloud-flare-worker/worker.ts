@@ -11,7 +11,6 @@ const ADMIN_PATHS = ['/admin', '/sign-in', '/sign-up'];
 // Whitelist of public paths allowed for SSR bot rendering to prevent origin DoS
 const ALLOWED_SSR_EXACT = new Set([
   '/',
-  '/work',
   '/services',
   '/reels',
   '/podcasts',
@@ -24,7 +23,6 @@ const ALLOWED_SSR_EXACT = new Set([
 function isAllowedSsrPath(pathname: string): boolean {
   if (ALLOWED_SSR_EXACT.has(pathname)) return true;
   // Valid detail subpaths: only allow alphanumeric, hyphen, and underscore slugs
-  if (/^\/work\/[a-zA-Z0-9_-]{1,100}$/.test(pathname)) return true;
   if (/^\/blog\/[a-zA-Z0-9_-]{1,100}$/.test(pathname)) return true;
   return false;
 }
