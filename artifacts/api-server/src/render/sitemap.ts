@@ -6,13 +6,21 @@ const router: IRouter = Router();
 
 const STATIC_ROUTES = [
   { path: "/", priority: "1.0" },
+  { path: "/ar", priority: "1.0" },
   { path: "/services", priority: "0.8" },
+  { path: "/ar/services", priority: "0.8" },
   { path: "/reels", priority: "0.6" },
+  { path: "/ar/reels", priority: "0.6" },
   { path: "/podcasts", priority: "0.7" },
+  { path: "/ar/podcasts", priority: "0.7" },
   { path: "/posts", priority: "0.6" },
+  { path: "/ar/posts", priority: "0.6" },
   { path: "/about", priority: "0.6" },
+  { path: "/ar/about", priority: "0.6" },
   { path: "/contact", priority: "0.5" },
+  { path: "/ar/contact", priority: "0.5" },
   { path: "/blog", priority: "0.7" },
+  { path: "/ar/blog", priority: "0.7" },
 ];
 
 function xmlEscape(val: string): string {
@@ -38,7 +46,10 @@ router.get("/sitemap.xml", async (_req, res) => {
 
   const urls = [
     ...STATIC_ROUTES.map(r => urlEntry(`${SITE_URL}${r.path}`, r.priority)),
-    ...blogPosts.map(p => urlEntry(`${SITE_URL}/blog/${p.slug}`, "0.6", p.publishedAt)),
+    ...blogPosts.flatMap(p => [
+      urlEntry(`${SITE_URL}/blog/${p.slug}`, "0.6", p.publishedAt),
+      urlEntry(`${SITE_URL}/ar/blog/${p.slug}`, "0.6", p.publishedAt),
+    ]),
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

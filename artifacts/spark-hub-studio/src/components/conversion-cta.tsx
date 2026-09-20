@@ -1,14 +1,19 @@
 import { Link } from 'wouter';
 import { ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/language-context';
 
 export function ConversionCta() {
+  const { t, localizePath, isRTL } = useLanguage();
+
   return (
     <section className="relative overflow-hidden border-t border-border/60 bg-background py-16 md:py-24 lg:py-28">
       <div className="mx-auto max-w-[1440px] px-5 md:px-10">
         <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#8f6217] via-[#b88628] to-[#e5b95c] p-8 sm:p-12 md:p-16 lg:p-20 shadow-[0_25px_60px_-15px_rgba(184,134,40,0.35)] border border-[#fff3d1]/30">
-          {/* Concentric growth ripple rings radiating from right edge */}
+          {/* Concentric growth ripple rings radiating from end edge */}
           <div
-            className="pointer-events-none absolute inset-y-0 right-0 w-full sm:w-[65%] md:w-[55%] lg:w-[48%] overflow-hidden select-none"
+            className={`pointer-events-none absolute inset-y-0 ${
+              isRTL ? 'left-0 scale-x-[-1]' : 'right-0'
+            } w-full sm:w-[65%] md:w-[55%] lg:w-[48%] overflow-hidden select-none`}
             aria-hidden="true"
           >
             <svg
@@ -48,37 +53,37 @@ export function ConversionCta() {
 
           {/* Core glow bloom */}
           <div
-            className="pointer-events-none absolute right-16 sm:right-24 md:right-28 lg:right-32 top-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-white/30 blur-3xl"
+            className={`pointer-events-none absolute ${
+              isRTL ? 'left-16 sm:left-24 md:left-28 lg:left-32' : 'right-16 sm:right-24 md:right-28 lg:right-32'
+            } top-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-white/30 blur-3xl`}
             aria-hidden="true"
           />
 
           {/* Foreground content with strong visual hierarchy */}
           <div className="relative z-10 max-w-2xl">
             <h2
-              style={{ fontFamily: "'Tajawal', sans-serif" }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-black tracking-[-0.03em] text-[#0c121e] leading-[1.08]"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-black tracking-[-0.03em] text-[#0c121e] leading-[1.12]"
             >
-              Ready to turn strategy into growth?
+              {t('conversion_cta.heading', 'Ready to turn strategy into growth?')}
             </h2>
 
             <p
-              style={{ fontFamily: "'Tajawal', sans-serif" }}
               className="mt-4 sm:mt-5 text-base sm:text-lg md:text-xl font-medium text-[#162133] leading-relaxed max-w-xl"
             >
-              Let’s build your next growth move.
+              {t('conversion_cta.subheading', 'Let’s build your next growth move.')}
             </p>
 
             <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4">
               <Link
-                href="/contact"
+                href={localizePath('/contact')}
                 className="group inline-flex items-center gap-3.5 rounded-full bg-[#0c121e] px-7 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-2xl transition-all duration-300 hover:bg-black hover:scale-[1.02] hover:shadow-[0_14px_40px_rgba(12,18,30,0.55)] border border-black/20 active:scale-[0.98]"
                 data-testid="button-cta-conversation"
               >
-                <span style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                  Start a Conversation
+                <span>
+                  {t('conversion_cta.button', 'Start a Conversation')}
                 </span>
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-white/15 transition-transform duration-300 group-hover:translate-x-1 group-hover:bg-white/25">
-                  <ArrowRight size={15} className="text-white" />
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-white/15 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 group-hover:bg-white/25">
+                  <ArrowRight size={15} className="text-white rtl:rotate-180" />
                 </span>
               </Link>
             </div>

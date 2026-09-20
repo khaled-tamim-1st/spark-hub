@@ -100,6 +100,12 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { ConversionCta } from '@/components/conversion-cta';
 import { allPostsData } from '@/data/posts-data';
+import {
+  LanguageProvider,
+  useLanguage,
+  type Locale,
+} from '@/context/language-context';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,14 +118,14 @@ const queryClient = new QueryClient({
   },
 });
 
-const nav = [
-  ['/services', 'Services'],
-  ['/team', 'Team'],
-  ['/reels', 'Reels'],
-  ['/podcasts', 'Podcasts'],
-  ['/posts', 'Journal'],
-  ['/about', 'About'],
-  ['/blog', 'Notes'],
+const navConfig = [
+  { href: '/services', key: 'services', defaultLabel: 'Services' },
+  { href: '/team', key: 'team', defaultLabel: 'Team' },
+  { href: '/reels', key: 'reels', defaultLabel: 'Reels' },
+  { href: '/podcasts', key: 'podcasts', defaultLabel: 'Podcasts' },
+  { href: '/posts', key: 'posts', defaultLabel: 'Journal' },
+  { href: '/about', key: 'about', defaultLabel: 'About' },
+  { href: '/blog', key: 'blog', defaultLabel: 'Notes' },
 ] as const;
 
 const gold = 'text-primary';
@@ -131,9 +137,11 @@ const LOGO_SRC = '/logo.png';
 /* -------------------------------------------------------------------------- */
 
 function Logo() {
+  const { locale, localizePath } = useLanguage();
+
   return (
     <Link
-      href="/"
+      href={localizePath('/')}
       className="group flex items-center gap-3"
       data-testid="link-logo"
     >
@@ -147,17 +155,15 @@ function Logo() {
 
       <span className="leading-none">
         <strong
-          style={{ fontFamily: "'Tajawal', sans-serif" }}
-          className="block text-[14px] font-extrabold tracking-[.14em]"
+          className="block text-[14px] font-extrabold tracking-[.14em] rtl:tracking-normal"
         >
           SPARK HUB
         </strong>
 
         <small
-          style={{ fontFamily: "'Tajawal', sans-serif" }}
-          className="mt-1 block text-[10px] font-medium tracking-[.16em] text-muted-foreground"
+          className="mt-1 block text-[10px] font-medium tracking-[.16em] rtl:tracking-normal text-muted-foreground"
         >
-          STUDIO / Q1
+          {locale === 'ar' ? 'استوديو استشاري / مصر' : 'STUDIO / Q1'}
         </small>
       </span>
     </Link>
@@ -191,9 +197,13 @@ function Shell({
 }) {
   const [open, setOpen] = useState(false);
   const [location] = useLocation();
+  const { t, localizePath, isRTL } = useLanguage();
+
+  // Normalize location for active link styling
+  const cleanLoc = location === '/ar' || location === '/en' ? '/' : location.replace(/^\/(?:ar|en)/, '');
 
   const isContactPage =
-    location === '/contact' || location.startsWith('/contact');
+    cleanLoc === '/contact' || cleanLoc.startsWith('/contact');
   const showCta = !hideCta && !isContactPage;
 
   return (
@@ -204,36 +214,38 @@ function Shell({
           <Logo />
 
           <nav className="hidden items-center gap-7 md:flex">
-            {nav.map(([href, label]) => (
+            {navConfig.map(({ href, key, defaultLabel }) => (
               <Link
                 key={href}
-                href={href}
-                data-testid={`link-nav-${label.toLowerCase()}`}
-                style={{ fontFamily: "'Tajawal', sans-serif" }}
-                className={`text-[13px] font-bold uppercase tracking-[.12em] transition-colors hover:text-primary ${
-                  location === href
+                href={localizePath(href)}
+                data-testid={`link-nav-${key}`}
+                className={`text-[13px] font-bold uppercase tracking-[.12em] rtl:tracking-normal transition-colors hover:text-primary ${
+                  cleanLoc === href
                     ? 'text-primary'
                     : 'text-muted-foreground'
                 }`}
               >
-                {label}
+                {t(`nav.${key}`, defaultLabel)}
               </Link>
             ))}
           </nav>
 
           <div className="hidden items-center gap-3 sm:flex">
+            <LanguageSwitcher />
+
             <Link
-              href="/contact"
-              style={{ fontFamily: "'Tajawal', sans-serif" }}
-              className="btn-shimmer flex items-center gap-2 border border-primary/80 bg-primary/10 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[.14em] text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_rgba(233,190,88,0.35)]"
+              href={localizePath('/contact')}
+              className="btn-shimmer flex items-center gap-2 border border-primary/80 bg-primary/10 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[.14em] rtl:tracking-normal text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_rgba(233,190,88,0.35)]"
               data-testid="link-header-contact"
             >
-              Start a conversation
-              <ArrowUpRight size={14} />
+              {t('nav.contact', 'Start a conversation')}
+              <ArrowUpRight size={14} className="rtl:-rotate-90" />
             </Link>
           </div>
 
           <div className="flex items-center gap-2 sm:hidden">
+            <LanguageSwitcher />
+
             <button
               type="button"
               onClick={() => setOpen((value) => !value)}
@@ -252,34 +264,32 @@ function Shell({
         {open && (
           <div className="border-t border-border bg-background px-5 py-5 md:hidden">
             <nav className="flex flex-col gap-5">
-              {nav.map(([href, label]) => (
+              {navConfig.map(({ href, key, defaultLabel }) => (
                 <Link
                   onClick={() => setOpen(false)}
                   key={href}
-                  href={href}
-                  data-testid={`link-mobile-${label.toLowerCase()}`}
-                  style={{ fontFamily: "'Tajawal', sans-serif" }}
-                  className={`text-sm font-bold uppercase tracking-[.12em] transition-colors ${
-                    location === href
+                  href={localizePath(href)}
+                  data-testid={`link-mobile-${key}`}
+                  className={`text-sm font-bold uppercase tracking-[.12em] rtl:tracking-normal transition-colors ${
+                    cleanLoc === href
                       ? 'text-primary'
                       : 'text-muted-foreground'
                   }`}
                 >
-                  {label}
+                  {t(`nav.${key}`, defaultLabel)}
                 </Link>
               ))}
 
               <Link
                 onClick={() => setOpen(false)}
-                href="/contact"
-                style={{ fontFamily: "'Tajawal', sans-serif" }}
-                className="text-sm font-bold uppercase tracking-[.12em] text-primary flex items-center gap-1.5 pt-1"
+                href={localizePath('/contact')}
+                className="text-sm font-bold uppercase tracking-[.12em] rtl:tracking-normal text-primary flex items-center gap-1.5 pt-1"
                 data-testid="link-mobile-contact"
               >
-                Start a conversation{' '}
+                {t('nav.contact', 'Start a conversation')}{' '}
                 <ArrowUpRight
                   size={14}
-                  className="inline"
+                  className="inline-block rtl:-rotate-90"
                 />
               </Link>
             </nav>
@@ -301,6 +311,8 @@ function Shell({
 /* -------------------------------------------------------------------------- */
 
 function Footer() {
+  const { t, localizePath } = useLanguage();
+
   return (
     <footer className="border-t border-border bg-sidebar px-5 py-14 md:px-10">
       <div className="mx-auto grid max-w-[1440px] gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
@@ -308,48 +320,68 @@ function Footer() {
           <Logo />
 
           <p className="mt-7 max-w-xs text-sm leading-7 text-muted-foreground">
-            Strategy, systems and stories for organizations with somewhere
-            meaningful to go.
+            {t('footer.bio', 'Strategy, systems and stories for organizations with somewhere meaningful to go.')}
           </p>
         </div>
 
         <div>
-          <p className="eyebrow text-primary">Explore</p>
+          <p className="eyebrow text-primary">{t('footer.explore', 'Explore')}</p>
 
           <div className="mt-5 flex flex-col gap-3 text-sm text-muted-foreground">
-            {nav.slice(0, 4).map(([href, label]) => (
-              <Link
-                key={href}
-                href={href}
-                className="transition-colors hover:text-foreground"
-                data-testid={`link-footer-${label.toLowerCase()}`}
-              >
-                {label}
-              </Link>
-            ))}
+            <Link
+              href={localizePath('/posts')}
+              className="transition-colors hover:text-foreground"
+              data-testid="link-footer-posts"
+            >
+              {t('footer.explore_work', 'Work')}
+            </Link>
+
+            <Link
+              href={localizePath('/services')}
+              className="transition-colors hover:text-foreground"
+              data-testid="link-footer-services"
+            >
+              {t('footer.explore_services', 'Services')}
+            </Link>
+
+            <Link
+              href={localizePath('/team')}
+              className="transition-colors hover:text-foreground"
+              data-testid="link-footer-team"
+            >
+              {t('footer.explore_team', 'Team')}
+            </Link>
+
+            <Link
+              href={localizePath('/reels')}
+              className="transition-colors hover:text-foreground"
+              data-testid="link-footer-reels"
+            >
+              {t('footer.explore_reels', 'Reels')}
+            </Link>
           </div>
         </div>
 
         <div>
-          <p className="eyebrow text-primary">Studio</p>
+          <p className="eyebrow text-primary">{t('footer.studio', 'Studio')}</p>
 
           <div className="mt-5 flex flex-col gap-3 text-sm text-muted-foreground">
-            <Link href="/about" data-testid="link-footer-about">
-              Our point of view
+            <Link href={localizePath('/about')} data-testid="link-footer-about">
+              {t('footer.point_of_view', 'Our point of view')}
             </Link>
 
-            <Link href="/blog" data-testid="link-footer-blog">
-              Field notes
+            <Link href={localizePath('/blog')} data-testid="link-footer-blog">
+              {t('footer.field_notes', 'Field notes')}
             </Link>
 
-            <Link href="/contact" data-testid="link-footer-contact">
-              Work with us
+            <Link href={localizePath('/contact')} data-testid="link-footer-contact">
+              {t('footer.work_with_us', 'Work with us')}
             </Link>
           </div>
         </div>
 
         <div>
-          <p className="eyebrow text-primary">Say hello</p>
+          <p className="eyebrow text-primary">{t('footer.say_hello', 'Say hello')}</p>
 
           <a
             href="mailto:hello@spark-hub.online"
@@ -360,14 +392,18 @@ function Footer() {
           </a>
 
           <p className="mt-7 mono text-[10px] text-muted-foreground">
-            EGYPT / REMOTE / EVERYWHERE
+            {t('footer.location', 'EGYPT / REMOTE / EVERYWHERE')}
           </p>
+
+          <div className="mt-6">
+            <LanguageSwitcher variant="button" />
+          </div>
         </div>
       </div>
 
       <div className="mx-auto mt-16 flex max-w-[1440px] justify-between border-t border-border pt-5 mono text-[10px] text-muted-foreground">
-        <span>© {new Date().getFullYear()} SPARK HUB</span>
-        <span>WHERE STRATEGY MEETS GROWTH</span>
+        <span>© {new Date().getFullYear()} {t('footer.rights', 'SPARK HUB')}</span>
+        <span>{t('footer.tagline', 'WHERE STRATEGY MEETS GROWTH')}</span>
       </div>
     </footer>
   );
@@ -655,6 +691,8 @@ function QueryState({
   empty?: boolean;
   label?: string;
 }) {
+  const { t } = useLanguage();
+
   if (loading) {
     return (
       <div className="grid gap-4 md:grid-cols-3">
@@ -670,13 +708,13 @@ function QueryState({
 
   if (error) {
     return (
-      <div className="border border-destructive/50 bg-destructive/5 p-8">
+      <div className="border border-destructive/50 bg-destructive/5 p-8 text-start">
         <p className="eyebrow text-destructive">
-          Signal interrupted
+          {t('common.error_signal', 'Signal interrupted')}
         </p>
 
         <p className="mt-3 text-sm text-muted-foreground">
-          We couldn't load this {label} right now.
+          {t('common.error_desc', `We couldn't load this ${label} right now.`)}
         </p>
       </div>
     );
@@ -691,7 +729,7 @@ function QueryState({
         />
 
         <p className="mt-4 text-sm text-muted-foreground">
-          This space is taking shape. Check back soon.
+          {t('common.empty', 'This space is taking shape. Check back soon.')}
         </p>
       </div>
     );
@@ -705,6 +743,7 @@ function QueryState({
 /* -------------------------------------------------------------------------- */
 
 function Home() {
+  const { t, locale, localizePath } = useLanguage();
   const overview = useGetOverview();
   const services = useListServices();
   const testimonials = useListTestimonials();
@@ -712,68 +751,99 @@ function Home() {
 
   const o = overview.data;
 
+  const getHomeServiceTitle = (service: any, index: number) => {
+    if (locale === 'ar') {
+      const cat = service.category?.toLowerCase();
+      if (cat === 'strategy' || index === 0) return 'الاستراتيجية والتخطيط المؤسسي';
+      if (cat === 'marketing' || index === 1) return 'إدارة التسويق ومضاعفة النمو';
+      if (cat === 'creative' || index === 2) return 'استراتيجية الهوية البصرية والأنظمة';
+      if (cat === 'training') return 'التدريب التنفيذي وتسريع المهارات';
+    }
+    return service.title;
+  };
+
+  const getHomeServiceSummary = (service: any, index: number) => {
+    if (locale === 'ar') {
+      const cat = service.category?.toLowerCase();
+      if (cat === 'strategy' || index === 0) return 'مسارات إطلاق السوق (GTM)، تحليلات المنافسين العميقة، هندسة قمع المبيعات، وإعادة الهيكلة الإدارية للتسويق.';
+      if (cat === 'marketing' || index === 1) return 'قيادة الحملات الإعلانية متعددة القنوات، البنية التقنية للـ SEO، إدارة الميزانيات وتحليل العائد الاستثماري (ROI).';
+      if (cat === 'creative' || index === 2) return 'أنظمة التيبوغرافي والهوية المتكاملة، التوجيه الإبداعي والإنتاج السينمائي، وأدلة الهوية الشاملة.';
+      if (cat === 'training') return 'معسكرات بناء الهوية، إعلانات الأداء المتقدمة، وإدارة المشاريع الرشيقة (Agile).';
+    }
+    return service.summary;
+  };
+
   return (
     <Shell>
       <section className="editorial-grid relative min-h-0 md:min-h-[580px] lg:min-h-[660px] overflow-hidden border-b border-border bg-[#080c14]">
-        {/* Right side studio background image (Temporarily paused) */}
-        {/*
-        <div className="absolute inset-y-0 right-0 w-full md:w-[68%] lg:w-[62%] pointer-events-none select-none z-0 overflow-hidden">
-          <img
-            src="/media/spark-hero-studio.png"
-            alt="Spark Hub Cinema & Production Studio Set"
-            className="h-full w-full object-cover object-center opacity-90"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080c14] via-[#080c14]/50 to-transparent w-full md:w-1/2" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080c14]/90 via-transparent to-[#080c14]/40" />
-        </div>
-        */}
-
         <PageFrame className="relative z-10 min-h-0 md:min-h-[580px] lg:min-h-[660px] pb-10 pt-20 md:pb-20 md:pt-28 md:grid md:grid-cols-[1.1fr_.9fr] md:items-center md:gap-8">
           <div className="animate-rise">
-            <p className="eyebrow mb-6 text-primary tracking-[.22em] font-mono text-[11px] inline-flex items-center gap-2">
+            <p className="eyebrow mb-6 text-primary tracking-[.22em] rtl:tracking-normal font-mono text-[11px] inline-flex items-center gap-2">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
-              {o?.eyebrow || 'INDEPENDENT GROWTH STUDIO / EGYPT + REMOTE'}
+              {locale === 'ar' ? t('hero.eyebrow') : (o?.eyebrow || t('hero.eyebrow'))}
             </p>
 
-            <h1 className="display max-w-4xl text-[clamp(4.2rem,10.2vw,9.5rem)] font-extrabold leading-[0.82] tracking-[-0.05em] text-foreground">
-              <span className="hero-line block pb-1">
-                <span className="hero-word hero-word-1 inline-block">
-                  Where
+            {locale === 'ar' ? (
+              <h1 className="display max-w-4xl text-[clamp(3.8rem,9.2vw,8.5rem)] font-extrabold leading-[1.08] tracking-normal text-foreground">
+                <span className="hero-line block pb-1">
+                  <span className="hero-word hero-word-1 inline-block">
+                    {t('hero.headline_1', 'حيث تلتقي')}
+                  </span>
                 </span>
-              </span>
 
-              <span className="hero-line block pb-1">
-                <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
-                  strategy
+                <span className="hero-line block pb-1">
+                  <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
+                    {t('hero.headline_2', 'الاستراتيجية')}
+                  </span>
                 </span>
-              </span>
 
-              <span className="hero-line block pb-1">
-                <span className="hero-word hero-word-3 inline-block">
-                  meets
+                <span className="hero-line block pb-1">
+                  <span className="hero-word hero-word-3 inline-block">
+                    {t('hero.headline_3', 'بالنمو.')}
+                  </span>
                 </span>
-              </span>
+              </h1>
+            ) : (
+              <h1 className="display max-w-4xl text-[clamp(4.2rem,10.2vw,9.5rem)] font-extrabold leading-[0.82] tracking-[-0.05em] text-foreground">
+                <span className="hero-line block pb-1">
+                  <span className="hero-word hero-word-1 inline-block">
+                    Where
+                  </span>
+                </span>
 
-              <span className="hero-line block pb-1">
-                <span className="hero-word hero-word-4 inline-block">
-                  growth.
+                <span className="hero-line block pb-1">
+                  <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
+                    strategy
+                  </span>
                 </span>
-              </span>
-            </h1>
+
+                <span className="hero-line block pb-1">
+                  <span className="hero-word hero-word-3 inline-block">
+                    meets
+                  </span>
+                </span>
+
+                <span className="hero-line block pb-1">
+                  <span className="hero-word hero-word-4 inline-block">
+                    growth.
+                  </span>
+                </span>
+              </h1>
+            )}
 
             {/* Editorial Quote (Mobile only) */}
-            <div className="md:hidden animate-fade delay-3 mt-7 max-w-xl border-l-2 border-primary/60 pl-4 py-1">
+            <div className="md:hidden animate-fade delay-3 mt-7 max-w-xl border-s-2 border-primary/60 ps-4 py-1">
               <p className="font-sans text-sm sm:text-base italic text-muted-foreground/90 leading-relaxed">
-                “If your business is not on the internet, then your business will be out of business.”
+                {t('hero.quote')}
               </p>
               <div className="mt-2.5 flex items-center gap-2">
                 <span className="h-px w-5 bg-primary/60" />
                 <span className="mono text-[11px] uppercase tracking-widest text-primary font-semibold">
-                  Bill Gates
+                  {t('hero.quote_author')}
                 </span>
                 <span className="text-[10px] text-muted-foreground/50">/</span>
                 <span className="text-[10px] text-muted-foreground tracking-wider">
-                  Founder of Microsoft
+                  {t('hero.quote_role')}
                 </span>
               </div>
             </div>
@@ -820,21 +890,21 @@ function Home() {
               <div className="flex items-center justify-between border-b border-primary/20 pb-2 mb-2.5">
                 <span className="mono text-[9px] uppercase tracking-widest text-primary flex items-center gap-1.5 font-semibold">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(233,190,88,0.8)]" />
-                  PERSPECTIVE
+                  {t('hero.perspective', 'PERSPECTIVE')}
                 </span>
                 <span className="mono text-[9px] text-muted-foreground/80">
-                  REF // 01
+                  {t('hero.ref', 'REF // 01')}
                 </span>
               </div>
               <p className="font-sans text-xs italic text-foreground/90 leading-relaxed">
-                “If your business is not on the internet, then your business will be out of business.”
+                {t('hero.quote')}
               </p>
               <div className="mt-3 flex items-center justify-between pt-2 border-t border-border/40 text-[10px]">
                 <span className="mono font-semibold text-primary tracking-wider uppercase">
-                  Bill Gates
+                  {t('hero.quote_author')}
                 </span>
                 <span className="text-muted-foreground/70 font-mono text-[9px]">
-                  Founder of Microsoft
+                  {t('hero.quote_role')}
                 </span>
               </div>
             </div>
@@ -842,22 +912,12 @@ function Home() {
         </PageFrame>
 
         <div
-          style={{ fontFamily: "'Tajawal', sans-serif" }}
-          className="marquee py-3 text-[11px] font-bold tracking-[.2em] text-muted-foreground border-t border-border/40"
+          className="marquee py-3 text-[11px] font-bold tracking-[.2em] rtl:tracking-normal text-muted-foreground border-t border-border/40"
         >
           <span>
-            STRATEGY&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            MARKETING&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            OPERATIONS&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            PEOPLE DEVELOPMENT&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            MEDIA&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            SOFTWARE&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            STRATEGY&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            MARKETING&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            OPERATIONS&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            PEOPLE DEVELOPMENT&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            MEDIA&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            SOFTWARE&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
+            {t('hero.marquee')}&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
+            {t('hero.marquee')}&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
+            {t('hero.marquee')}&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
           </span>
         </div>
       </section>
@@ -866,22 +926,21 @@ function Home() {
         <div className="mb-12 grid gap-5 md:grid-cols-[1fr_1.7fr] md:items-end">
           <Reveal>
             <p className="eyebrow text-primary">
-              The premise
+              {t('hero.premise_kicker', 'The premise')}
             </p>
           </Reveal>
 
           <div>
             <Reveal delay={100}>
-              <h1 className="display text-5xl leading-[.98] tracking-[-.04em] md:text-7xl">
-                {o?.vision || 'Growth is not a department.'}
+              <h1 className="display text-4xl sm:text-5xl md:text-7xl leading-[1.05] tracking-[-0.03em] rtl:tracking-normal">
+                {locale === 'ar' ? t('hero.vision') : (o?.vision || t('hero.vision'))}
               </h1>
             </Reveal>
 
             <Reveal delay={180}>
               <TypingParagraph
                 text={
-                  o?.mission ||
-                  'It is the result of clear thinking, aligned teams and work that earns attention. We bring the disciplines together so the whole organization can move with intent.'
+                  locale === 'ar' ? t('hero.mission') : (o?.mission || t('hero.mission'))
                 }
                 className="mt-6 max-w-xl text-base leading-7 text-muted-foreground"
                 delay={300}
@@ -893,7 +952,7 @@ function Home() {
         <div className="mt-16 grid gap-px bg-border md:grid-cols-3">
           {(services.data || []).slice(0, 3).map((service, index) => (
             <Link
-              href="/services"
+              href={localizePath('/services')}
               key={service.id}
               className="group bg-background p-7 md:p-9"
               data-testid={`card-home-service-${service.id}`}
@@ -902,16 +961,16 @@ function Home() {
                 0{index + 1}
               </span>
 
-              <h3 className="display mt-16 text-3xl">
-                {service.title}
+              <h3 className="display mt-16 text-2xl sm:text-3xl">
+                {getHomeServiceTitle(service, index)}
               </h3>
 
               <p className="mt-4 text-sm leading-6 text-muted-foreground">
-                {service.summary}
+                {getHomeServiceSummary(service, index)}
               </p>
 
               <ArrowUpRight
-                className="mt-10 text-primary transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
+                className="mt-10 text-primary transition-transform group-hover:translate-x-1 group-hover:-translate-y-1 rtl:-rotate-90 rtl:group-hover:-translate-x-1"
                 size={18}
               />
             </Link>
@@ -1030,7 +1089,7 @@ function WorkCard({
 
             <ArrowUpRight
               size={17}
-              className="text-primary transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
+              className="text-primary transition-transform group-hover:translate-x-1 group-hover:-translate-y-1 rtl:-rotate-90 rtl:group-hover:-translate-x-1"
             />
           </div>
         </div>
@@ -1078,6 +1137,7 @@ function Work() {
 
 function WorkDetail() {
   const { id = '' } = useParams<{ id: string }>();
+  const { localizePath, locale } = useLanguage();
   const query = useGetCaseStudy(id);
   const item = query.data;
 
@@ -1091,11 +1151,11 @@ function WorkDetail() {
     <Shell>
       <PageFrame>
         <Link
-          href="/work"
-          className="eyebrow text-primary"
+          href={localizePath('/posts')}
+          className="eyebrow text-primary inline-flex items-center gap-2"
           data-testid="link-back-work"
         >
-          ← Back to work
+          {locale === 'ar' ? 'العودة للأعمال →' : '← Back to work'}
         </Link>
 
         <QueryState
@@ -1110,12 +1170,12 @@ function WorkDetail() {
         >
           {item && (
             <>
-              <div className="mt-14 max-w-5xl animate-rise">
+              <div className="mt-14 max-w-5xl animate-rise text-start">
                 <p className="eyebrow text-primary">
                   {item.category} / {item.client}
                 </p>
 
-                <h1 className="display mt-5 text-6xl leading-[.92] tracking-[-.05em] md:text-9xl">
+                <h1 className="display mt-5 text-6xl leading-[.92] tracking-[-.05em] rtl:tracking-normal md:text-9xl">
                   {item.title}
                 </h1>
 
@@ -1124,23 +1184,23 @@ function WorkDetail() {
                 </p>
               </div>
 
-              <div className="art-panel mt-16 flex min-h-80 items-end p-7 md:min-h-[500px] md:p-12">
+              <div className="art-panel mt-16 flex min-h-80 items-end p-7 md:min-h-[500px] md:p-12 text-start">
                 <div className="relative z-10">
                   <p className="eyebrow text-primary">
-                    The shift
+                    {locale === 'ar' ? 'التحول المحقق' : 'The shift'}
                   </p>
 
-                  <p className="display mt-3 max-w-xl text-4xl">
+                  <p className="display mt-3 max-w-xl text-4xl" dir="ltr">
                     {item.metric}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-16 grid gap-12 md:grid-cols-3">
+              <div className="mt-16 grid gap-12 md:grid-cols-3 text-start">
                 {[
-                  ['The question', item.problem],
-                  ['The move', item.solution],
-                  ['The result', item.result],
+                  [locale === 'ar' ? 'التحدي والفرصة' : 'The question', item.problem],
+                  [locale === 'ar' ? 'المسار الاستراتيجي' : 'The move', item.solution],
+                  [locale === 'ar' ? 'النتائج والأثر' : 'The result', item.result],
                 ].map(([label, value]) => (
                   <div key={label}>
                     <p className="eyebrow text-primary">
@@ -1175,16 +1235,70 @@ const categoryLabels: Record<string, string> = {
   software: 'Software solutions',
 };
 
+const categoryLabelsAr: Record<string, string> = {
+  strategy: 'الاستراتيجية والتخطيط المؤسسي',
+  marketing: 'إدارة التسويق ومضاعفة النمو',
+  creative: 'استراتيجية الهوية البصرية والأنظمة',
+  training: 'التدريب التنفيذي وتسريع المهارات',
+  business: 'تطوير الأعمال والحلول الاستشارية',
+  media: 'الإنتاج الإبداعي والسينمائي',
+  software: 'الحلول الرقمية والأنظمة',
+};
+
+const localizedCoreServicesMap: Record<string, { title: string; summary: string; details: string[] }> = {
+  strategy: {
+    title: 'الاستراتيجية والتخطيط المؤسسي',
+    summary: 'مسارات إطلاق السوق (GTM)، تحليلات المنافسين العميقة، هندسة قمع المبيعات، وإعادة الهيكلة الإدارية للتسويق.',
+    details: [
+      'مسارات إطلاق السوق والتوسع المدروس (GTM)',
+      'تحليلات المنافسين العميقة وتحديد الفجوات والفرص السوقية',
+      'هندسة قمع المبيعات وتحسين معدلات التحويل التجاري',
+      'إعادة الهيكلة الإدارية والتنظيمية لمنظومة التسويق',
+    ],
+  },
+  marketing: {
+    title: 'إدارة التسويق ومضاعفة النمو',
+    summary: 'قيادة الحملات الإعلانية متعددة القنوات، البنية التقنية للـ SEO، إدارة الميزانيات وتحليل العائد الاستثماري (ROI).',
+    details: [
+      'قيادة الحملات الإعلانية متعددة القنوات وتحسين الأداء',
+      'البنية التقنية لمحركات البحث (SEO) واستراتيجيات الظهور العضوي',
+      'إدارة وتوزيع الميزانيات التسويقية بكفاءة مالية منضبطة',
+      'قياس العائد على الاستثمار وتحليلات الأداء المتقدمة (ROI)',
+    ],
+  },
+  creative: {
+    title: 'استراتيجية الهوية البصرية والأنظمة',
+    summary: 'أنظمة التيبوغرافي والهوية المتكاملة، التوجيه الإبداعي والإنتاج السينمائي، وأدلة الهوية الشاملة.',
+    details: [
+      'أنظمة التيبوغرافي والهوية المتكاملة وتطبيقات العلامة',
+      'التوجيه الإبداعي والإنتاج السينمائي والسرد البصري',
+      'أدلة الهوية الشاملة ومعايير الاستخدام الاحترافي',
+      'حوكمة العلامة التجارية وتطوير الأصول الرقمية والمطبوعة',
+    ],
+  },
+  training: {
+    title: 'التدريب التنفيذي وتسريع المهارات',
+    summary: 'معسكرات بناء الهوية، إعلانات الأداء المتقدمة، وإدارة المشاريع الرشيقة (Agile).',
+    details: [
+      'معسكرات بناء الهوية وتحديد التموضع التنافسي',
+      'إعلانات الأداء المتقدمة والتسويق الرقمي عالي الكفاءة',
+      'إدارة المشاريع الرشيقة (Agile Frameworks) وتسريع الإنجاز',
+      'تطوير وتأهيل الكوادر القيادية والتنفيذية للشركات',
+    ],
+  },
+};
+
 function Services() {
+  const { t, locale } = useLanguage();
   const query = useListServices();
 
   return (
     <Shell>
       <PageFrame>
         <SectionHead
-          kicker="Capabilities / not packages"
-          title="The connective tissue of growth."
-          intro="The work sits between disciplines. That is where we are most useful — translating strategy into action, and action into something that lasts."
+          kicker={t('services.kicker', 'Capabilities / not packages')}
+          title={t('services.title', 'The connective tissue of growth.')}
+          intro={t('services.intro', 'The work sits between disciplines. That is where we are most useful — translating strategy into action, and action into something that lasts.')}
           typingIntro
         />
 
@@ -1198,54 +1312,85 @@ function Services() {
           }
         >
           <div className="divide-y divide-border border-y border-border">
-            {(query.data || []).map((service, index) => (
-              <details
-                key={service.id}
-                className="group py-7"
-                data-testid={`service-${service.id}`}
-              >
-                <summary className="flex cursor-pointer list-none items-center gap-5">
-                  <span className="mono w-9 text-xs text-primary">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
+            {(query.data || []).map((service, index) => {
+              const cat = service.category?.toLowerCase() || '';
+              const arData =
+                localizedCoreServicesMap[cat] ||
+                (index === 0
+                  ? localizedCoreServicesMap.strategy
+                  : index === 1
+                  ? localizedCoreServicesMap.marketing
+                  : index === 2
+                  ? localizedCoreServicesMap.creative
+                  : index === 3
+                  ? localizedCoreServicesMap.training
+                  : null);
 
-                  <h2 className="display flex-1 text-3xl md:text-5xl">
-                    {categoryLabels[service.category] ||
-                      service.title}
-                  </h2>
+              const displayTitle =
+                locale === 'ar'
+                  ? arData?.title || categoryLabelsAr[cat] || service.title
+                  : categoryLabels[service.category] || service.title;
 
-                  <span className="eyebrow hidden text-muted-foreground md:block">
-                    {service.title}
-                  </span>
+              const displaySummary =
+                locale === 'ar'
+                  ? arData?.summary || service.summary
+                  : service.summary;
 
-                  <ChevronDown
-                    className="text-primary transition-transform group-open:rotate-180"
-                    size={19}
-                  />
-                </summary>
+              const displayDetails =
+                locale === 'ar' && arData?.details?.length
+                  ? arData.details
+                  : service.details || [];
 
-                <div className="grid gap-6 pl-14 pt-7 md:grid-cols-[1fr_1fr]">
-                  <p className="max-w-lg text-sm leading-7 text-muted-foreground">
-                    {service.summary}
-                  </p>
+              return (
+                <details
+                  key={service.id}
+                  className="group py-7"
+                  data-testid={`service-${service.id}`}
+                >
+                  <summary className="flex cursor-pointer list-none items-center gap-5">
+                    <span className="mono w-9 text-xs text-primary">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
 
-                  <ul className="space-y-3">
-                    {(service.details || []).map((detail) => (
-                      <li
-                        key={detail}
-                        className="flex gap-3 text-sm"
-                      >
-                        <Check
-                          className="mt-0.5 shrink-0 text-primary"
-                          size={15}
-                        />
-                        {detail}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </details>
-            ))}
+                    <h2 className="display flex-1 text-2xl sm:text-3xl md:text-5xl">
+                      {displayTitle}
+                    </h2>
+
+                    <span className="eyebrow hidden text-muted-foreground md:block">
+                      {locale === 'ar'
+                        ? categoryLabelsAr[cat] || service.title
+                        : service.title}
+                    </span>
+
+                    <ChevronDown
+                      className="text-primary transition-transform group-open:rotate-180"
+                      size={19}
+                    />
+                  </summary>
+
+                  <div className="grid gap-6 ps-6 md:ps-14 pt-7 md:grid-cols-[1fr_1fr]">
+                    <p className="max-w-lg text-sm leading-7 text-muted-foreground">
+                      {displaySummary}
+                    </p>
+
+                    <ul className="space-y-3">
+                      {displayDetails.map((detail) => (
+                        <li
+                          key={detail}
+                          className="flex gap-3 text-sm"
+                        >
+                          <Check
+                            className="mt-0.5 shrink-0 text-primary"
+                            size={15}
+                          />
+                          <span>{detail}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </details>
+              );
+            })}
           </div>
         </QueryState>
       </PageFrame>
@@ -1380,7 +1525,7 @@ function ReelLightbox({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex w-full max-w-sm items-center justify-between pb-3" dir="auto">
-          <div className="pr-3 flex-1 min-w-0">
+          <div className="pe-3 flex-1 min-w-0">
             <h3 className="font-arabic font-bold text-lg sm:text-xl text-foreground leading-snug">
               {reel.title}
             </h3>
@@ -1430,6 +1575,7 @@ function ReelLightbox({
 }
 
 function Reels() {
+  const { t } = useLanguage();
   const query = useListReels();
   const [active, setActive] = useState<any>(null);
 
@@ -1437,9 +1583,9 @@ function Reels() {
     <Shell>
       <PageFrame>
         <SectionHead
-          kicker="Moving image"
-          title="Stories with a pulse."
-          intro="The work between the takes: films, campaign worlds and visual systems made to hold attention."
+          kicker={t('reels.kicker', 'Moving image')}
+          title={t('reels.title', 'Stories with a pulse.')}
+          intro={t('reels.intro', 'The work between the takes: films, campaign worlds and visual systems made to hold attention.')}
           typingIntro
         />
 
@@ -1457,7 +1603,7 @@ function Reels() {
               <button
                 type="button"
                 onClick={() => setActive(reel)}
-                className="group text-left transition-all duration-300 hover:-translate-y-1"
+                className="group text-start transition-all duration-300 hover:-translate-y-1"
                 key={reel.id}
                 data-testid={`link-reel-${reel.id}`}
               >
@@ -1475,7 +1621,7 @@ function Reels() {
                     </span>
                   </div>
 
-                  <span className="absolute bottom-4 left-4 eyebrow text-primary text-[10px]">
+                  <span className="absolute bottom-4 start-4 eyebrow text-primary text-[10px]">
                     {reel.category}
                   </span>
                 </div>
@@ -1536,7 +1682,7 @@ function PodcastLightbox({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex w-full items-center justify-between pb-3" dir="auto">
-          <div className="flex-1 min-w-0 pr-3">
+          <div className="flex-1 min-w-0 pe-3">
             <div className="flex items-center gap-2 flex-wrap">
               {podcast.episodeNumber && (
                 <span className="rounded-md bg-primary/15 px-2.5 py-0.5 font-sans font-semibold text-xs text-primary border border-primary/20">
@@ -1662,6 +1808,7 @@ function PodcastLightbox({
 }
 
 function Podcasts() {
+  const { t } = useLanguage();
   const query = useListPodcasts();
   const [active, setActive] = useState<any>(null);
 
@@ -1669,9 +1816,9 @@ function Podcasts() {
     <Shell>
       <PageFrame>
         <SectionHead
-          kicker="Audio & Conversations"
-          title="Ideas in conversation."
-          intro="Deep dives into brand strategy, leadership, culture, and sustainable growth with industry shapers."
+          kicker={t('podcasts.kicker', 'Audio & Conversations')}
+          title={t('podcasts.title', 'Ideas in conversation.')}
+          intro={t('podcasts.intro', 'Deep dives into brand strategy, leadership, culture, and sustainable growth with industry shapers.')}
           typingIntro
         />
 
@@ -1691,7 +1838,7 @@ function Podcasts() {
                 <button
                   type="button"
                   onClick={() => setActive(podcast)}
-                  className="group text-left transition-all duration-300 hover:-translate-y-1"
+                  className="group text-start transition-all duration-300 hover:-translate-y-1"
                   key={podcast.id}
                   data-testid={`card-podcast-${podcast.id}`}
                 >
@@ -1767,6 +1914,7 @@ function Podcasts() {
 /* -------------------------------------------------------------------------- */
 
 function Posts() {
+  const { t, locale } = useLanguage();
   const query = useListPosts();
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [activeImageModal, setActiveImageModal] = useState<{
@@ -1814,9 +1962,9 @@ function Posts() {
     <Shell>
       <PageFrame>
         <SectionHead
-          kicker="Social & Creative Direction"
-          title="Campaigns & Visual Stories."
-          intro="A curated collection of social media designs, commercial campaigns, and digital brand identities executed by Spark Hub Studio."
+          kicker={t('posts.kicker', 'Social & Creative Direction')}
+          title={t('posts.title', 'Campaigns & Visual Stories.')}
+          intro={t('posts.intro', 'A curated collection of social media designs, commercial campaigns, and digital brand identities executed by Spark Hub Studio.')}
           typingIntro
         />
 
@@ -1835,7 +1983,7 @@ function Posts() {
                   : 'bg-card border border-border/80 text-muted-foreground hover:border-primary/50 hover:text-foreground'
               }`}
             >
-              All Campaigns ({posts.length})
+              {t('posts.all_brands', 'All Campaigns')} ({posts.length})
             </button>
 
             {brandsList.map((b) => (
@@ -1865,13 +2013,13 @@ function Posts() {
           {/* If a specific brand is selected */}
           {selectedBrand !== 'all' ? (
             <div>
-              <div className="mb-8 flex items-center justify-between border-l-2 border-primary pl-4">
+              <div className="mb-8 flex items-center justify-between border-s-2 border-primary ps-4">
                 <div>
                   <h2 className="display text-2xl font-bold text-foreground">
                     {selectedBrand}
                   </h2>
                   <p className="mono text-xs text-primary mt-1">
-                    {brandsMap.get(selectedBrand)?.category} • {filteredPosts.length} Creative Designs
+                    {brandsMap.get(selectedBrand)?.category} • {filteredPosts.length} {locale === 'ar' ? 'تصميم إبداعي' : 'Creative Designs'}
                   </p>
                 </div>
               </div>
@@ -1920,13 +2068,14 @@ function Posts() {
 
                     <div className="flex items-center gap-3">
                       <span className="mono text-xs text-muted-foreground bg-card border border-border px-3 py-1 rounded-full">
-                        {group.posts.length} Designs
+                        {group.posts.length} {locale === 'ar' ? 'تصميم' : 'Designs'}
                       </span>
                       <button
                         onClick={() => setSelectedBrand(group.brand)}
                         className="text-xs font-mono text-primary hover:underline inline-flex items-center gap-1"
                       >
-                        View brand only <ChevronRight size={14} />
+                        {locale === 'ar' ? 'عرض هذه العلامة فقط' : 'View brand only'}{' '}
+                        <ChevronRight size={14} className="rtl:rotate-180" />
                       </button>
                     </div>
                   </div>
@@ -2557,6 +2706,7 @@ const defaultStudioTeams: TeamMember[] = [
 ];
 
 function About() {
+  const { t, locale, localizePath } = useLanguage();
   const overview = useGetOverview();
   const o = overview.data;
 
@@ -2569,18 +2719,19 @@ function About() {
     <Shell>
       <PageFrame>
         <SectionHead
-          kicker="The studio"
-          title="Human judgment, made useful."
-          intro="Spark Hub is a multidisciplinary growth partner for organizations doing work that matters. We join the dots between the plan, the people and the public expression."
+          kicker={t('about.kicker', 'The studio')}
+          title={t('about.title', 'Human judgment, made useful.')}
+          intro={t('about.intro', 'Spark Hub is a multidisciplinary growth partner for organizations doing work that matters. We join the dots between the plan, the people and the public expression.')}
           typingIntro
         />
 
         <div className="grid gap-6 md:grid-cols-[1.2fr_.8fr]">
           <div className="art-panel flex min-h-[460px] items-end p-8 md:p-12">
-            <p className="relative z-10 max-w-xl display text-4xl leading-tight md:text-6xl">
+            <p className="relative z-10 max-w-xl display text-3xl sm:text-4xl leading-tight md:text-5xl">
               "
-              {o?.vision ||
-                'The best growth feels less like acceleration and more like alignment.'}
+              {locale === 'ar'
+                ? t('hero.vision')
+                : (o?.vision || t('hero.vision'))}
               "
             </p>
           </div>
@@ -2588,22 +2739,23 @@ function About() {
           <div className="flex flex-col justify-between border border-border p-7 md:p-10">
             <div>
               <p className="eyebrow text-primary">
-                Our north star
+                {t('about.north_star', 'Our north star')}
               </p>
 
               <p className="mt-5 text-lg leading-8 text-muted-foreground">
-                {o?.mission ||
-                  'We integrate strategy, marketing, operations and people development into one clear way forward.'}
+                {locale === 'ar'
+                  ? t('hero.mission')
+                  : (o?.mission || t('hero.mission'))}
               </p>
             </div>
 
             <div className="mt-12 border-t border-border pt-7">
               <p className="eyebrow text-primary">
-                Based in
+                {t('about.based_in', 'Based in')}
               </p>
 
               <p className="mt-3 display text-3xl">
-                Egypt / Everywhere
+                {t('about.location', 'Egypt / Everywhere')}
               </p>
             </div>
           </div>
@@ -2613,13 +2765,13 @@ function About() {
         <div className="mt-28">
           <div className="mb-10">
             <p className="eyebrow text-primary">
-              Leadership & Partners
+              {t('about.leadership_kicker', 'Leadership & Partners')}
             </p>
             <h2 className="display text-3xl sm:text-4xl mt-2 text-foreground">
-              Vision, strategy & governance.
+              {t('about.leadership_title', 'Vision, strategy & governance.')}
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
-              The senior directors, partners, and advisors shaping business trajectory, talent development, and high-stakes decisions for our clients.
+              {t('about.leadership_intro', 'The senior directors, partners, and advisors shaping business trajectory, talent development, and high-stakes decisions for our clients.')}
             </p>
           </div>
 
@@ -2702,18 +2854,22 @@ function About() {
           {/* Link to Dedicated Team Page */}
           <div className="mt-20 border border-primary/40 bg-card/60 p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg">
             <div>
-              <p className="eyebrow text-primary text-xs">Studio Squad & Execution Crew</p>
-              <h3 className="display text-2xl mt-1 text-foreground">Meet Our Specialized Execution Teams</h3>
+              <p className="eyebrow text-primary text-xs">
+                {locale === 'ar' ? 'فريق العمل والكوادر التنفيذية' : 'Studio Squad & Execution Crew'}
+              </p>
+              <h3 className="display text-2xl mt-1 text-foreground">
+                {locale === 'ar' ? 'تعرف على فرق العمل المتخصصة' : 'Meet Our Specialized Execution Teams'}
+              </h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-                Explore our dedicated teams across Sales Strategy, Media Buying, Video Production, Brand Design, and Content Creation.
+                {locale === 'ar' ? 'استكشف فرقنا المتخصصة في الاستراتيجية، الحملات الإعلانية، الإنتاج السينمائي، وتصميم الهوية.' : 'Explore our dedicated teams across Sales Strategy, Media Buying, Video Production, Brand Design, and Content Creation.'}
               </p>
             </div>
             <Link
-              href="/team"
-              className="inline-flex items-center gap-2 border border-primary bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[.14em] text-primary-foreground transition hover:bg-transparent hover:text-primary whitespace-nowrap"
+              href={localizePath('/team')}
+              className="inline-flex items-center gap-2 border border-primary bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[.14em] rtl:tracking-normal text-primary-foreground transition hover:bg-transparent hover:text-primary whitespace-nowrap"
             >
-              Meet The Full Team
-              <MoveRight size={14} />
+              {locale === 'ar' ? 'تعرف على الفريق بالكامل' : 'Meet The Full Team'}
+              <MoveRight size={14} className="rtl:rotate-180" />
             </Link>
           </div>
         </div>
@@ -2727,6 +2883,7 @@ function About() {
 /* -------------------------------------------------------------------------- */
 
 function Team() {
+  const { t, localizePath } = useLanguage();
   const team = useListTeam();
   const [selectedDept, setSelectedDept] = useState<string>('all');
 
@@ -2752,9 +2909,9 @@ function Team() {
     <Shell>
       <PageFrame>
         <SectionHead
-          kicker="The Collective"
-          title="Meet The Team."
-          intro="The specialized talent driving commercial sales, scaling performance marketing, producing cinema-grade media, and orchestrating operations with precision."
+          kicker={t('team.kicker', 'The Collective')}
+          title={t('team.title', 'Meet The Team.')}
+          intro={t('team.intro', 'The specialized talent driving commercial sales, scaling performance marketing, producing cinema-grade media, and orchestrating operations with precision.')}
           typingIntro
         />
 
@@ -2770,7 +2927,7 @@ function Team() {
                   : 'border border-border bg-card/60 text-muted-foreground hover:border-primary/50 hover:text-foreground'
               }`}
             >
-              ALL TEAMS ({allStudioList.length})
+              {t('team.all_teams', 'ALL TEAMS')} ({allStudioList.length})
             </button>
             {departments.map((dept) => {
               const count = allStudioList.filter((m) => m.department === dept).length;
@@ -2886,26 +3043,26 @@ function Team() {
           </div>
         ) : (
           <div className="mt-16 border border-border/50 bg-card/30 p-12 text-center rounded-xl">
-            <p className="mono text-xs text-primary uppercase tracking-widest">Studio Squads</p>
-            <p className="text-muted-foreground mt-2 text-sm">No studio team members added yet. Add your specialized sales, marketing, and media teams from the admin dashboard.</p>
+            <p className="mono text-xs text-primary uppercase tracking-widest">{t('team.empty_kicker', 'Studio Squads')}</p>
+            <p className="text-muted-foreground mt-2 text-sm">{t('team.empty_desc', 'No studio team members added yet. Add your specialized sales, marketing, and media teams from the admin dashboard.')}</p>
           </div>
         )}
 
         {/* Bottom CTA */}
         <div className="mt-24 border border-border/60 bg-card/40 p-8 md:p-12 text-center rounded-2xl">
-          <p className="eyebrow text-primary text-xs">Collaboration & Execution</p>
+          <p className="eyebrow text-primary text-xs">{t('team.cta_kicker', 'Collaboration & Execution')}</p>
           <h2 className="display text-3xl sm:text-4xl mt-3 text-foreground">
-            Ready to deploy this team on your business?
+            {t('team.cta_title', 'Ready to deploy this team on your business?')}
           </h2>
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm sm:text-base">
-            From comprehensive media buying to full-cycle sales systems and cinematic production, we build the team around your specific objective.
+            {t('team.cta_desc', 'From comprehensive media buying to full-cycle sales systems and cinematic production, we build the team around your specific objective.')}
           </p>
           <Link
-            href="/contact"
+            href={localizePath('/contact')}
             className="mt-8 inline-flex items-center gap-3 border border-primary bg-primary px-7 py-3.5 text-xs font-bold uppercase tracking-[.14em] text-primary-foreground transition hover:bg-transparent hover:text-primary"
           >
-            Start a project with us
-            <MoveRight size={15} />
+            {t('team.cta_button', 'Start a project with us')}
+            <MoveRight size={15} className="rtl:rotate-180" />
           </Link>
         </div>
       </PageFrame>
@@ -2918,6 +3075,7 @@ function Team() {
 /* -------------------------------------------------------------------------- */
 
 function Contact() {
+  const { t, localizePath, isRTL } = useLanguage();
   const mutation = useCreateContactLead();
   const [sent, setSent] = useState(false);
 
@@ -2947,34 +3105,45 @@ function Contact() {
     <Shell>
       <PageFrame>
         <div className="grid gap-16 md:grid-cols-[.8fr_1.2fr]">
-          <div>
+          <div className="text-start">
             <p className="eyebrow text-primary">
-              Start a conversation
+              {t('contact.kicker', 'Start a conversation')}
             </p>
 
-            <h1 className="display mt-7 text-6xl leading-[.9] md:text-8xl">
-              Make the next move{' '}
-              <i className="text-primary">clear.</i>
+            <h1 className="display mt-7 text-5xl leading-[1.05] sm:text-6xl md:text-7xl">
+              {isRTL ? (
+                <>
+                  جاهز لتحويل{' '}
+                  <i className="text-primary not-italic">الاستراتيجية إلى نمو؟</i>
+                  <span className="block mt-2 text-2xl sm:text-3xl text-muted-foreground font-normal">
+                    — لنبدأ محادثة عمل
+                  </span>
+                </>
+              ) : (
+                <>
+                  Make the next move{' '}
+                  <i className="text-primary">clear.</i>
+                </>
+              )}
             </h1>
 
             <p className="mt-8 max-w-sm text-base leading-7 text-muted-foreground">
-              Tell us what is changing, what is stuck, or what
-              you are ready to build.
+              {t('contact.intro', 'Tell us what is changing, what is stuck, or what you are ready to build.')}
             </p>
 
             <div className="mt-14 space-y-3 mono text-[11px] text-muted-foreground">
-              <p className="flex gap-3">
+              <p className="flex items-center gap-3">
                 <Mail
                   size={14}
-                  className="text-primary"
+                  className="text-primary shrink-0"
                 />
                 hello@spark-hub.online
               </p>
 
-              <p className="flex gap-3">
+              <p className="flex items-center gap-3">
                 <Instagram
                   size={14}
-                  className="text-primary"
+                  className="text-primary shrink-0"
                 />
                 @sparkstudioo1
               </p>
@@ -2983,71 +3152,70 @@ function Contact() {
 
           <div className="border border-border bg-card p-6 md:p-10">
             {sent ? (
-              <div className="flex min-h-96 flex-col justify-center">
+              <div className="flex min-h-96 flex-col justify-center text-start">
                 <Check
                   className="text-primary"
                   size={28}
                 />
 
                 <h2 className="display mt-6 text-4xl">
-                  Message received.
+                  {t('contact.success_title', 'Message received.')}
                 </h2>
 
                 <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">
-                  We will be in touch shortly. In the meantime,
-                  explore what we have been making.
+                  {t('contact.success_desc', 'We will be in touch shortly. In the meantime, explore what we have been making.')}
                 </p>
 
                 <Link
-                  href="/services"
-                  className="mt-8 eyebrow text-primary"
+                  href={localizePath('/services')}
+                  className="mt-8 eyebrow text-primary inline-flex items-center gap-2"
                   data-testid="link-contact-success-services"
                 >
-                  Explore our services →
+                  {t('contact.success_action', 'Explore our services →')}
                 </Link>
               </div>
             ) : (
               <form
                 onSubmit={submit}
-                className="space-y-7"
+                className="space-y-7 text-start"
               >
                 <Field
                   name="name"
-                  label="Your name"
-                  placeholder="Name"
+                  label={t('contact.name_label', 'Your name')}
+                  placeholder={t('contact.name_placeholder', 'Name')}
                 />
 
                 <Field
                   name="email"
-                  label="Email address"
-                  placeholder="you@company.com"
+                  label={t('contact.email_label', 'Email address')}
+                  placeholder={t('contact.email_placeholder', 'you@company.com')}
                   type="email"
                 />
 
                 <div className="grid gap-7 sm:grid-cols-2">
                   <Field
                     name="service"
-                    label="What can we help with?"
-                    placeholder="Strategy, marketing, systems..."
+                    label={t('contact.service_label', 'What can we help with?')}
+                    placeholder={t('contact.service_placeholder', 'Strategy, marketing, systems...')}
                   />
 
                   <Field
                     name="budget"
-                    label="Working range"
-                    placeholder="A useful guide, not a commitment"
+                    label={t('contact.budget_label', 'Working range')}
+                    placeholder={t('contact.budget_placeholder', 'A useful guide, not a commitment')}
                   />
                 </div>
 
-                <label className="block">
+                <label className="block text-start">
                   <span className="eyebrow text-muted-foreground">
-                    The brief
+                    {t('contact.brief_label', 'The brief')}
                   </span>
 
                   <textarea
                     name="message"
                     required
                     rows={5}
-                    placeholder="What are you trying to make possible?"
+                    placeholder={t('contact.brief_placeholder', 'What are you trying to make possible?')}
                     className="mt-3 w-full resize-none border-0 border-b border-border bg-transparent px-0 py-3 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary"
                     data-testid="textarea-contact-message"
                   />
@@ -3056,7 +3224,7 @@ function Contact() {
                 <button
                   type="submit"
                   disabled={mutation.isPending}
-                  className="inline-flex items-center gap-3 bg-primary px-5 py-3 text-xs font-bold uppercase tracking-[.15em] text-primary-foreground hover:bg-primary/85 disabled:opacity-60"
+                  className="inline-flex items-center gap-3 bg-primary px-5 py-3 text-xs font-bold uppercase tracking-[.15em] text-primary-foreground hover:bg-primary/85 disabled:opacity-60 cursor-pointer"
                   data-testid="button-submit-contact"
                 >
                   {mutation.isPending ? (
@@ -3065,17 +3233,17 @@ function Contact() {
                       size={15}
                     />
                   ) : (
-                    <Send size={15} />
+                    <Send size={15} className="rtl:rotate-180" />
                   )}
 
                   {mutation.isPending
-                    ? 'Sending'
-                    : 'Send brief'}
+                    ? t('contact.submitting', 'Sending...')
+                    : (isRTL ? `${t('contact.submit', 'إرسال متطلبات المشروع')} ←` : `${t('contact.submit', 'Send brief')} →`)}
                 </button>
 
                 {mutation.error && (
                   <p className="text-xs text-destructive">
-                    Something went wrong. Please try again.
+                    {t('contact.error', 'Something went wrong. Please try again.')}
                   </p>
                 )}
               </form>
@@ -3099,7 +3267,7 @@ function Field({
   type?: string;
 }) {
   return (
-    <label className="block">
+    <label className="block text-start">
       <span className="eyebrow text-muted-foreground">
         {label}
       </span>
@@ -3108,8 +3276,9 @@ function Field({
         required
         name={name}
         type={type}
+        dir={type === 'email' ? 'ltr' : undefined}
         placeholder={placeholder}
-        className="mt-3 w-full border-0 border-b border-border bg-transparent px-0 py-3 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary"
+        className={`mt-3 w-full border-0 border-b border-border bg-transparent px-0 py-3 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary ${type === 'email' ? 'text-start' : ''}`}
         data-testid={`input-contact-${name}`}
       />
     </label>
@@ -3121,15 +3290,16 @@ function Field({
 /* -------------------------------------------------------------------------- */
 
 function Blog() {
+  const { t, localizePath, locale } = useLanguage();
   const query = useListBlogPosts();
 
   return (
     <Shell>
       <PageFrame>
         <SectionHead
-          kicker="Notes / ideas in progress"
-          title="A sharper way to look at the work."
-          intro="Observations from the intersection of strategy, culture, marketing and making."
+          kicker={t('blog.kicker', 'Notes / ideas in progress')}
+          title={t('blog.title', 'A sharper way to look at the work.')}
+          intro={t('blog.intro', 'Observations from the intersection of strategy, culture, marketing and making.')}
         />
 
         <QueryState
@@ -3144,12 +3314,12 @@ function Blog() {
           <div className="grid gap-x-8 gap-y-14 md:grid-cols-2">
             {(query.data || []).map((post) => (
               <Link
-                href={`/blog/${post.slug}`}
+                href={localizePath(`/blog/${post.slug}`)}
                 key={post.id}
-                className="group"
+                className="group text-start"
                 data-testid={`card-blog-${post.id}`}
               >
-                <div className="art-panel aspect-[1.7]">
+                <div className="art-panel aspect-[1.7] relative">
                   {post.imageUrl && (
                     <img
                       src={post.imageUrl}
@@ -3159,17 +3329,17 @@ function Blog() {
                     />
                   )}
 
-                  <span className="absolute bottom-5 left-5 eyebrow text-primary">
+                  <span className="absolute bottom-5 start-5 eyebrow text-primary">
                     {post.category}
                   </span>
                 </div>
 
                 <div className="mt-5 flex items-start justify-between gap-5">
-                  <div>
+                  <div className="text-start">
                     <p className="mono text-[10px] text-muted-foreground">
                       {new Date(
                         post.publishedAt,
-                      ).toLocaleDateString('en-US', {
+                      ).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
@@ -3187,7 +3357,7 @@ function Blog() {
 
                   <ArrowUpRight
                     size={17}
-                    className="mt-1 shrink-0 text-primary"
+                    className="mt-1 shrink-0 text-primary rtl:-rotate-90"
                   />
                 </div>
               </Link>
@@ -3201,6 +3371,7 @@ function Blog() {
 
 function BlogDetail() {
   const { slug = '' } = useParams<{ slug: string }>();
+  const { t, localizePath, locale } = useLanguage();
   const query = useGetBlogPost(slug);
   const post = query.data;
 
@@ -3214,11 +3385,11 @@ function BlogDetail() {
     <Shell>
       <PageFrame>
         <Link
-          href="/blog"
-          className="eyebrow text-primary"
+          href={localizePath('/blog')}
+          className="eyebrow text-primary inline-flex items-center gap-2"
           data-testid="link-back-blog"
         >
-          ← Back to notes
+          {t('blog.back', '← Back to field notes')}
         </Link>
 
         <QueryState
@@ -3232,12 +3403,16 @@ function BlogDetail() {
           label="note"
         >
           {post && (
-            <article className="mx-auto mt-16 max-w-4xl">
+            <article className="mx-auto mt-16 max-w-4xl text-start">
               <p className="eyebrow text-primary">
                 {post.category} /{' '}
                 {new Date(
                   post.publishedAt,
-                ).toLocaleDateString()}
+                ).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
               </p>
 
               <h1 className="display mt-6 text-6xl leading-[.92] tracking-[-.04em] md:text-8xl">
@@ -3331,6 +3506,7 @@ function AdminField({
 }
 
 function AdminWorkspace() {
+  const { localizePath } = useLanguage();
   const [tab, setTab] =
     useState<AdminKind>('services');
 
@@ -3876,21 +4052,21 @@ function AdminWorkspace() {
           <Logo />
 
           <Link
-            href="/"
+            href={localizePath('/')}
             className="eyebrow text-muted-foreground hover:text-primary"
             data-testid="link-admin-view-site"
           >
             View site
             <ExternalLink
               size={13}
-              className="ml-1 inline"
+              className="ms-1 inline"
             />
           </Link>
         </div>
       </header>
 
       <div className="mx-auto grid max-w-[1500px] md:grid-cols-[240px_1fr]">
-        <aside className="border-r border-border p-5 md:min-h-[calc(100dvh-80px)]">
+        <aside className="border-e border-border p-5 md:min-h-[calc(100dvh-80px)]">
           <p className="eyebrow mb-6 text-primary">
             Content desk
           </p>
@@ -3905,7 +4081,7 @@ function AdminWorkspace() {
                     setTab(id);
                     closeForm();
                   }}
-                  className={`flex shrink-0 items-center gap-3 px-3 py-3 text-left text-sm ${
+                  className={`flex shrink-0 items-center gap-3 px-3 py-3 text-start text-sm ${
                     tab === id
                       ? 'bg-secondary text-primary'
                       : 'text-muted-foreground hover:text-foreground'
@@ -4019,7 +4195,7 @@ function AdminWorkspace() {
               </div>
             ) : (
             <div className="mt-8 overflow-x-auto">
-              <table className="w-full min-w-[680px] text-left">
+              <table className="w-full min-w-[680px] text-start">
                 <thead className="border-b border-border mono text-[10px] text-muted-foreground">
                   <tr>
                     <th className="pb-4">
@@ -4034,7 +4210,7 @@ function AdminWorkspace() {
                       ORDER
                     </th>
 
-                    <th className="pb-4 text-right">
+                    <th className="pb-4 text-end">
                       ACTIONS
                     </th>
                   </tr>
@@ -4070,13 +4246,13 @@ function AdminWorkspace() {
                           {row.displayOrder ?? '—'}
                         </td>
 
-                        <td className="py-5 text-right">
+                        <td className="py-5 text-end">
                           <button
                             type="button"
                             onClick={() =>
                               openEdit(row)
                             }
-                            className="mr-4 text-muted-foreground hover:text-primary"
+                            className="me-4 text-muted-foreground hover:text-primary"
                             aria-label={`Edit ${
                               row.title ||
                               row.caption ||
@@ -4834,24 +5010,27 @@ function Admin() {
 
 function RedirectToServices() {
   const [, setLocation] = useLocation();
+  const { localizePath } = useLanguage();
   useEffect(() => {
-    setLocation('/services', { replace: true });
-  }, [setLocation]);
+    setLocation(localizePath('/services'), { replace: true });
+  }, [setLocation, localizePath]);
   return null;
 }
 
 function Router() {
   const [location] = useLocation();
+  const { locale } = useLanguage();
 
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    const titles: Record<string, string> = {
+    const titlesEn: Record<string, string> = {
       '/': 'Spark Hub Studio — Where Strategy Meets Growth',
       '/services': 'Services — Spark Hub Studio',
+      '/team': 'Team — Spark Hub Studio',
       '/reels': 'Reels & Media — Spark Hub Studio',
       '/podcasts': 'Podcasts & Conversations — Spark Hub Studio',
-      '/posts': 'Posts & Campaigns — Spark Hub Studio',
+      '/posts': 'Journal & Campaigns — Spark Hub Studio',
       '/about': 'About The Studio — Spark Hub Studio',
       '/contact': 'Contact Us — Spark Hub Studio',
       '/blog': 'Notes & Insights — Spark Hub Studio',
@@ -4860,66 +5039,184 @@ function Router() {
       '/sign-up': 'Sign Up — Spark Hub Studio',
     };
 
-    if (titles[location]) {
-      document.title = titles[location];
+    const titlesAr: Record<string, string> = {
+      '/': 'سبارك هب ستوديو — حيث تلتقي الاستراتيجية بالنمو',
+      '/services': 'الخدمات الاستشارية — سبارك هب ستوديو',
+      '/team': 'فريق العمل — سبارك هب ستوديو',
+      '/reels': 'ريلز وميديا — سبارك هب ستوديو',
+      '/podcasts': 'بودكاست وحوارات — سبارك هب ستوديو',
+      '/posts': 'سجل الأعمال — سبارك هب ستوديو',
+      '/about': 'عن الاستوديو — سبارك هب ستوديو',
+      '/contact': 'تواصل معنا — سبارك هب ستوديو',
+      '/blog': 'رؤى وأفكار — سبارك هب ستوديو',
+      '/admin': 'لوحة التحكم — سبارك هب ستوديو',
+      '/sign-in': 'تسجيل الدخول — سبارك هب ستوديو',
+      '/sign-up': 'إنشاء حساب — سبارك هب ستوديو',
+    };
+
+    let clean = location;
+    if (clean === '/ar' || clean === '/en') clean = '/';
+    else if (clean.startsWith('/ar/')) clean = clean.slice(3);
+    else if (clean.startsWith('/en/')) clean = clean.slice(3);
+
+    const titles = locale === 'ar' ? titlesAr : titlesEn;
+    if (titles[clean]) {
+      document.title = titles[clean];
     }
-  }, [location]);
+  }, [location, locale]);
 
   return (
     <ErrorBoundary resetKey={location}>
       <Switch>
+        {/* Home */}
         <Route
           path="/"
           component={Home}
         />
+        <Route
+          path="/ar"
+          component={Home}
+        />
+        <Route
+          path="/en"
+          component={Home}
+        />
 
+        {/* Work (redirected to services) */}
         <Route
           path="/work"
           component={RedirectToServices}
         />
-
+        <Route
+          path="/ar/work"
+          component={RedirectToServices}
+        />
+        <Route
+          path="/en/work"
+          component={RedirectToServices}
+        />
         <Route
           path="/work/:id"
           component={RedirectToServices}
         />
+        <Route
+          path="/ar/work/:id"
+          component={RedirectToServices}
+        />
+        <Route
+          path="/en/work/:id"
+          component={RedirectToServices}
+        />
 
+        {/* Services */}
         <Route
           path="/services"
           component={Services}
         />
+        <Route
+          path="/ar/services"
+          component={Services}
+        />
+        <Route
+          path="/en/services"
+          component={Services}
+        />
 
+        {/* Team */}
         <Route
           path="/team"
           component={Team}
         />
+        <Route
+          path="/ar/team"
+          component={Team}
+        />
+        <Route
+          path="/en/team"
+          component={Team}
+        />
 
+        {/* Reels */}
         <Route
           path="/reels"
           component={Reels}
         />
+        <Route
+          path="/ar/reels"
+          component={Reels}
+        />
+        <Route
+          path="/en/reels"
+          component={Reels}
+        />
 
+        {/* Podcasts */}
         <Route
           path="/podcasts"
           component={Podcasts}
         />
+        <Route
+          path="/ar/podcasts"
+          component={Podcasts}
+        />
+        <Route
+          path="/en/podcasts"
+          component={Podcasts}
+        />
 
+        {/* Posts */}
         <Route
           path="/posts"
           component={Posts}
         />
+        <Route
+          path="/ar/posts"
+          component={Posts}
+        />
+        <Route
+          path="/en/posts"
+          component={Posts}
+        />
 
+        {/* About */}
         <Route
           path="/about"
           component={About}
         />
+        <Route
+          path="/ar/about"
+          component={About}
+        />
+        <Route
+          path="/en/about"
+          component={About}
+        />
 
+        {/* Contact */}
         <Route
           path="/contact"
           component={Contact}
         />
+        <Route
+          path="/ar/contact"
+          component={Contact}
+        />
+        <Route
+          path="/en/contact"
+          component={Contact}
+        />
 
+        {/* Blog */}
         <Route
           path="/blog"
+          component={Blog}
+        />
+        <Route
+          path="/ar/blog"
+          component={Blog}
+        />
+        <Route
+          path="/en/blog"
           component={Blog}
         />
 
@@ -4927,9 +5224,26 @@ function Router() {
           path="/blog/:slug"
           component={BlogDetail}
         />
+        <Route
+          path="/ar/blog/:slug"
+          component={BlogDetail}
+        />
+        <Route
+          path="/en/blog/:slug"
+          component={BlogDetail}
+        />
 
+        {/* Admin */}
         <Route
           path="/admin"
+          component={Admin}
+        />
+        <Route
+          path="/ar/admin"
+          component={Admin}
+        />
+        <Route
+          path="/en/admin"
           component={Admin}
         />
 
@@ -4967,9 +5281,11 @@ function App() {
     >
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <GoldenDust />
-          <Router />
-          <Toaster />
+          <LanguageProvider>
+            <GoldenDust />
+            <Router />
+            <Toaster />
+          </LanguageProvider>
         </TooltipProvider>
       </QueryClientProvider>
     </ClerkProvider>

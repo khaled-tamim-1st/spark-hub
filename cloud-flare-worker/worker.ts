@@ -11,7 +11,9 @@ const ADMIN_PATHS = ['/admin', '/sign-in', '/sign-up'];
 // Whitelist of public paths allowed for SSR bot rendering to prevent origin DoS
 const ALLOWED_SSR_EXACT = new Set([
   '/',
+  '/work',
   '/services',
+  '/team',
   '/reels',
   '/podcasts',
   '/posts',
@@ -21,9 +23,15 @@ const ALLOWED_SSR_EXACT = new Set([
 ]);
 
 function isAllowedSsrPath(pathname: string): boolean {
-  if (ALLOWED_SSR_EXACT.has(pathname)) return true;
+  let normalized = pathname;
+  if (normalized === '/ar' || normalized === '/en') normalized = '/';
+  else if (normalized.startsWith('/ar/')) normalized = normalized.slice(3);
+  else if (normalized.startsWith('/en/')) normalized = normalized.slice(3);
+
+  if (ALLOWED_SSR_EXACT.has(normalized)) return true;
   // Valid detail subpaths: only allow alphanumeric, hyphen, and underscore slugs
-  if (/^\/blog\/[a-zA-Z0-9_-]{1,100}$/.test(pathname)) return true;
+  if (/^\/blog\/[a-zA-Z0-9_-]{1,100}$/.test(normalized)) return true;
+  if (/^\/work\/[a-zA-Z0-9_-]{1,100}$/.test(normalized)) return true;
   return false;
 }
 
@@ -33,7 +41,11 @@ function isBot(request: Request): boolean {
 }
 
 function isAdminPath(pathname: string): boolean {
-  return ADMIN_PATHS.some(p => pathname === p || pathname.startsWith(`${p}/`));
+  let normalized = pathname;
+  if (normalized === '/ar' || normalized === '/en') normalized = '/';
+  else if (normalized.startsWith('/ar/')) normalized = normalized.slice(3);
+  else if (normalized.startsWith('/en/')) normalized = normalized.slice(3);
+  return ADMIN_PATHS.some(p => normalized === p || normalized.startsWith(`${p}/`));
 }
 
 export default {

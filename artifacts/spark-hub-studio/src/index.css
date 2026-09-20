@@ -1,17 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
 
 /* =========================================================
-   DARK MODE
-   Supports both:
-   .dark
-   [data-theme="dark"]
+   DARK MODE & RTL VARIANTS
    ========================================================= */
 
 @custom-variant dark (&:is(.dark *, [data-theme="dark"] *));
+@custom-variant rtl (&:where([dir="rtl"], [dir="rtl"] *));
+@custom-variant ltr (&:where([dir="ltr"], [dir="ltr"] *));
 
 /* =========================================================
    THEME
@@ -166,6 +165,77 @@
   a {
     -webkit-tap-highlight-color: transparent;
   }
+}
+
+/* =========================================================
+   RTL TYPOGRAPHY & OVERRIDES
+   ========================================================= */
+
+[dir="rtl"] {
+  --font-sans: 'Alexandria', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --app-font-sans: 'Alexandria', 'Tajawal', sans-serif;
+  --app-font-arabic: 'Alexandria', 'Tajawal', sans-serif;
+}
+
+[dir="rtl"],
+[dir="rtl"] body {
+  font-family: 'Alexandria', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] h5,
+[dir="rtl"] h6,
+[dir="rtl"] p,
+[dir="rtl"] a,
+[dir="rtl"] span,
+[dir="rtl"] button,
+[dir="rtl"] input,
+[dir="rtl"] select,
+[dir="rtl"] textarea {
+  font-family: 'Alexandria', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Disable tracking/letter-spacing in Arabic to maintain cursive letter connectivity */
+[dir="rtl"] *,
+[dir="rtl"] .display,
+[dir="rtl"] .eyebrow,
+[dir="rtl"] .hero-word,
+[dir="rtl"] .hero-line,
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] h5,
+[dir="rtl"] h6 {
+  letter-spacing: normal !important;
+}
+
+[dir="rtl"] p {
+  line-height: 1.8 !important;
+}
+
+[dir="rtl"] .eyebrow {
+  letter-spacing: normal !important;
+  font-family: 'Alexandria', 'Tajawal', sans-serif !important;
+}
+
+[dir="rtl"] .mono,
+[dir="rtl"] .font-mono,
+[dir="rtl"] code,
+[dir="rtl"] pre {
+  font-family: 'DM Mono', 'Alexandria', monospace !important;
+}
+
+[dir="rtl"] .rtl-flip,
+[dir="rtl"] .rtl\:rotate-180 {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .rtl-scale-x {
+  transform: scaleX(-1);
 }
 
 /* =========================================================

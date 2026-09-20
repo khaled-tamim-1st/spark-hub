@@ -1,0 +1,173 @@
+{
+  "nav": {
+    "services": "Services",
+    "team": "Team",
+    "reels": "Reels",
+    "podcasts": "Podcasts",
+    "posts": "Journal",
+    "about": "About",
+    "blog": "Notes",
+    "contact": "Start a conversation"
+  },
+  "hero": {
+    "eyebrow": "INDEPENDENT GROWTH STUDIO / EGYPT + REMOTE",
+    "headline_1": "Where",
+    "headline_2": "strategy",
+    "headline_3": "meets",
+    "headline_4": "growth.",
+    "quote": "“If your business is not on the internet, then your business will be out of business.”",
+    "quote_author": "Bill Gates",
+    "quote_role": "Founder of Microsoft",
+    "perspective": "PERSPECTIVE",
+    "ref": "REF // 01",
+    "marquee": "STRATEGY / MARKETING / OPERATIONS / PEOPLE DEVELOPMENT / MEDIA / SOFTWARE",
+    "premise_kicker": "The premise",
+    "vision": "The best growth feels less like acceleration and more like alignment.",
+    "mission": "We integrate strategy, marketing, operations and people development into one clear way forward.",
+    "philosophy": "Human judgment, made useful.",
+    "explore_services": "Explore capabilities"
+  },
+  "services": {
+    "kicker": "Capabilities / not packages",
+    "title": "The connective tissue of growth.",
+    "intro": "The work sits between disciplines. That is where we are most useful — translating strategy into action, and action into something that lasts.",
+    "items": {
+      "strategy": {
+        "title": "Strategy & Planning",
+        "summary": "Go-To-Market trajectories, in-depth competitor intelligence, sales funnel engineering, and strategic marketing reorganization.",
+        "details": [
+          "Go-To-Market trajectories and market entry roadmap",
+          "In-depth competitor intelligence and opportunity gap discovery",
+          "Sales funnel engineering and conversion optimization",
+          "Strategic reorganization of corporate marketing infrastructure"
+        ]
+      },
+      "marketing": {
+        "title": "Marketing Management & Growth",
+        "summary": "Omnichannel performance leadership, technical SEO architecture, disciplined budget allocation, and continuous ROI analysis.",
+        "details": [
+          "Omnichannel media leadership and targeted performance ads",
+          "Technical search engine optimization (SEO) architecture",
+          "Disciplined budget allocation and financial efficiency",
+          "Continuous return on investment (ROI) and performance analytics"
+        ]
+      },
+      "creative": {
+        "title": "Visual Brand Strategy & Systems",
+        "summary": "Comprehensive typographic systems, creative direction, cinematic media production, and complete brand guidelines.",
+        "details": [
+          "Luxury typography systems and holistic visual brand identity",
+          "Creative direction and high-impact brand narrative",
+          "Cinematic commercial production and moving image",
+          "Comprehensive brand guidelines and institutional asset systems"
+        ]
+      },
+      "training": {
+        "title": "Executive Training & Skill Acceleration",
+        "summary": "Brand positioning intensives, performance advertising mastery, and agile project delivery frameworks.",
+        "details": [
+          "Executive brand building bootcamps and strategic positioning",
+          "Performance marketing and advanced digital advertising mastery",
+          "Agile project delivery and organizational workflows",
+          "Executive leadership coaching and capability acceleration"
+        ]
+      }
+    }
+  },
+  "contact": {
+    "kicker": "Start a conversation",
+    "title": "Ready to turn strategy into growth? — Let’s talk",
+    "intro": "Tell us what is changing, what is stuck, or what you are ready to build.",
+    "name_label": "Your name",
+    "name_placeholder": "Full name",
+    "email_label": "Email address",
+    "email_placeholder": "name@company.com",
+    "service_label": "What can we help you achieve?",
+    "service_placeholder": "Strategy, marketing, brand systems...",
+    "budget_label": "Working range (A useful guide, not a commitment)",
+    "budget_placeholder": "A useful guide to tailor solutions",
+    "brief_label": "The brief & growth ambitions",
+    "brief_placeholder": "What are you trying to make possible?",
+    "submit": "Send project brief",
+    "submitting": "Sending...",
+    "success_title": "Message received.",
+    "success_desc": "We will be in touch shortly. In the meantime, explore what we have been making.",
+    "success_action": "Explore our services →",
+    "error": "Something went wrong. Please try again."
+  },
+  "conversion_cta": {
+    "heading": "Ready to turn strategy into growth?",
+    "subheading": "Let’s build your next growth move.",
+    "button": "Start a Conversation"
+  },
+  "footer": {
+    "bio": "Strategy, systems and stories for organizations with somewhere meaningful to go.",
+    "explore": "Explore",
+    "explore_work": "Work",
+    "explore_services": "Services",
+    "explore_team": "Team",
+    "explore_reels": "Reels",
+    "studio": "Studio",
+    "point_of_view": "Our point of view",
+    "field_notes": "Field notes",
+    "work_with_us": "Work with us",
+    "say_hello": "Say hello",
+    "location": "EGYPT / REMOTE / EVERYWHERE",
+    "rights": "SPARK HUB. ALL RIGHTS RESERVED.",
+    "tagline": "WHERE STRATEGY MEETS GROWTH"
+  },
+  "about": {
+    "kicker": "The studio",
+    "title": "Human judgment, made useful.",
+    "intro": "Spark Hub is a multidisciplinary growth partner for organizations doing work that matters. We join the dots between the plan, the people and the public expression.",
+    "north_star": "Our north star",
+    "based_in": "Based in",
+    "location": "Egypt / Everywhere",
+    "leadership_kicker": "Leadership & Partners",
+    "leadership_title": "Vision, strategy & governance.",
+    "leadership_intro": "The senior directors, partners, and advisors shaping business trajectory, talent development, and high-stakes decisions for our clients."
+  },
+  "team": {
+    "kicker": "The Collective",
+    "title": "Meet The Team.",
+    "intro": "The specialized talent driving commercial sales, scaling performance marketing, producing cinema-grade media, and orchestrating operations with precision.",
+    "all_teams": "ALL TEAMS",
+    "empty_kicker": "Studio Squads",
+    "empty_desc": "No studio team members added yet. Add your specialized sales, marketing, and media teams from the admin dashboard.",
+    "cta_kicker": "Collaboration & Execution",
+    "cta_title": "Ready to deploy this team on your business?",
+    "cta_desc": "From comprehensive media buying to full-cycle sales systems and cinematic production, we build the team around your specific objective.",
+    "cta_button": "Start a project with us"
+  },
+  "reels": {
+    "kicker": "Moving image",
+    "title": "Stories with a pulse.",
+    "intro": "The work between the takes: films, campaign worlds and visual systems made to hold attention."
+  },
+  "podcasts": {
+    "kicker": "Audio & Conversations",
+    "title": "Ideas in conversation.",
+    "intro": "Deep dives into brand strategy, leadership, culture, and sustainable growth with industry shapers."
+  },
+  "posts": {
+    "kicker": "Social & Creative Direction",
+    "title": "Campaigns & Visual Stories.",
+    "intro": "A curated collection of social media designs, commercial campaigns, and digital brand identities executed by Spark Hub Studio.",
+    "all_brands": "ALL BRANDS"
+  },
+  "blog": {
+    "kicker": "Notes / ideas in progress",
+    "title": "A sharper way to look at the work.",
+    "intro": "Observations from the intersection of strategy, culture, marketing and making.",
+    "back": "← Back to field notes"
+  },
+  "common": {
+    "loading": "Loading...",
+    "empty": "This space is taking shape. Check back soon.",
+    "error_signal": "Signal interrupted",
+    "error_desc": "We couldn't load this content right now.",
+    "not_found_title": "Page Not Found",
+    "not_found_desc": "The page you are looking for doesn't exist or has moved.",
+    "back_home": "Back to studio"
+  }
+}
