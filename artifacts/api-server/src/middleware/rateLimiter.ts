@@ -24,7 +24,7 @@ export const globalApiLimiter = rateLimit({
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => getTrustedClientIp(req),
+  keyGenerator: (req: Request) => getTrustedClientIp(req),
   message: { error: "Too many requests from this IP, please try again later." },
 });
 
@@ -36,6 +36,6 @@ export const contactRateLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => getTrustedClientIp(req),
+  keyGenerator: (req: Request) => getTrustedClientIp(req),
   message: { error: "Too many contact submissions. Please try again later or reach out via email directly." },
 });
