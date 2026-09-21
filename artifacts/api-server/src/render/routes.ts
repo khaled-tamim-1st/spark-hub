@@ -41,40 +41,172 @@ function getLocaleInfo(urlPath: string) {
 // ---- Home ----
 router.get(["/", "/ar", "/en"], async (req, res) => {
   const { isAr, lang, dir, prefix } = getLocaleInfo(req.path);
-  const [services, testimonials] = await Promise.all([
+  const [services, testimonials, recentPosts] = await Promise.all([
     db.select().from(servicesTable).orderBy(asc(servicesTable.displayOrder)).limit(8),
     db.select().from(testimonialsTable).orderBy(asc(testimonialsTable.displayOrder)).limit(6),
+    db.select().from(blogPostsTable).orderBy(desc(blogPostsTable.publishedAt)).limit(5),
   ]);
+
+  const homeFaqs = isAr
+    ? [
+        {
+          q: "ما هي الخدمات التي يقدمها استوديو Spark Hub؟",
+          a: "يقدم سبارك هب ستوديو حلولاً استشارية وتنفيذية متكاملة تشمل: التخطيط الاستراتيجي لنمو الأعمال (GTM)، هندسة مسارات المبيعات والتحويل الرقمي، تحسين محركات البحث والسيو المحلي (Local SEO)، إدارة السمعة الرقمية، وصناعة المحتوى التحريري والإنتاج الإعلامي.",
+        },
+        {
+          q: "كيف تساعد سبارك هب الشركات في السوق السعودي والخليجي؟",
+          a: "نعمل مع الشركات المتوسطة والكبرى في السعودية والإمارات والخليج على إعادة هيكلة المنظومات التسويقية، تعزيز التواجد المحلي على Google Business Profile، وزيادة تدفق العملاء المحتملين المؤهلين لتحقيق عائد استثماري مستدام.",
+        },
+        {
+          q: "ما الذي يميز منهجية Spark Hub عن الوكالات التقليدية؟",
+          a: "نحن استوديو استراتيجي شريك في النمو ولسنا مجرد وكالة إعلانات؛ نربط الاستراتيجية بالعمليات والمبيعات لتحقيق نمو متناسق وقابل للتوسع وليس مجرد مؤشرات رقمية مؤقتة.",
+        },
+      ]
+    : [
+        {
+          q: "What services does Spark Hub Studio provide?",
+          a: "Spark Hub provides integrated growth strategy, sales funnel engineering, technical & local SEO, brand positioning, and editorial content production.",
+        },
+        {
+          q: "How does Spark Hub support businesses in the MENA region?",
+          a: "We work with scaling enterprises in Saudi Arabia, the UAE, and across MENA to reorganize marketing operations, optimize search visibility, and engineer predictable revenue pipelines.",
+        },
+      ];
+
+  const faqSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: homeFaqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.a,
+      },
+    })),
+  });
 
   const body = isAr
     ? `
-<h1>${esc(overviewAr.headline)}</h1>
-<p>${esc(overviewAr.intro)}</p>
-<p><strong>رؤيتنا:</strong> ${esc(overviewAr.vision)}</p>
-<section><h2>الخدمات الاستشارية</h2><ul>
-${services.map(s => `<li><a href="${prefix}/services">${esc(s.title)}</a> — ${esc(s.summary)}</li>`).join("\n")}
-</ul></section>
-<section><h2>آراء الشركاء</h2><ul>
-${testimonials.map(t => `<li>"${esc(t.quote)}" — ${esc(t.client)}</li>`).join("\n")}
-</ul></section>`
-    : `
-<h1>${esc(overview.headline)}</h1>
-<p>${esc(overview.intro)}</p>
-<section><h2>Services</h2><ul>
-${services.map(s => `<li><a href="/services">${esc(s.title)}</a> — ${esc(s.summary)}</li>`).join("\n")}
-</ul></section>
-<section><h2>What clients say</h2><ul>
-${testimonials.map(t => `<li>"${esc(t.quote)}" — ${esc(t.client)}</li>`).join("\n")}
-</ul></section>`;
+<article>
+  <header>
+    <h1>سبارك هب ستوديو | استوديو استشارات نمو الأعمال، التسويق الرقمي وهندسة الاستراتيجيات</h1>
+    <p><strong>استوديو استراتيجي رائد:</strong> نساعد الشركات الطموحة والمؤسسات في السعودية، الإمارات، الخليج، ومصر على بناء منظومات تسويقية متكاملة تحقق توسعاً تجارياً حقيقياً ومستداماً.</p>
+  </header>
 
-  res.type("html").send(renderShell({
-    title: isAr ? `سبارك هب ستوديو — حيث تلتقي الاستراتيجية بالنمو` : `${SITE_NAME} — Independent growth studio`,
-    description: isAr ? overviewAr.mission : overview.intro,
-    path: isAr ? "/ar" : "/",
-    bodyHtml: body,
-    lang,
-    dir,
-  }));
+  <section>
+    <h2>رؤيتنا ومنهجيتنا في قيادة نمو الأعمال</h2>
+    <p>لا نؤمن بالنمو العشوائي أو الحملات المؤقتة التي تستنزف الميزانيات دون أثر دائم. ندمج التخطيط الاستراتيجي، قيادة التسويق، تحسين محركات البحث، وكفاءة العمليات في مسار واحد واضح ومحكم.</p>
+  </section>
+
+  <section>
+    <h2>الخدمات الاستشارية والتنفيذية الأساسية</h2>
+    <ul>
+      ${services
+        .map(
+          (s) =>
+            `<li><h3><a href="${prefix}/services">${esc(s.title)}</a></h3><p>${esc(s.summary)}</p></li>`,
+        )
+        .join("\n")}
+    </ul>
+  </section>
+
+  <section>
+    <h2>تحسين محركات البحث المحلي (Local SEO) وحضور خرائط Google</h2>
+    <p>نعمل على تعزيز الظهور في خرائط جوجل Google Maps وإدارة الملفات التجارية (Google Business Profile) وتطوير استراتيجيات التقييمات الإيجابية المتوافقة مع سياسات Google، لمساعدة الشركات على الاستحواذ على العملاء القريبين بدقة واحترافية.</p>
+  </section>
+
+  <section>
+    <h2>أحدث الرؤى والمقالات الاستراتيجية</h2>
+    <ul>
+      ${recentPosts
+        .map(
+          (p) =>
+            `<li><h3><a href="${prefix}/blog/${esc(p.slug)}">${esc(p.title)}</a></h3><p>${esc(p.excerpt)}</p><small>تاريخ النشر: ${esc(p.publishedAt)} | التصنيف: ${esc(p.category)}</small></li>`,
+        )
+        .join("\n")}
+    </ul>
+  </section>
+
+  <section>
+    <h2>آراء وشهادات شركاء النجاح</h2>
+    <ul>
+      ${testimonials
+        .map((t) => `<li><blockquote>"${esc(t.quote)}"</blockquote><cite>— ${esc(t.client)} (${esc(t.role)})</cite></li>`)
+        .join("\n")}
+    </ul>
+  </section>
+
+  <section>
+    <h2>الأسئلة الشائعة حول سبارك هب</h2>
+    ${homeFaqs
+      .map((f) => `<div><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`)
+      .join("\n")}
+  </section>
+</article>`
+    : `
+<article>
+  <header>
+    <h1>Spark Hub Studio — Growth Strategy, Marketing Engineering & Business Consulting</h1>
+    <p>An independent growth studio integrating strategy, marketing, operations, and brand architecture into sustainable market leadership.</p>
+  </header>
+
+  <section>
+    <h2>Strategic Services</h2>
+    <ul>
+      ${services
+        .map(
+          (s) =>
+            `<li><h3><a href="/services">${esc(s.title)}</a></h3><p>${esc(s.summary)}</p></li>`,
+        )
+        .join("\n")}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Latest Field Notes & Insights</h2>
+    <ul>
+      ${recentPosts
+        .map(
+          (p) =>
+            `<li><h3><a href="/blog/${esc(p.slug)}">${esc(p.title)}</a></h3><p>${esc(p.excerpt)}</p></li>`,
+        )
+        .join("\n")}
+    </ul>
+  </section>
+
+  <section>
+    <h2>What Partners Say</h2>
+    <ul>
+      ${testimonials
+        .map((t) => `<li><blockquote>"${esc(t.quote)}"</blockquote><cite>— ${esc(t.client)}</cite></li>`)
+        .join("\n")}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Frequently Asked Questions</h2>
+    ${homeFaqs
+      .map((f) => `<div><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`)
+      .join("\n")}
+  </section>
+</article>`;
+
+  res.type("html").send(
+    renderShell({
+      title: isAr
+        ? `سبارك هب ستوديو | استشارات نمو الأعمال، التسويق الرقمي واستراتيجيات التوسع`
+        : `${SITE_NAME} — Growth Strategy & Marketing Architecture`,
+      description: isAr
+        ? "استوديو استشاري رائد متخصص في هندسة نمو الأعمال، استراتيجيات التسويق الرقمي، السيو المحلي Local SEO، وبناء العلامات التجارية للشركات في السعودية والخليج ومصر."
+        : overview.intro,
+      path: isAr ? "/ar" : "/",
+      bodyHtml: body,
+      lang,
+      dir,
+      extraHead: `<script type="application/ld+json">${faqSchema}</script>`,
+    }),
+  );
 });
 
 // ---- Work (redirected to services) ----

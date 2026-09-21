@@ -19,6 +19,7 @@ type ShellOptions = {
   bodyHtml: string;
   lang?: string;
   dir?: string;
+  extraHead?: string;
 };
 
 /**
@@ -27,13 +28,14 @@ type ShellOptions = {
  * text and structure, not CSS. Human visitors never see this; the
  * edge Worker only routes bot user-agents here.
  */
-export function renderShell({ title, description, path, image, bodyHtml, lang = "en", dir = "ltr" }: ShellOptions): string {
+export function renderShell({ title, description, path, image, bodyHtml, lang = "en", dir = "ltr", extraHead = "" }: ShellOptions): string {
   const url = `${SITE_URL}${path}`;
   const ogImage = image || DEFAULT_IMAGE;
   return `<!DOCTYPE html>
 <html lang="${esc(lang)}" dir="${esc(dir)}">
 <head>
 <meta name="google-site-verification" content="gx87jzqiQqonrST48CL4BIaT2EUtfWFi64nuLAJYdNc" />
+${extraHead}
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>${esc(title)}</title>
