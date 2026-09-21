@@ -3486,6 +3486,139 @@ function Blog() {
   );
 }
 
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+function parseFaqFromContent(body: string): { mainBody: string; faqs: FaqItem[]; sourcesBody: string } {
+  const faqHeadingRegex = /##\s*(?:الأسئلة الشائعة|الأسئلة المتكررة|FAQ|Frequently Asked Questions)/i;
+  const sourcesHeadingRegex = /##\s*(?:المصادر|المراجع|Sources|References)/i;
+
+  const faqMatch = body.match(faqHeadingRegex);
+  if (!faqMatch || faqMatch.index === undefined) {
+    return { mainBody: body, faqs: [], sourcesBody: '' };
+  }
+
+  const mainBody = body.slice(0, faqMatch.index).trim();
+  const rest = body.slice(faqMatch.index + faqMatch[0].length);
+
+  const sourcesMatch = rest.match(sourcesHeadingRegex);
+  const faqRaw = sourcesMatch && sourcesMatch.index !== undefined ? rest.slice(0, sourcesMatch.index) : rest;
+  const sourcesBody = sourcesMatch && sourcesMatch.index !== undefined ? rest.slice(sourcesMatch.index).trim() : '';
+
+  const faqs: FaqItem[] = [];
+
+  const lines = faqRaw.split('\n');
+  let currentQ = '';
+  let currentA: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed === '---') continue;
+
+    const qMatch = trimmed.match(/^(?:###\s*|\*\*)(.+?)(?:\*\*|$)/);
+    const isQ =
+      trimmed.startsWith('###') ||
+      (trimmed.startsWith('**') && (trimmed.endsWith('**') || trimmed.includes('؟') || trimmed.includes('?')));
+
+    if (qMatch && isQ) {
+      if (currentQ && currentA.length > 0) {
+        faqs.push({ question: currentQ, answer: currentA.join(' ').trim() });
+        currentA = [];
+      }
+      currentQ = qMatch[1].replace(/^\d+[\.\-]\s*/, '').replace(/\*\*$/, '').trim();
+    } else if (currentQ) {
+      currentA.push(trimmed.replace(/^\*\*/, '').replace(/\*\*$/, ''));
+    }
+  }
+
+  if (currentQ && currentA.length > 0) {
+    faqs.push({ question: currentQ, answer: currentA.join(' ').trim() });
+  }
+
+  return { mainBody, faqs, sourcesBody };
+}
+
+function BlogFaqAccordion({ faqs, locale }: { faqs: FaqItem[]; locale: string }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  if (!faqs || faqs.length === 0) return null;
+
+  const toggle = (idx: number) => {
+    setOpenIndex((prev) => (prev === idx ? null : idx));
+  };
+
+  const schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: f.answer,
+      },
+    })),
+  };
+
+  return (
+    <section className="mt-14 pt-10 border-t border-border/80 text-start" aria-label="Frequently Asked Questions">
+      {/* Google FAQ Schema Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
+
+      <div className="flex items-center gap-2 text-primary font-mono text-xs tracking-wider uppercase mb-3">
+        <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+        <span>{locale === 'ar' ? 'الأسئلة الشائعة' : 'FAQ & Knowledge'}</span>
+      </div>
+
+      <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-6">
+        {locale === 'ar' ? 'الأسئلة الشائعة وإجاباتها' : 'Frequently Asked Questions'}
+      </h2>
+
+      <div className="space-y-3">
+        {faqs.map((faq, idx) => {
+          const isOpen = openIndex === idx;
+          return (
+            <div
+              key={idx}
+              className={`rounded-xl border transition-all duration-200 overflow-hidden ${
+                isOpen
+                  ? 'border-primary/50 bg-card/90 shadow-[0_4px_24px_rgba(233,190,88,0.08)]'
+                  : 'border-border/60 bg-card/40 hover:border-border hover:bg-card/70'
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => toggle(idx)}
+                className="w-full flex items-center justify-between gap-4 p-5 text-start font-bold text-base sm:text-lg text-foreground transition-colors hover:text-primary"
+                aria-expanded={isOpen}
+              >
+                <span>{faq.question}</span>
+                <ChevronDown
+                  size={18}
+                  className={`shrink-0 text-primary transition-transform duration-300 ${
+                    isOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {isOpen && (
+                <div className="px-5 pb-5 pt-2 text-sm sm:text-base leading-relaxed text-muted-foreground border-t border-border/40 animate-fade">
+                  <p>{faq.answer}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function BlogDetail() {
   const { slug = '' } = useParams<{ slug: string }>();
   const { t, localizePath, locale } = useLanguage();
@@ -3497,6 +3630,8 @@ function BlogDetail() {
       document.title = `${post.title} — Spark Hub Studio`;
     }
   }, [post?.title]);
+
+  const parsedContent = post ? parseFaqFromContent(post.body) : null;
 
   return (
     <Shell>
@@ -3519,7 +3654,7 @@ function BlogDetail() {
           }
           label="note"
         >
-          {post && (
+          {post && parsedContent && (
             <article className="mx-auto mt-16 max-w-4xl text-start">
               <p className="eyebrow text-primary">
                 {post.category} /{' '}
@@ -3553,9 +3688,23 @@ function BlogDetail() {
 
               <div className="prose prose-invert prose-headings:font-bold prose-headings:text-foreground prose-h2:text-2xl sm:prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-xl sm:prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-muted-foreground prose-p:leading-8 prose-p:text-base sm:prose-p:text-[17px] prose-strong:text-foreground prose-strong:font-bold prose-li:text-muted-foreground prose-li:leading-8 prose-li:text-base sm:prose-li:text-[17px] prose-ul:my-4 prose-ol:my-4 prose-blockquote:border-s-4 prose-blockquote:border-primary prose-blockquote:bg-card prose-blockquote:rounded-md prose-blockquote:px-5 prose-blockquote:py-3.5 prose-blockquote:my-6 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-blockquote:text-base sm:prose-blockquote:text-[17px] prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-hr:border-border prose-table:text-sm sm:prose-table:text-base prose-th:text-foreground prose-td:text-muted-foreground mt-12 max-w-3xl">
                 <ReactMarkdown>
-                  {post.body}
+                  {parsedContent.mainBody}
                 </ReactMarkdown>
               </div>
+
+              {parsedContent.faqs.length > 0 && (
+                <div className="max-w-3xl">
+                  <BlogFaqAccordion faqs={parsedContent.faqs} locale={locale} />
+                </div>
+              )}
+
+              {parsedContent.sourcesBody && (
+                <div className="prose prose-invert prose-headings:font-bold prose-headings:text-foreground prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-p:text-muted-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline mt-12 max-w-3xl">
+                  <ReactMarkdown>
+                    {parsedContent.sourcesBody}
+                  </ReactMarkdown>
+                </div>
+              )}
             </article>
           )}
         </QueryState>
