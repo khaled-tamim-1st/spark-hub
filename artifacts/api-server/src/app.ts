@@ -77,13 +77,12 @@ app.use(
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
 
-// 7. Clerk authentication session parser
-app.use(clerkMiddleware());
-
-// 8. Application routes with rate limiting
-app.use("/api", globalApiLimiter, router);
+// 4. Public SSR rendering & sitemap routes (Open for search bots / no Clerk auth interception)
 app.use("/render", renderRouter);
 app.use(sitemapRouter);
+
+// 5. Application API routes with Clerk auth & rate limiting
+app.use("/api", clerkMiddleware(), globalApiLimiter, router);
 
 // 9. Centralized Error Handling Middleware
 const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
