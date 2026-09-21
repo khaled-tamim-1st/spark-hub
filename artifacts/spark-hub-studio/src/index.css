@@ -870,28 +870,50 @@ body,
   }
 }
 @keyframes trusted-by-marquee {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-          }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
 
-          @keyframes trusted-by-marquee-reverse {
-            from { transform: translateX(-50%); }
-            to { transform: translateX(0); }
-          }
+@keyframes trusted-by-marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
 
-          .trusted-marquee-track {
-            display: flex;
-            width: max-content;
-            align-items: center;
-            gap: 4.5rem;
-            animation: trusted-by-marquee 24s linear infinite;
-            will-change: transform;
-          }
+@keyframes trusted-by-marquee-rtl {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
 
-          .trusted-marquee-reverse {
-            animation-name: trusted-by-marquee-reverse;
-            animation-duration: 28s;
-          }
+@keyframes trusted-by-marquee-rtl-reverse {
+  0% { transform: translateX(50%); }
+  100% { transform: translateX(0); }
+}
+
+.trusted-marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 2rem;
+  animation: trusted-by-marquee 32s linear infinite;
+  will-change: transform;
+}
+
+.trusted-marquee-reverse {
+  animation-name: trusted-by-marquee-reverse;
+  animation-duration: 38s;
+}
+
+[dir="rtl"] .trusted-marquee-track {
+  animation-name: trusted-by-marquee-rtl;
+}
+
+[dir="rtl"] .trusted-marquee-reverse {
+  animation-name: trusted-by-marquee-rtl-reverse;
+}
+
+.trusted-marquee-track:hover {
+  animation-play-state: paused;
+}
 
           .trusted-logo {
             display: inline-flex;

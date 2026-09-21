@@ -4,6 +4,27 @@
     <meta name="google-site-verification" content="gx87jzqiQqonrST48CL4BIaT2EUtfWFi64nuLAJYdNc" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <script>
+      (function() {
+        try {
+          var p = window.location.pathname;
+          var s = localStorage.getItem('locale');
+          var isAr = p === '/ar' || p.startsWith('/ar/') || (!p.startsWith('/en') && (s === 'ar' || (!s && (navigator.language || '').toLowerCase().startsWith('ar'))));
+          var el = document.documentElement;
+          if (isAr) {
+            el.setAttribute('dir', 'rtl');
+            el.setAttribute('lang', 'ar');
+            el.classList.add('rtl');
+            el.classList.remove('ltr');
+          } else {
+            el.setAttribute('dir', 'ltr');
+            el.setAttribute('lang', 'en');
+            el.classList.add('ltr');
+            el.classList.remove('rtl');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <title>Spark Hub Studio — Where Strategy Meets Growth</title>
     <meta name="description" content="Spark Hub Studio is an independent growth studio in Egypt helping ambitious organizations turn good intent into intelligent momentum through integrated strategy, marketing, and creative execution." />
     <meta name="keywords" content="growth studio, brand strategy, marketing agency, creative direction, business development, Egypt, Cairo, Spark Hub" />

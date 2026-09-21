@@ -208,7 +208,12 @@ function Shell({
   const showCta = !hideCta && !isContactPage;
 
   return (
-    <div className="grain min-h-[100dvh] bg-background">
+    <div
+      dir={isRTL ? 'rtl' : 'ltr'}
+      className={`grain min-h-[100dvh] bg-background ${
+        isRTL ? 'rtl font-sans' : 'ltr font-sans'
+      }`}
+    >
       <ThemeToggle />
       <header className="fixed inset-x-0 top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur-md">
         <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 md:px-10">
@@ -392,7 +397,7 @@ function Footer() {
             hello@spark-hub.online
           </a>
 
-          <p className="mt-7 mono text-[10px] text-muted-foreground">
+          <p className="mt-7 font-mono rtl:font-sans text-[10px] rtl:text-xs text-muted-foreground">
             {t('footer.location', 'EGYPT / REMOTE / EVERYWHERE')}
           </p>
 
@@ -744,21 +749,21 @@ function QueryState({
 /* -------------------------------------------------------------------------- */
 
 const curatedPartnersRow1 = [
-  { name: 'Roots New Edition', category: 'Fashion & Retail', imageUrl: '' },
-  { name: 'HEROINERA', category: 'Health & Wellness', imageUrl: '' },
-  { name: 'VIOLLA Atelier', category: 'Haute Couture', imageUrl: '' },
-  { name: 'VEXON', category: 'Activewear', imageUrl: '' },
-  { name: 'Era Egypt Pharma', category: 'Pharmaceuticals', imageUrl: '' },
-  { name: 'Optima Clinic', category: 'Healthcare', imageUrl: '' },
+  { name: 'Roots New Edition', category: 'Fashion & Retail', arCategory: 'أزياء وتجزئة فاخرة', imageUrl: '' },
+  { name: 'HEROINERA', category: 'Health & Wellness', arCategory: 'صحة وعافية واستشفاء', imageUrl: '' },
+  { name: 'VIOLLA Atelier', category: 'Haute Couture', arCategory: 'أزياء راقية وهوت كوتور', imageUrl: '' },
+  { name: 'VEXON', category: 'Activewear', arCategory: 'ملابس رياضية وأداء', imageUrl: '' },
+  { name: 'Era Egypt Pharma', category: 'Pharmaceuticals', arCategory: 'صناعات دوائية وطبية', imageUrl: '' },
+  { name: 'Optima Clinic', category: 'Healthcare', arCategory: 'مراكز طبية تخصصية', imageUrl: '' },
 ];
 
 const curatedPartnersRow2 = [
-  { name: 'Dr. Cars', category: 'Automotive Services', imageUrl: '' },
-  { name: 'Elite Systems', category: 'Enterprise IT', imageUrl: '' },
-  { name: 'Dr. Eslam Amer', category: 'Medical Speciality', imageUrl: '' },
-  { name: 'Aura Studio', category: 'Architecture & Design', imageUrl: '' },
-  { name: 'Al-Basha Group', category: 'Trading & Logistics', imageUrl: '' },
-  { name: 'Apex Media', category: 'Broadcast & Media', imageUrl: '' },
+  { name: 'Dr. Cars', category: 'Automotive Services', arCategory: 'خدمات سيارات متكاملة', imageUrl: '' },
+  { name: 'Elite Systems', category: 'Enterprise IT', arCategory: 'حلول وتقنية مؤسسية', imageUrl: '' },
+  { name: 'Dr. Eslam Amer', category: 'Medical Speciality', arCategory: 'طب وجراحة تخصصية', imageUrl: '' },
+  { name: 'Aura Studio', category: 'Architecture & Design', arCategory: 'عمارة وتصميم داخلي', imageUrl: '' },
+  { name: 'Al-Basha Group', category: 'Trading & Logistics', arCategory: 'تجارة وتوريدات لوجستية', imageUrl: '' },
+  { name: 'Apex Media', category: 'Broadcast & Media', arCategory: 'إنتاج إعلامي وبث', imageUrl: '' },
 ];
 
 function Home() {
@@ -773,7 +778,7 @@ function Home() {
   // Build high-contrast partner logo rows without duplicate placeholder icons
   const activeLogos = clientLogos.data || [];
   const customLogosWithImages = activeLogos.filter(
-    (l) => l.imageUrl && !l.imageUrl.includes('logo.png')
+    (l) => l.imageUrl && (l.imageUrl.startsWith('http://') || l.imageUrl.startsWith('https://')) && !l.imageUrl.includes('logo.png')
   );
 
   const displayPartnersRow1 = customLogosWithImages.length > 0
@@ -815,7 +820,7 @@ function Home() {
           <div className="animate-rise text-start">
             <p className="eyebrow mb-6 text-primary tracking-[.22em] rtl:tracking-normal font-mono text-[11px] rtl:text-xs inline-flex items-center gap-2">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
-              {o?.eyebrow || t('hero.eyebrow')}
+              {locale === 'ar' ? t('hero.eyebrow') : (o?.eyebrow || t('hero.eyebrow'))}
             </p>
 
             <h1 className="display max-w-4xl text-[clamp(3.8rem,9.5vw,8.5rem)] rtl:text-[clamp(3.2rem,8vw,6.8rem)] font-extrabold leading-[0.85] rtl:leading-[1.18] tracking-[-0.05em] rtl:tracking-normal text-foreground">
@@ -973,13 +978,13 @@ function Home() {
           <div>
             <Reveal delay={100}>
               <h2 className="display text-3xl sm:text-5xl md:text-6xl font-extrabold leading-[1.15] text-foreground tracking-[-0.03em] rtl:tracking-normal">
-                {o?.vision || t('hero.vision')}
+                {locale === 'ar' ? t('hero.vision') : (o?.vision || t('hero.vision'))}
               </h2>
             </Reveal>
 
             <Reveal delay={180}>
               <p className="mt-6 max-w-2xl text-base sm:text-lg leading-relaxed rtl:leading-[1.85] text-muted-foreground">
-                {o?.mission || t('hero.mission')}
+                {locale === 'ar' ? t('hero.mission') : (o?.mission || t('hero.mission'))}
               </p>
             </Reveal>
           </div>
@@ -1033,54 +1038,64 @@ function Home() {
             {[
               { reverse: false, list: displayPartnersRow1 },
               { reverse: true, list: displayPartnersRow2 },
-            ].map((row, rowIndex) => (
-              <div
-                key={rowIndex}
-                className="relative overflow-hidden border-y border-border/60 py-5 bg-background/30 backdrop-blur-sm"
-              >
+            ].map((row, rowIndex) => {
+              const fullList = [...row.list, ...row.list, ...row.list, ...row.list];
+              return (
                 <div
-                  className={`trusted-marquee-track ${
-                    row.reverse ? 'trusted-marquee-reverse' : ''
-                  }`}
+                  key={rowIndex}
+                  className="relative overflow-hidden border-y border-border/60 py-5 bg-background/30 backdrop-blur-sm"
                 >
-                  {[...row.list, ...row.list].map((partner, index) => (
-                    <div
-                      key={`${partner.name}-${index}`}
-                      className="flex min-w-[13rem] items-center justify-center px-6 md:min-w-[16rem]"
-                    >
-                      {partner.imageUrl && !partner.imageUrl.includes('logo.png') ? (
-                        <img
-                          src={partner.imageUrl}
-                          alt={partner.name}
-                          loading="lazy"
-                          decoding="async"
-                          className="block h-10 w-auto object-contain opacity-75 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 md:h-12"
-                        />
-                      ) : (
-                        <div className="flex items-center gap-3 px-5 py-2.5 rounded-xl border border-border/70 bg-card/60 hover:border-primary/50 hover:bg-card/90 transition-all shadow-sm group">
-                          <span className="h-2 w-2 rounded-full bg-primary/70 group-hover:bg-primary transition-colors" />
-                          <div className="text-start">
-                            <span className="block text-sm font-bold tracking-wide uppercase text-foreground/90 group-hover:text-primary transition-colors font-sans">
-                              {partner.name}
-                            </span>
-                            {'category' in partner && partner.category ? (
-                              <span className="block text-[10px] text-muted-foreground/70 font-mono">
-                                {partner.category}
-                              </span>
-                            ) : null}
-                          </div>
+                  <div
+                    className={`trusted-marquee-track ${
+                      row.reverse ? 'trusted-marquee-reverse' : ''
+                    }`}
+                  >
+                    {fullList.map((partner, index) => {
+                      const partnerCategory = ('arCategory' in partner && isRTL)
+                        ? (partner.arCategory || '')
+                        : ('category' in partner ? partner.category : '');
+
+                      return (
+                        <div
+                          key={`${partner.name}-${index}`}
+                          className="flex min-w-[13rem] items-center justify-center px-4 md:min-w-[16rem]"
+                        >
+                          {partner.imageUrl && (partner.imageUrl.startsWith('http://') || partner.imageUrl.startsWith('https://')) && !partner.imageUrl.includes('logo.png') ? (
+                            <img
+                              src={partner.imageUrl}
+                              alt={partner.name}
+                              loading="lazy"
+                              decoding="async"
+                              className="block h-10 w-auto object-contain opacity-75 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 md:h-12"
+                              onError={(e) => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div className="flex items-center gap-3 px-5 py-2.5 rounded-xl border border-border/70 bg-card/60 hover:border-primary/50 hover:bg-card/90 transition-all shadow-sm group">
+                              <span className="h-2 w-2 rounded-full bg-primary/70 group-hover:bg-primary transition-colors" />
+                              <div className="text-start">
+                                <span className="block text-sm font-bold tracking-wide uppercase text-foreground/90 group-hover:text-primary transition-colors font-sans">
+                                  {partner.name}
+                                </span>
+                                {partnerCategory ? (
+                                  <span className="block text-[10px] text-muted-foreground/70 font-mono rtl:font-sans">
+                                    {partnerCategory}
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="mt-10 flex items-center gap-4">
             <span className="h-px flex-1 bg-border/60" />
-            <span className="font-mono text-[10px] tracking-[.18em] rtl:tracking-normal text-muted-foreground uppercase font-semibold">
+            <span className="font-mono rtl:font-sans text-[10px] rtl:text-xs tracking-[.18em] rtl:tracking-normal text-muted-foreground uppercase font-semibold">
               {t('partners.counter', 'PARTNERS')} / 12+
             </span>
             <span className="h-px flex-1 bg-border/60" />
