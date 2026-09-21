@@ -5366,7 +5366,8 @@ function Router() {
 /* -------------------------------------------------------------------------- */
 
 const clerkPubKey =
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '';
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  'pk_live_Y2xlcmsuc3BhcmstaHViLm9ubGluZSQ';
 
 const clerkProxyUrl =
   import.meta.env.VITE_CLERK_PROXY_URL;
