@@ -968,9 +968,9 @@ function Home() {
       </section>
 
       <PageFrame>
-        <div className="mb-12 max-w-4xl text-start">
+        <div className="mb-10 max-w-3xl text-start">
           <Reveal>
-            <p className="eyebrow text-primary inline-flex items-center gap-2 mb-4 font-mono text-[11px] rtl:text-xs tracking-[.18em] rtl:tracking-normal">
+            <p className="eyebrow text-primary inline-flex items-center gap-2 mb-3 font-mono text-[11px] rtl:text-xs tracking-[.18em] rtl:tracking-normal">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(233,190,88,0.85)]" />
               {t('hero.premise_kicker', 'The premise')}
             </p>
@@ -978,13 +978,13 @@ function Home() {
 
           <div>
             <Reveal delay={100}>
-              <h2 className="display text-3xl sm:text-5xl md:text-6xl font-extrabold leading-[1.15] text-foreground tracking-[-0.03em] rtl:tracking-normal">
+              <h2 className="display text-2xl sm:text-3xl md:text-4xl font-bold leading-snug sm:leading-relaxed text-foreground tracking-normal">
                 {locale === 'ar' ? t('hero.vision') : (o?.vision || t('hero.vision'))}
               </h2>
             </Reveal>
 
             <Reveal delay={180}>
-              <p className="mt-6 max-w-2xl text-base sm:text-lg leading-relaxed rtl:leading-[1.85] text-muted-foreground">
+              <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed rtl:leading-7 text-muted-foreground">
                 {locale === 'ar' ? t('hero.mission') : (o?.mission || t('hero.mission'))}
               </p>
             </Reveal>
@@ -3524,24 +3524,26 @@ function BlogDetail() {
                 })}
               </p>
 
-              <h1 className="display mt-6 text-6xl leading-[.92] tracking-[-.04em] md:text-8xl">
+              <h1 className="display mt-6 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-snug text-foreground">
                 {post.title}
               </h1>
 
-              <p className="mt-8 text-xl leading-8 text-muted-foreground">
+              <p className="mt-6 text-base sm:text-lg leading-relaxed text-muted-foreground">
                 {post.excerpt}
               </p>
 
               {post.imageUrl && (
-                <img
-                  src={post.imageUrl}
-                  alt={post.imageAlt || post.title}
-                  className="mt-14 max-h-[580px] w-full object-cover"
-                  loading='lazy'
-                />
+                <div className="mt-10 overflow-hidden rounded-2xl border border-border/60 bg-card">
+                  <img
+                    src={post.imageUrl}
+                    alt={post.imageAlt || post.title}
+                    className="max-h-[460px] w-full object-cover"
+                    loading='lazy'
+                  />
+                </div>
               )}
 
-              <div className="prose prose-invert prose-headings:font-bold prose-headings:text-foreground prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-muted-foreground prose-p:leading-8 prose-p:text-base prose-strong:text-foreground prose-strong:font-semibold prose-li:text-muted-foreground prose-li:leading-7 prose-ul:my-4 prose-ol:my-4 prose-blockquote:border-s-4 prose-blockquote:border-primary prose-blockquote:bg-card prose-blockquote:rounded-sm prose-blockquote:px-5 prose-blockquote:py-3 prose-blockquote:my-6 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-hr:border-border prose-table:text-sm prose-th:text-foreground prose-td:text-muted-foreground mt-14 max-w-3xl">
+              <div className="prose prose-invert prose-headings:font-bold prose-headings:text-foreground prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-muted-foreground prose-p:leading-8 prose-p:text-base prose-strong:text-foreground prose-strong:font-semibold prose-li:text-muted-foreground prose-li:leading-7 prose-ul:my-4 prose-ol:my-4 prose-blockquote:border-s-4 prose-blockquote:border-primary prose-blockquote:bg-card prose-blockquote:rounded-sm prose-blockquote:px-5 prose-blockquote:py-3 prose-blockquote:my-6 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-hr:border-border prose-table:text-sm prose-th:text-foreground prose-td:text-muted-foreground mt-12 max-w-3xl">
                 <ReactMarkdown>
                   {post.body}
                 </ReactMarkdown>
