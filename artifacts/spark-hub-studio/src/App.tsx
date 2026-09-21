@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 import type { LucideIcon } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 import {
   QueryClient,
@@ -3540,8 +3541,10 @@ function BlogDetail() {
                 />
               )}
 
-              <div className="prose prose-invert mt-14 max-w-2xl whitespace-pre-line text-base leading-8 text-muted-foreground">
-                {post.body}
+              <div className="prose prose-invert prose-headings:font-bold prose-headings:text-foreground prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-muted-foreground prose-p:leading-8 prose-p:text-base prose-strong:text-foreground prose-strong:font-semibold prose-li:text-muted-foreground prose-li:leading-7 prose-ul:my-4 prose-ol:my-4 prose-blockquote:border-s-4 prose-blockquote:border-primary prose-blockquote:bg-card prose-blockquote:rounded-sm prose-blockquote:px-5 prose-blockquote:py-3 prose-blockquote:my-6 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-hr:border-border prose-table:text-sm prose-th:text-foreground prose-td:text-muted-foreground mt-14 max-w-3xl">
+                <ReactMarkdown>
+                  {post.body}
+                </ReactMarkdown>
               </div>
             </article>
           )}
