@@ -20,12 +20,18 @@
     "quote_role": "Founder of Microsoft",
     "perspective": "PERSPECTIVE",
     "ref": "REF // 01",
-    "marquee": "STRATEGY / MARKETING / OPERATIONS / PEOPLE DEVELOPMENT / MEDIA / SOFTWARE",
+    "marquee": "STRATEGY ✦ MARKETING ✦ OPERATIONS ✦ PEOPLE DEVELOPMENT ✦ MEDIA ✦ SOFTWARE",
     "premise_kicker": "The premise",
     "vision": "The best growth feels less like acceleration and more like alignment.",
     "mission": "We integrate strategy, marketing, operations and people development into one clear way forward.",
     "philosophy": "Human judgment, made useful.",
     "explore_services": "Explore capabilities"
+  },
+  "partners": {
+    "kicker": "Trusted by / built through partnership",
+    "title": "Good work travels.",
+    "intro": "A few of the teams and organizations who have trusted Spark Hub with the work that matters.",
+    "counter": "PARTNERS"
   },
   "services": {
     "kicker": "Capabilities / not packages",

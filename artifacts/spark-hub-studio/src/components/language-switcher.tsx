@@ -59,7 +59,7 @@ export function LanguageSwitcher({
             ? 'bg-primary text-primary-foreground shadow-[0_0_12px_rgba(233,190,88,0.5)]'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        style={{ fontFamily: "'Alexandria', 'Tajawal', sans-serif" }}
+        style={{ fontFamily: "'Tajawal', sans-serif" }}
         aria-label="التبديل إلى اللغة العربية"
         data-testid="button-lang-ar"
       >

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -172,14 +172,23 @@
    ========================================================= */
 
 [dir="rtl"] {
-  --font-sans: 'Alexandria', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --app-font-sans: 'Alexandria', 'Tajawal', sans-serif;
-  --app-font-arabic: 'Alexandria', 'Tajawal', sans-serif;
+  --font-sans: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --app-font-sans: 'Tajawal', sans-serif;
+  --app-font-arabic: 'Tajawal', sans-serif;
+  --app-font-arabic-heading: 'Tajawal', sans-serif;
+  --app-font-arabic-body: 'Tajawal', sans-serif;
 }
 
+/* Tajawal font lock for all elements */
+:root,
+body,
 [dir="rtl"],
-[dir="rtl"] body {
-  font-family: 'Alexandria', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+[dir="ltr"] {
+  font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+[dir="rtl"] {
+  letter-spacing: normal !important;
 }
 
 [dir="rtl"] h1,
@@ -189,44 +198,40 @@
 [dir="rtl"] h5,
 [dir="rtl"] h6,
 [dir="rtl"] p,
-[dir="rtl"] a,
 [dir="rtl"] span,
+[dir="rtl"] a,
 [dir="rtl"] button,
 [dir="rtl"] input,
 [dir="rtl"] select,
-[dir="rtl"] textarea {
-  font-family: 'Alexandria', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+[dir="rtl"] textarea,
+[dir="rtl"] .display,
+[dir="rtl"] .eyebrow {
+  font-family: 'Tajawal', sans-serif !important;
+  letter-spacing: normal !important;
 }
 
-/* Disable tracking/letter-spacing in Arabic to maintain cursive letter connectivity */
-[dir="rtl"] *,
-[dir="rtl"] .display,
-[dir="rtl"] .eyebrow,
-[dir="rtl"] .hero-word,
-[dir="rtl"] .hero-line,
 [dir="rtl"] h1,
-[dir="rtl"] h2,
-[dir="rtl"] h3,
-[dir="rtl"] h4,
-[dir="rtl"] h5,
-[dir="rtl"] h6 {
-  letter-spacing: normal !important;
+[dir="rtl"] .display {
+  line-height: 1.15;
+}
+
+[dir="rtl"] h2 {
+  line-height: 1.25;
+}
+
+[dir="rtl"] h3 {
+  line-height: 1.35;
 }
 
 [dir="rtl"] p {
-  line-height: 1.8 !important;
-}
-
-[dir="rtl"] .eyebrow {
-  letter-spacing: normal !important;
-  font-family: 'Alexandria', 'Tajawal', sans-serif !important;
+  line-height: 1.8;
 }
 
 [dir="rtl"] .mono,
 [dir="rtl"] .font-mono,
 [dir="rtl"] code,
 [dir="rtl"] pre {
-  font-family: 'DM Mono', 'Alexandria', monospace !important;
+  font-family: 'DM Mono', monospace !important;
 }
 
 [dir="rtl"] .rtl-flip,
@@ -243,6 +248,29 @@
    ========================================================= */
 
 @layer utilities {
+  .heading-ar-hero {
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.3;
+    letter-spacing: normal;
+    font-weight: 800;
+    text-wrap: balance;
+  }
+
+  .heading-ar {
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.32;
+    letter-spacing: normal;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  .body-ar {
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.85;
+    letter-spacing: normal;
+    text-wrap: pretty;
+  }
+
   .display {
     font-family: var(--app-font-sans);
     letter-spacing: -0.025em;

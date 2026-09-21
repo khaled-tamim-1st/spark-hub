@@ -37,6 +37,7 @@ import { publishableKeyFromHost } from '@clerk/react/internal';
 import { dark } from '@clerk/themes';
 
 import {
+  ArrowRight,
   ArrowUpRight,
   Check,
   ChevronDown,
@@ -401,7 +402,7 @@ function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto mt-16 flex max-w-[1440px] justify-between border-t border-border pt-5 mono text-[10px] text-muted-foreground">
+      <div className="mx-auto mt-16 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border pt-5 font-mono rtl:font-sans text-[11px] rtl:text-xs text-muted-foreground">
         <span>© {new Date().getFullYear()} {t('footer.rights', 'SPARK HUB')}</span>
         <span>{t('footer.tagline', 'WHERE STRATEGY MEETS GROWTH')}</span>
       </div>
@@ -645,9 +646,9 @@ function SectionHead({
   typingIntro?: boolean;
 }) {
   return (
-    <div className="mb-12 grid gap-5 md:grid-cols-[1fr_1.7fr] md:items-end">
+    <div className="mb-12 max-w-4xl text-start">
       <Reveal>
-        <p className="eyebrow text-primary inline-flex items-center gap-2">
+        <p className="eyebrow text-primary inline-flex items-center gap-2 mb-4 font-mono text-[11px] rtl:text-xs tracking-[.18em] rtl:tracking-normal">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(233,190,88,0.85)]" />
           {kicker}
         </p>
@@ -655,7 +656,7 @@ function SectionHead({
 
       <div>
         <Reveal delay={100}>
-          <h2 className="display text-5xl font-extrabold leading-[.98] tracking-[-.03em] md:text-7xl">
+          <h2 className="display text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.12] text-foreground tracking-[-.03em] rtl:tracking-normal">
             {title}
           </h2>
         </Reveal>
@@ -664,11 +665,11 @@ function SectionHead({
           {typingIntro ? (
             <TypingParagraph
               text={intro}
-              className="mt-6 max-w-xl text-base leading-7 text-muted-foreground"
+              className="mt-5 max-w-2xl text-base sm:text-lg leading-relaxed rtl:leading-[1.8] text-muted-foreground"
               delay={300}
             />
           ) : (
-            <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground">
+            <p className="mt-5 max-w-2xl text-base sm:text-lg leading-relaxed rtl:leading-[1.8] text-muted-foreground">
               {intro}
             </p>
           )}
@@ -742,8 +743,26 @@ function QueryState({
 /*                                    Home                                    */
 /* -------------------------------------------------------------------------- */
 
+const curatedPartnersRow1 = [
+  { name: 'Roots New Edition', category: 'Fashion & Retail', imageUrl: '' },
+  { name: 'HEROINERA', category: 'Health & Wellness', imageUrl: '' },
+  { name: 'VIOLLA Atelier', category: 'Haute Couture', imageUrl: '' },
+  { name: 'VEXON', category: 'Activewear', imageUrl: '' },
+  { name: 'Era Egypt Pharma', category: 'Pharmaceuticals', imageUrl: '' },
+  { name: 'Optima Clinic', category: 'Healthcare', imageUrl: '' },
+];
+
+const curatedPartnersRow2 = [
+  { name: 'Dr. Cars', category: 'Automotive Services', imageUrl: '' },
+  { name: 'Elite Systems', category: 'Enterprise IT', imageUrl: '' },
+  { name: 'Dr. Eslam Amer', category: 'Medical Speciality', imageUrl: '' },
+  { name: 'Aura Studio', category: 'Architecture & Design', imageUrl: '' },
+  { name: 'Al-Basha Group', category: 'Trading & Logistics', imageUrl: '' },
+  { name: 'Apex Media', category: 'Broadcast & Media', imageUrl: '' },
+];
+
 function Home() {
-  const { t, locale, localizePath } = useLanguage();
+  const { t, locale, localizePath, isRTL } = useLanguage();
   const overview = useGetOverview();
   const services = useListServices();
   const testimonials = useListTestimonials();
@@ -751,94 +770,112 @@ function Home() {
 
   const o = overview.data;
 
-  const getHomeServiceTitle = (service: any, index: number) => {
-    if (locale === 'ar') {
-      const cat = service.category?.toLowerCase();
-      if (cat === 'strategy' || index === 0) return 'الاستراتيجية والتخطيط المؤسسي';
-      if (cat === 'marketing' || index === 1) return 'إدارة التسويق ومضاعفة النمو';
-      if (cat === 'creative' || index === 2) return 'استراتيجية الهوية البصرية والأنظمة';
-      if (cat === 'training') return 'التدريب التنفيذي وتسريع المهارات';
-    }
-    return service.title;
-  };
+  // Build high-contrast partner logo rows without duplicate placeholder icons
+  const activeLogos = clientLogos.data || [];
+  const customLogosWithImages = activeLogos.filter(
+    (l) => l.imageUrl && !l.imageUrl.includes('logo.png')
+  );
 
-  const getHomeServiceSummary = (service: any, index: number) => {
-    if (locale === 'ar') {
-      const cat = service.category?.toLowerCase();
-      if (cat === 'strategy' || index === 0) return 'مسارات إطلاق السوق (GTM)، تحليلات المنافسين العميقة، هندسة قمع المبيعات، وإعادة الهيكلة الإدارية للتسويق.';
-      if (cat === 'marketing' || index === 1) return 'قيادة الحملات الإعلانية متعددة القنوات، البنية التقنية للـ SEO، إدارة الميزانيات وتحليل العائد الاستثماري (ROI).';
-      if (cat === 'creative' || index === 2) return 'أنظمة التيبوغرافي والهوية المتكاملة، التوجيه الإبداعي والإنتاج السينمائي، وأدلة الهوية الشاملة.';
-      if (cat === 'training') return 'معسكرات بناء الهوية، إعلانات الأداء المتقدمة، وإدارة المشاريع الرشيقة (Agile).';
-    }
-    return service.summary;
-  };
+  const displayPartnersRow1 = customLogosWithImages.length > 0
+    ? [...customLogosWithImages.slice(0, Math.ceil(customLogosWithImages.length / 2)), ...curatedPartnersRow1]
+    : curatedPartnersRow1;
+
+  const displayPartnersRow2 = customLogosWithImages.length > 0
+    ? [...customLogosWithImages.slice(Math.ceil(customLogosWithImages.length / 2)), ...curatedPartnersRow2]
+    : curatedPartnersRow2;
+
+  const homeServices = [
+    {
+      id: 1,
+      titleKey: 'services.items.strategy.title',
+      summaryKey: 'services.items.strategy.summary',
+      defaultTitle: 'Strategy & Planning',
+      defaultSummary: 'Go-To-Market trajectories, in-depth competitor intelligence, sales funnel engineering, and strategic marketing reorganization.',
+    },
+    {
+      id: 2,
+      titleKey: 'services.items.marketing.title',
+      summaryKey: 'services.items.marketing.summary',
+      defaultTitle: 'Marketing Management & Growth',
+      defaultSummary: 'Omnichannel performance leadership, technical SEO architecture, disciplined budget allocation, and continuous ROI analysis.',
+    },
+    {
+      id: 3,
+      titleKey: 'services.items.creative.title',
+      summaryKey: 'services.items.creative.summary',
+      defaultTitle: 'Visual Brand Strategy & Systems',
+      defaultSummary: 'Comprehensive typographic systems, creative direction, cinematic media production, and complete brand guidelines.',
+    },
+  ];
 
   return (
     <Shell>
       <section className="editorial-grid relative min-h-0 md:min-h-[580px] lg:min-h-[660px] overflow-hidden border-b border-border bg-[#080c14]">
         <PageFrame className="relative z-10 min-h-0 md:min-h-[580px] lg:min-h-[660px] pb-10 pt-20 md:pb-20 md:pt-28 md:grid md:grid-cols-[1.1fr_.9fr] md:items-center md:gap-8">
-          <div className="animate-rise">
-            <p className="eyebrow mb-6 text-primary tracking-[.22em] rtl:tracking-normal font-mono text-[11px] inline-flex items-center gap-2">
+          <div className="animate-rise text-start">
+            <p className="eyebrow mb-6 text-primary tracking-[.22em] rtl:tracking-normal font-mono text-[11px] rtl:text-xs inline-flex items-center gap-2">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
-              {locale === 'ar' ? t('hero.eyebrow') : (o?.eyebrow || t('hero.eyebrow'))}
+              {o?.eyebrow || t('hero.eyebrow')}
             </p>
 
-            {locale === 'ar' ? (
-              <h1 className="display max-w-4xl text-[clamp(3.8rem,9.2vw,8.5rem)] font-extrabold leading-[1.08] tracking-normal text-foreground">
-                <span className="hero-line block pb-1">
-                  <span className="hero-word hero-word-1 inline-block">
-                    {t('hero.headline_1', 'حيث تلتقي')}
+            <h1 className="display max-w-4xl text-[clamp(3.8rem,9.5vw,8.5rem)] rtl:text-[clamp(3.2rem,8vw,6.8rem)] font-extrabold leading-[0.85] rtl:leading-[1.18] tracking-[-0.05em] rtl:tracking-normal text-foreground">
+              {locale === 'ar' ? (
+                <>
+                  <span className="hero-line block pb-1">
+                    <span className="hero-word hero-word-1 inline-block">
+                      حيث تلتقي
+                    </span>
                   </span>
-                </span>
 
-                <span className="hero-line block pb-1">
-                  <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
-                    {t('hero.headline_2', 'الاستراتيجية')}
+                  <span className="hero-line block pb-1">
+                    <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
+                      الاستراتيجية
+                    </span>
                   </span>
-                </span>
 
-                <span className="hero-line block pb-1">
-                  <span className="hero-word hero-word-3 inline-block">
-                    {t('hero.headline_3', 'بالنمو.')}
+                  <span className="hero-line block pb-1">
+                    <span className="hero-word hero-word-3 inline-block">
+                      بالنمو.
+                    </span>
                   </span>
-                </span>
-              </h1>
-            ) : (
-              <h1 className="display max-w-4xl text-[clamp(4.2rem,10.2vw,9.5rem)] font-extrabold leading-[0.82] tracking-[-0.05em] text-foreground">
-                <span className="hero-line block pb-1">
-                  <span className="hero-word hero-word-1 inline-block">
-                    Where
+                </>
+              ) : (
+                <>
+                  <span className="hero-line block pb-1">
+                    <span className="hero-word hero-word-1 inline-block">
+                      Where
+                    </span>
                   </span>
-                </span>
 
-                <span className="hero-line block pb-1">
-                  <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
-                    strategy
+                  <span className="hero-line block pb-1">
+                    <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
+                      strategy
+                    </span>
                   </span>
-                </span>
 
-                <span className="hero-line block pb-1">
-                  <span className="hero-word hero-word-3 inline-block">
-                    meets
+                  <span className="hero-line block pb-1">
+                    <span className="hero-word hero-word-3 inline-block">
+                      meets
+                    </span>
                   </span>
-                </span>
 
-                <span className="hero-line block pb-1">
-                  <span className="hero-word hero-word-4 inline-block">
-                    growth.
+                  <span className="hero-line block pb-1">
+                    <span className="hero-word hero-word-4 inline-block">
+                      growth.
+                    </span>
                   </span>
-                </span>
-              </h1>
-            )}
+                </>
+              )}
+            </h1>
 
             {/* Editorial Quote (Mobile only) */}
             <div className="md:hidden animate-fade delay-3 mt-7 max-w-xl border-s-2 border-primary/60 ps-4 py-1">
-              <p className="font-sans text-sm sm:text-base italic text-muted-foreground/90 leading-relaxed">
+              <p className="font-sans text-sm sm:text-base italic text-muted-foreground/90 leading-relaxed rtl:leading-relaxed">
                 {t('hero.quote')}
               </p>
               <div className="mt-2.5 flex items-center gap-2">
                 <span className="h-px w-5 bg-primary/60" />
-                <span className="mono text-[11px] uppercase tracking-widest text-primary font-semibold">
+                <span className="mono rtl:font-sans text-[11px] uppercase tracking-widest text-primary font-semibold">
                   {t('hero.quote_author')}
                 </span>
                 <span className="text-[10px] text-muted-foreground/50">/</span>
@@ -886,7 +923,7 @@ function Home() {
             </div>
 
             {/* Desktop Studio Perspective Quote Card */}
-            <div className="w-64 md:w-72 lg:w-80 rounded-xl border border-primary/30 bg-card/40 backdrop-blur-md p-4 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all hover:border-primary/50">
+            <div className="w-64 md:w-72 lg:w-80 rounded-xl border border-primary/30 bg-card/40 backdrop-blur-md p-4 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all hover:border-primary/50 text-start">
               <div className="flex items-center justify-between border-b border-primary/20 pb-2 mb-2.5">
                 <span className="mono text-[9px] uppercase tracking-widest text-primary flex items-center gap-1.5 font-semibold">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(233,190,88,0.8)]" />
@@ -896,11 +933,11 @@ function Home() {
                   {t('hero.ref', 'REF // 01')}
                 </span>
               </div>
-              <p className="font-sans text-xs italic text-foreground/90 leading-relaxed">
+              <p className="font-sans text-xs italic text-foreground/90 leading-relaxed rtl:leading-relaxed">
                 {t('hero.quote')}
               </p>
               <div className="mt-3 flex items-center justify-between pt-2 border-t border-border/40 text-[10px]">
-                <span className="mono font-semibold text-primary tracking-wider uppercase">
+                <span className="mono rtl:font-sans font-semibold text-primary tracking-wider uppercase">
                   {t('hero.quote_author')}
                 </span>
                 <span className="text-muted-foreground/70 font-mono text-[9px]">
@@ -912,126 +949,144 @@ function Home() {
         </PageFrame>
 
         <div
-          className="marquee py-3 text-[11px] font-bold tracking-[.2em] rtl:tracking-normal text-muted-foreground border-t border-border/40"
+          className={`marquee py-3 text-muted-foreground border-t border-border/40 ${
+            isRTL ? 'text-xs font-semibold tracking-normal' : 'text-[11px] font-bold tracking-[.2em]'
+          }`}
         >
           <span>
-            {t('hero.marquee')}&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            {t('hero.marquee')}&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
-            {t('hero.marquee')}&nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
+            {t('hero.marquee')}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;
+            {t('hero.marquee')}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;
+            {t('hero.marquee')}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;
           </span>
         </div>
       </section>
 
       <PageFrame>
-        <div className="mb-12 grid gap-5 md:grid-cols-[1fr_1.7fr] md:items-end">
+        <div className="mb-12 max-w-4xl text-start">
           <Reveal>
-            <p className="eyebrow text-primary">
+            <p className="eyebrow text-primary inline-flex items-center gap-2 mb-4 font-mono text-[11px] rtl:text-xs tracking-[.18em] rtl:tracking-normal">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(233,190,88,0.85)]" />
               {t('hero.premise_kicker', 'The premise')}
             </p>
           </Reveal>
 
           <div>
             <Reveal delay={100}>
-              <h1 className="display text-4xl sm:text-5xl md:text-7xl leading-[1.05] tracking-[-0.03em] rtl:tracking-normal">
-                {locale === 'ar' ? t('hero.vision') : (o?.vision || t('hero.vision'))}
-              </h1>
+              <h2 className="display text-3xl sm:text-5xl md:text-6xl font-extrabold leading-[1.15] text-foreground tracking-[-0.03em] rtl:tracking-normal">
+                {o?.vision || t('hero.vision')}
+              </h2>
             </Reveal>
 
             <Reveal delay={180}>
-              <TypingParagraph
-                text={
-                  locale === 'ar' ? t('hero.mission') : (o?.mission || t('hero.mission'))
-                }
-                className="mt-6 max-w-xl text-base leading-7 text-muted-foreground"
-                delay={300}
-              />
+              <p className="mt-6 max-w-2xl text-base sm:text-lg leading-relaxed rtl:leading-[1.85] text-muted-foreground">
+                {o?.mission || t('hero.mission')}
+              </p>
             </Reveal>
           </div>
         </div>
 
-        <div className="mt-16 grid gap-px bg-border md:grid-cols-3">
-          {(services.data || []).slice(0, 3).map((service, index) => (
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {homeServices.map((service, index) => (
             <Link
               href={localizePath('/services')}
               key={service.id}
-              className="group bg-background p-7 md:p-9"
+              className="group relative flex flex-col justify-between rounded-2xl border border-border/60 bg-card/40 p-8 md:p-9 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-card/70 hover:shadow-[0_12px_36px_rgba(233,190,88,0.09)] hover:-translate-y-1"
               data-testid={`card-home-service-${service.id}`}
             >
-              <span className="mono text-xs text-primary">
-                0{index + 1}
-              </span>
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold text-primary px-2.5 py-1 rounded-full border border-primary/30 bg-primary/10">
+                    0{index + 1}
+                  </span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
+                </div>
 
-              <h3 className="display mt-16 text-2xl sm:text-3xl">
-                {getHomeServiceTitle(service, index)}
-              </h3>
+                <h3 className="display mt-8 text-xl sm:text-2xl font-bold leading-snug text-foreground group-hover:text-primary transition-colors">
+                  {t(service.titleKey, service.defaultTitle)}
+                </h3>
 
-              <p className="mt-4 text-sm leading-6 text-muted-foreground">
-                {getHomeServiceSummary(service, index)}
-              </p>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  {t(service.summaryKey, service.defaultSummary)}
+                </p>
+              </div>
 
-              <ArrowUpRight
-                className="mt-10 text-primary transition-transform group-hover:translate-x-1 group-hover:-translate-y-1 rtl:-rotate-90 rtl:group-hover:-translate-x-1"
-                size={18}
-              />
+              <div className="mt-8 pt-6 border-t border-border/40 flex items-center justify-between text-xs font-semibold text-primary">
+                <span>{locale === 'ar' ? 'استكشف المسار' : 'Explore Service'}</span>
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 group-hover:bg-primary group-hover:text-primary-foreground">
+                  <ArrowRight size={14} className="rtl:rotate-180" />
+                </span>
+              </div>
             </Link>
           ))}
         </div>
       </PageFrame>
 
-      {!!clientLogos.data?.length && (
-        <section className="border-t border-border bg-card">
-          <PageFrame>
-            <SectionHead
-              kicker="Trusted by / built through partnership"
-              title="Good work travels."
-              intro="A few of the teams and organizations who have trusted Spark Hub with the work that matters."
-            />
+      <section className="border-t border-border bg-card/50 py-20">
+        <PageFrame>
+          <SectionHead
+            kicker={t('partners.kicker', 'Trusted by / built through partnership')}
+            title={t('partners.title', 'Good work travels.')}
+            intro={t('partners.intro', 'A few of the teams and organizations who have trusted Spark Hub with the work that matters.')}
+          />
 
-            <div className="mt-16 space-y-3">
-              {[
-                { reverse: false },
-                { reverse: true },
-              ].map((row, rowIndex) => (
+          <div className="mt-12 space-y-4">
+            {[
+              { reverse: false, list: displayPartnersRow1 },
+              { reverse: true, list: displayPartnersRow2 },
+            ].map((row, rowIndex) => (
+              <div
+                key={rowIndex}
+                className="relative overflow-hidden border-y border-border/60 py-5 bg-background/30 backdrop-blur-sm"
+              >
                 <div
-                  key={rowIndex}
-                  className="relative overflow-hidden border-y border-border/70 py-6"
+                  className={`trusted-marquee-track ${
+                    row.reverse ? 'trusted-marquee-reverse' : ''
+                  }`}
                 >
-                  <div
-                    className={`trusted-marquee-track ${
-                      row.reverse ? 'trusted-marquee-reverse' : ''
-                    }`}
-                  >
-                    {[...clientLogos.data!, ...clientLogos.data!].map(
-                      (logo, index) => (
-                        <div
-                          key={`${logo.id}-${index}`}
-                          className="flex min-w-[12rem] items-center justify-center px-6 md:min-w-[15rem]"
-                        >
-                          <img
-                            src={logo.imageUrl}
-                            alt={logo.name}
-                            loading="lazy"
-                            decoding="async"
-                            className="block h-12 w-auto object-contain opacity-75 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 md:h-14"
-                          />
+                  {[...row.list, ...row.list].map((partner, index) => (
+                    <div
+                      key={`${partner.name}-${index}`}
+                      className="flex min-w-[13rem] items-center justify-center px-6 md:min-w-[16rem]"
+                    >
+                      {partner.imageUrl && !partner.imageUrl.includes('logo.png') ? (
+                        <img
+                          src={partner.imageUrl}
+                          alt={partner.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="block h-10 w-auto object-contain opacity-75 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 md:h-12"
+                        />
+                      ) : (
+                        <div className="flex items-center gap-3 px-5 py-2.5 rounded-xl border border-border/70 bg-card/60 hover:border-primary/50 hover:bg-card/90 transition-all shadow-sm group">
+                          <span className="h-2 w-2 rounded-full bg-primary/70 group-hover:bg-primary transition-colors" />
+                          <div className="text-start">
+                            <span className="block text-sm font-bold tracking-wide uppercase text-foreground/90 group-hover:text-primary transition-colors font-sans">
+                              {partner.name}
+                            </span>
+                            {'category' in partner && partner.category ? (
+                              <span className="block text-[10px] text-muted-foreground/70 font-mono">
+                                {partner.category}
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
-                      ),
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
 
-            <div className="mt-10 flex items-center gap-4">
-              <span className="h-px flex-1 bg-border" />
-              <span className="mono text-[10px] tracking-[.16em] text-muted-foreground">
-                PARTNERS / {String(clientLogos.data!.length).padStart(2, '0')}
-              </span>
-              <span className="h-px flex-1 bg-border" />
-            </div>
-          </PageFrame>
-        </section>
-      )}
+          <div className="mt-10 flex items-center gap-4">
+            <span className="h-px flex-1 bg-border/60" />
+            <span className="font-mono text-[10px] tracking-[.18em] rtl:tracking-normal text-muted-foreground uppercase font-semibold">
+              {t('partners.counter', 'PARTNERS')} / 12+
+            </span>
+            <span className="h-px flex-1 bg-border/60" />
+          </div>
+        </PageFrame>
+      </section>
 
     </Shell>
   );
@@ -1236,10 +1291,10 @@ const categoryLabels: Record<string, string> = {
 };
 
 const categoryLabelsAr: Record<string, string> = {
-  strategy: 'الاستراتيجية والتخطيط المؤسسي',
-  marketing: 'إدارة التسويق ومضاعفة النمو',
-  creative: 'استراتيجية الهوية البصرية والأنظمة',
-  training: 'التدريب التنفيذي وتسريع المهارات',
+  strategy: 'التخطيط المؤسسي وهندسة التوسع',
+  marketing: 'إدارة التسويق ومضاعفة الأثر',
+  creative: 'بناء الهوية والأنظمة البصرية',
+  training: 'تمكين القيادات وبناء الكفاءات',
   business: 'تطوير الأعمال والحلول الاستشارية',
   media: 'الإنتاج الإبداعي والسينمائي',
   software: 'الحلول الرقمية والأنظمة',
@@ -1247,43 +1302,43 @@ const categoryLabelsAr: Record<string, string> = {
 
 const localizedCoreServicesMap: Record<string, { title: string; summary: string; details: string[] }> = {
   strategy: {
-    title: 'الاستراتيجية والتخطيط المؤسسي',
-    summary: 'مسارات إطلاق السوق (GTM)، تحليلات المنافسين العميقة، هندسة قمع المبيعات، وإعادة الهيكلة الإدارية للتسويق.',
+    title: 'التخطيط المؤسسي وهندسة التوسع',
+    summary: 'رسم خرائط اختراق السوق، تحليل تنافسي معمق، وإعادة تصميم الهيكل التسويقي للمؤسسات لضمان عائد مستقر طويل المدى.',
     details: [
-      'مسارات إطلاق السوق والتوسع المدروس (GTM)',
-      'تحليلات المنافسين العميقة وتحديد الفجوات والفرص السوقية',
-      'هندسة قمع المبيعات وتحسين معدلات التحويل التجاري',
-      'إعادة الهيكلة الإدارية والتنظيمية لمنظومة التسويق',
+      'رسم خرائط اختراق السوق والتوسع المدروس (GTM)',
+      'تحليل تنافسي معمق وتحديد الفجوات والفرص الاستثمارية',
+      'هندسة قمع المبيعات ورفع كفاءة معدلات التحويل التجاري',
+      'إعادة تصميم الهيكل التسويقي وحوكمة منظومة النمو',
     ],
   },
   marketing: {
-    title: 'إدارة التسويق ومضاعفة النمو',
-    summary: 'قيادة الحملات الإعلانية متعددة القنوات، البنية التقنية للـ SEO، إدارة الميزانيات وتحليل العائد الاستثماري (ROI).',
+    title: 'إدارة التسويق ومضاعفة الأثر',
+    summary: 'توجيه الإنفاق الإعلاني، إدارة منصات الاستحواذ، وهندسة رحلة العميل الرقمية لتقليل تكلفة الاستحواذ ومضاعفة القيمة التراكمية.',
     details: [
-      'قيادة الحملات الإعلانية متعددة القنوات وتحسين الأداء',
-      'البنية التقنية لمحركات البحث (SEO) واستراتيجيات الظهور العضوي',
-      'إدارة وتوزيع الميزانيات التسويقية بكفاءة مالية منضبطة',
-      'قياس العائد على الاستثمار وتحليلات الأداء المتقدمة (ROI)',
+      'توجيه الإنفاق الإعلاني وإدارة الميزانيات بكفاءة مالية منضبطة',
+      'إدارة منصات الاستحواذ والحملات الإعلانية متعددة القنوات',
+      'هندسة رحلة العميل الرقمية وخفض تكلفة الاستحواذ (CAC)',
+      'مضاعفة القيمة التراكمية للعميل (LTV) وتحليل العائد (ROI)',
     ],
   },
   creative: {
-    title: 'استراتيجية الهوية البصرية والأنظمة',
-    summary: 'أنظمة التيبوغرافي والهوية المتكاملة، التوجيه الإبداعي والإنتاج السينمائي، وأدلة الهوية الشاملة.',
+    title: 'بناء الهوية والأنظمة البصرية',
+    summary: 'تصميم لغات بصرية مؤسسية تفرض حضورها في السوق، وتوحيد الأصول المرئية والإنتاج السينمائي بما يعكس مكانة العلامة الحقيقية.',
     details: [
-      'أنظمة التيبوغرافي والهوية المتكاملة وتطبيقات العلامة',
-      'التوجيه الإبداعي والإنتاج السينمائي والسرد البصري',
-      'أدلة الهوية الشاملة ومعايير الاستخدام الاحترافي',
-      'حوكمة العلامة التجارية وتطوير الأصول الرقمية والمطبوعة',
+      'تصميم لغات بصرية مؤسسية تفرض حضورها ومكانتها السوقية',
+      'توحيد الأصول المرئية والأدلة الإرشادية المتكاملة للعلامة',
+      'التوجيه الإبداعي والإنتاج السينمائي رفيع المستوى',
+      'حوكمة العلامة التجارية وتطوير أصول التموضع المؤسسي',
     ],
   },
   training: {
-    title: 'التدريب التنفيذي وتسريع المهارات',
-    summary: 'معسكرات بناء الهوية، إعلانات الأداء المتقدمة، وإدارة المشاريع الرشيقة (Agile).',
+    title: 'تمكين القيادات وبناء الكفاءات',
+    summary: 'نقل الخبرة إلى فرق العمل الداخلية عبر برامج تدريب وتأهيل عملي في المبيعات الاستشارية، التحليل الرقمي، وإدارة المشاريع.',
     details: [
-      'معسكرات بناء الهوية وتحديد التموضع التنافسي',
-      'إعلانات الأداء المتقدمة والتسويق الرقمي عالي الكفاءة',
-      'إدارة المشاريع الرشيقة (Agile Frameworks) وتسريع الإنجاز',
-      'تطوير وتأهيل الكوادر القيادية والتنفيذية للشركات',
+      'نقل الخبرة المعرفية والعملية لفرق العمل الداخلية',
+      'برامج تدريب وتأهيل عملي في المبيعات الاستشارية المعقدة',
+      'التحليل الرقمي واستخلاص مؤشرات الأداء الحيوية (KPIs)',
+      'إدارة المشاريع بالمنهجيات الرشيقة وتسريع وتيرة التنفيذ',
     ],
   },
 };
@@ -3074,10 +3129,17 @@ function Team() {
 /*                                  Contact                                   */
 /* -------------------------------------------------------------------------- */
 
+const arabicWorkingRanges = [
+  { id: 'advisory', title: 'استشارة استراتيجية محددة', duration: '2 - 4 أسابيع' },
+  { id: 'quarterly', title: 'شراكة نمو ربع سنوية', duration: '3 أشهر' },
+  { id: 'transformation', title: 'تحول مؤسسي شامل', duration: '6+ أشهر' },
+];
+
 function Contact() {
   const { t, localizePath, isRTL } = useLanguage();
   const mutation = useCreateContactLead();
   const [sent, setSent] = useState(false);
+  const [selectedBudgetTier, setSelectedBudgetTier] = useState<string>('شراكة نمو ربع سنوية');
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -3113,10 +3175,11 @@ function Contact() {
             <h1 className="display mt-7 text-5xl leading-[1.05] sm:text-6xl md:text-7xl">
               {isRTL ? (
                 <>
-                  جاهز لتحويل{' '}
-                  <i className="text-primary not-italic">الاستراتيجية إلى نمو؟</i>
-                  <span className="block mt-2 text-2xl sm:text-3xl text-muted-foreground font-normal">
-                    — لنبدأ محادثة عمل
+                  <span className="heading-ar-hero block text-3xl sm:text-5xl md:text-6xl leading-[1.28]">
+                    كيف يمكننا مساعدة مؤسستك على النمو؟
+                  </span>
+                  <span className="body-ar block mt-4 text-base sm:text-lg text-muted-foreground font-normal leading-[1.85]">
+                    جاهز لتحويل <i className="text-primary not-italic">الاستراتيجية إلى نمو؟</i> — لنبدأ محادثة عمل
                   </span>
                 </>
               ) : (
@@ -3199,11 +3262,41 @@ function Contact() {
                     placeholder={t('contact.service_placeholder', 'Strategy, marketing, systems...')}
                   />
 
-                  <Field
-                    name="budget"
-                    label={t('contact.budget_label', 'Working range')}
-                    placeholder={t('contact.budget_placeholder', 'A useful guide, not a commitment')}
-                  />
+                  {isRTL ? (
+                    <div>
+                      <span className="eyebrow block text-muted-foreground mb-2">
+                        {t('contact.budget_label', 'Working range')}
+                      </span>
+                      <div className="grid grid-cols-3 gap-2">
+                        {arabicWorkingRanges.map((tier) => (
+                          <button
+                            key={tier.id}
+                            type="button"
+                            onClick={() => setSelectedBudgetTier(tier.title)}
+                            className={`p-2.5 rounded-sm border text-right transition-all cursor-pointer ${
+                              selectedBudgetTier === tier.title
+                                ? 'border-primary bg-primary/10 text-primary font-bold'
+                                : 'border-border bg-transparent text-muted-foreground hover:border-primary/50 text-xs'
+                            }`}
+                          >
+                            <span className="block text-[11px] leading-tight font-sans">
+                              {tier.title}
+                            </span>
+                            <span className="block text-[9px] opacity-75 mt-1 font-mono">
+                              {tier.duration}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                      <input type="hidden" name="budget" value={selectedBudgetTier} />
+                    </div>
+                  ) : (
+                    <Field
+                      name="budget"
+                      label={t('contact.budget_label', 'Working range')}
+                      placeholder={t('contact.budget_placeholder', 'A useful guide, not a commitment')}
+                    />
+                  )}
                 </div>
 
                 <label className="block text-start">
