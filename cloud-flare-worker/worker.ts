@@ -34,9 +34,11 @@ function isAllowedSsrPath(pathname: string): boolean {
     const decoded = decodeURIComponent(normalized);
     if (/^\/blog\/[a-zA-Z0-9_\-\u0600-\u06FF]{1,200}$/.test(decoded) || /^\/blog\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
     if (/^\/work\/[a-zA-Z0-9_\-\u0600-\u06FF]{1,200}$/.test(decoded) || /^\/work\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
+    if (/^\/services\/[a-zA-Z0-9_\-\u0600-\u06FF]{1,200}$/.test(decoded) || /^\/services\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
   } catch {
     if (/^\/blog\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
     if (/^\/work\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
+    if (/^\/services\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
   }
   return false;
 }

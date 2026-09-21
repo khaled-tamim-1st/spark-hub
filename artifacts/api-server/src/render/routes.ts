@@ -3,6 +3,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import {
   db,
   servicesTable,
+  caseStudiesTable,
   reelsTable,
   podcastsTable,
   postsTable,
@@ -1956,16 +1957,466 @@ router.get(["/blog/:slug", "/ar/blog/:slug", "/en/blog/:slug"], async (req, res)
 });
 
 // ============================================================================
-// 11. WORK REDIRECTS (/work -> /services)
+// 11. WORK (/work) & (/ar/work) & (/en/work)
 // ============================================================================
-router.get(["/work", "/ar/work", "/en/work"], (req, res) => {
-  const { isAr } = getLocaleInfo(req.path);
-  res.redirect(301, isAr ? "/ar/services" : "/services");
+router.get(["/work", "/ar/work", "/en/work"], async (req, res) => {
+  const { isAr, lang, dir, prefix } = getLocaleInfo(req.path);
+  const rows = await db
+    .select()
+    .from(caseStudiesTable)
+    .orderBy(asc(caseStudiesTable.displayOrder));
+
+  const body = isAr
+    ? `
+<article>
+  <header>
+    <h1>سجل دراسات الحالة والنتائج التجارية المحققة | سبارك هب ستوديو</h1>
+    <p>أعمال وتحولات تجارية حقيقية: نلتقي بالشركات عند النقطة التي تتطلب أكثر من مجرد إعلان؛ رؤية استراتيجية واضحة، منظومة تشغيلية تسويقية فعالة، ونتائج قابلة للقياس.</p>
+  </header>
+
+  <section>
+    <h2>دراسات حالة مختارة</h2>
+    <ul>
+      ${rows
+        .map(
+          (item) => `
+      <li>
+        <h3><a href="${prefix}/work/${esc(item.slug)}">${esc(item.title)}</a></h3>
+        <p><strong>العميل:</strong> ${esc(item.client)} | <strong>القطاع:</strong> ${esc(item.category)}</p>
+        <p><strong>الأثر والتحول:</strong> ${esc(item.metric)}</p>
+        <p>${esc(item.summary)}</p>
+        <p><a href="${prefix}/work/${esc(item.slug)}">قراءة دراسة الحالة بالكامل ←</a></p>
+      </li>`,
+        )
+        .join("\n")}
+    </ul>
+  </section>
+
+  <section class="cta-box">
+    <h2>هل تبحث عن تحقيق تحول تجاري مماثل لمؤسستك؟</h2>
+    <p>تواصل مع فريق سبارك هب لبناء استراتيجية نمو مصممة خصيصاً لتحقيق أهدافك التجارية.</p>
+    <a href="${prefix}/contact" class="cta-btn">ابدأ محادثة عمل الآن</a>
+  </section>
+</article>`
+    : `
+<article>
+  <header>
+    <h1>Selected Case Studies & Commercial Results — Spark Hub Studio</h1>
+    <p>Work that shifts the room: We partner at the point where a business needs more than a campaign: a new direction, a working system, or a story people can carry.</p>
+  </header>
+
+  <section>
+    <h2>Selected Client Engagements</h2>
+    <ul>
+      ${rows
+        .map(
+          (item) => `
+      <li>
+        <h3><a href="${prefix}/work/${esc(item.slug)}">${esc(item.title)}</a></h3>
+        <p><strong>Client:</strong> ${esc(item.client)} | <strong>Category:</strong> ${esc(item.category)}</p>
+        <p><strong>Commercial Impact:</strong> ${esc(item.metric)}</p>
+        <p>${esc(item.summary)}</p>
+        <p><a href="${prefix}/work/${esc(item.slug)}">Read full case study ←</a></p>
+      </li>`,
+        )
+        .join("\n")}
+    </ul>
+  </section>
+
+  <section class="cta-box">
+    <h2>Ready to Architect Your Next Growth Phase?</h2>
+    <p>Partner with Spark Hub Studio to turn business strategy into measurable market dominance.</p>
+    <a href="${prefix}/contact" class="cta-btn">Start a Conversation</a>
+  </section>
+</article>`;
+
+  const pageTitle = isAr
+    ? "سجل الأعمال ودراسات الحالة | سبارك هب ستوديو"
+    : "Selected Case Studies & Client Results — Spark Hub Studio";
+
+  const pageDesc = isAr
+    ? "استكشف دراسات الحالة والتحولات التجارية لعملاء سبارك هب ستوديو: استراتيجيات اختراق السوق، مضاعفة العائد الإعلاني، وبناء الهويات المؤسسية."
+    : "Explore verified case studies and business transformations achieved with Spark Hub Studio across strategy, marketing, and brand identity.";
+
+  res.type("html").send(
+    renderShell({
+      title: pageTitle,
+      description: pageDesc,
+      path: isAr ? "/ar/work" : "/work",
+      bodyHtml: body,
+      lang,
+      dir,
+      breadcrumbs: [
+        { name: isAr ? "الرئيسية" : "Home", url: isAr ? "/ar" : "/" },
+        { name: isAr ? "سجل الأعمال" : "Work", url: isAr ? "/ar/work" : "/work" },
+      ],
+    }),
+  );
 });
 
-router.get(["/work/:slug", "/ar/work/:slug", "/en/work/:slug"], (req, res) => {
-  const { isAr } = getLocaleInfo(req.path);
-  res.redirect(301, isAr ? "/ar/services" : "/services");
+// ============================================================================
+// 12. WORK DETAIL (/work/:slug) & (/ar/work/:slug) & (/en/work/:slug)
+// ============================================================================
+router.get(["/work/:slug", "/ar/work/:slug", "/en/work/:slug"], async (req, res) => {
+  const { isAr, lang, dir, prefix } = getLocaleInfo(req.path);
+  const slug = String(req.params.slug || "").trim();
+  const [row] = await db
+    .select()
+    .from(caseStudiesTable)
+    .where(eq(caseStudiesTable.slug, slug));
+
+  if (!row) {
+    res.status(404).type("html").send(
+      renderShell({
+        title: isAr ? "دراسة الحالة غير موجودة — سبارك هب" : "Case Study Not Found — Spark Hub",
+        description: isAr ? "دراسة الحالة المطلوبة غير موجودة أو تم نقلها." : "The requested case study could not be found.",
+        path: isAr ? `/ar/work/${slug}` : `/work/${slug}`,
+        bodyHtml: `
+<article>
+  <h1>${isAr ? "دراسة الحالة غير موجودة (404)" : "Case Study Not Found"}</h1>
+  <p><a href="${prefix}/work">${isAr ? "العودة لسجل الأعمال ←" : "Back to Work ←"}</a></p>
+</article>`,
+        lang,
+        dir,
+      }),
+    );
+    return;
+  }
+
+  const body = isAr
+    ? `
+<article>
+  <header>
+    <p><strong>${esc(row.category)} / ${esc(row.client)}</strong></p>
+    <h1>${esc(row.title)}</h1>
+    <p><strong>ملخص التحول التجاري:</strong> ${esc(row.summary)}</p>
+    ${row.imageUrl ? `<img src="${esc(row.imageUrl)}" alt="${esc(row.imageAlt || row.title)}" />` : ""}
+  </header>
+
+  <section class="metric-box">
+    <h2>التحول المحقق</h2>
+    <p style="font-size: 2rem; font-weight: bold;">${esc(row.metric)}</p>
+  </section>
+
+  <section>
+    <h2>التحدي والفرصة</h2>
+    <p>${esc(row.problem)}</p>
+  </section>
+
+  <section>
+    <h2>المسار الاستراتيجي والحل المنفذ</h2>
+    <p>${esc(row.solution)}</p>
+  </section>
+
+  <section>
+    <h2>النتائج والأثر المحقق</h2>
+    <p>${esc(row.result)}</p>
+  </section>
+
+  <section class="cta-box">
+    <h2>هل ترغب في تحقيق نتائج مماثلة لأعمالك؟</h2>
+    <p>تحدث مع قيادات سبارك هب لبناء خطة عمل متكاملة تناسب طموحات شركتك.</p>
+    <a href="${prefix}/contact" class="cta-btn">ابدأ محادثة عمل الآن</a>
+  </section>
+
+  <p><a href="${prefix}/work">← العودة إلى كافة دراسات الحالة</a></p>
+</article>`
+    : `
+<article>
+  <header>
+    <p><strong>${esc(row.category)} / ${esc(row.client)}</strong></p>
+    <h1>${esc(row.title)}</h1>
+    <p><strong>Executive Summary:</strong> ${esc(row.summary)}</p>
+    ${row.imageUrl ? `<img src="${esc(row.imageUrl)}" alt="${esc(row.imageAlt || row.title)}" />` : ""}
+  </header>
+
+  <section class="metric-box">
+    <h2>Commercial Impact</h2>
+    <p style="font-size: 2rem; font-weight: bold;">${esc(row.metric)}</p>
+  </section>
+
+  <section>
+    <h2>The Strategic Challenge</h2>
+    <p>${esc(row.problem)}</p>
+  </section>
+
+  <section>
+    <h2>The Strategic Move</h2>
+    <p>${esc(row.solution)}</p>
+  </section>
+
+  <section>
+    <h2>Verified Results</h2>
+    <p>${esc(row.result)}</p>
+  </section>
+
+  <section class="cta-box">
+    <h2>Ready for Similar Measurable Results?</h2>
+    <p>Start a strategic conversation with Spark Hub Studio leadership.</p>
+    <a href="${prefix}/contact" class="cta-btn">Start a Conversation</a>
+  </section>
+
+  <p><a href="${prefix}/work">← Back to all case studies</a></p>
+</article>`;
+
+  const pageTitle = `${row.title} — ${isAr ? "دراسة حالة" : "Case Study"} | ${SITE_NAME}`;
+  const pageDesc = row.summary;
+
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": row.title,
+    "description": row.summary,
+    "image": row.imageUrl || `${SITE_URL}/og-image.png`,
+    "about": { "@type": "Thing", "name": row.category },
+    "author": { "@type": "Organization", "name": SITE_NAME, "url": SITE_URL },
+    "publisher": {
+      "@type": "Organization",
+      "name": SITE_NAME,
+      "url": SITE_URL,
+      "logo": { "@type": "ImageObject", "url": `${SITE_URL}/logo.png` },
+    },
+  };
+
+  res.type("html").send(
+    renderShell({
+      title: pageTitle,
+      description: pageDesc,
+      path: isAr ? `/ar/work/${row.slug}` : `/work/${row.slug}`,
+      image: row.imageUrl,
+      bodyHtml: body,
+      lang,
+      dir,
+      type: "article",
+      schemas: [articleSchema],
+      breadcrumbs: [
+        { name: isAr ? "الرئيسية" : "Home", url: isAr ? "/ar" : "/" },
+        { name: isAr ? "سجل الأعمال" : "Work", url: isAr ? "/ar/work" : "/work" },
+        { name: row.title, url: isAr ? `/ar/work/${row.slug}` : `/work/${row.slug}` },
+      ],
+    }),
+  );
+});
+
+// ============================================================================
+// 13. SERVICE DETAIL PILLARS (/services/:slug)
+// ============================================================================
+const SSR_SERVICE_DATA: Record<
+  string,
+  {
+    titleEn: string;
+    titleAr: string;
+    summaryEn: string;
+    summaryAr: string;
+    detailsEn: string[];
+    detailsAr: string[];
+    category: string;
+  }
+> = {
+  "strategy-and-planning": {
+    category: "strategy",
+    titleEn: "Strategy & Planning",
+    titleAr: "التخطيط المؤسسي وهندسة التوسع",
+    summaryEn: "Go-To-Market trajectories, in-depth competitor intelligence, sales funnel engineering, and strategic marketing reorganization designed for lasting compounding returns.",
+    summaryAr: "رسم خرائط اختراق السوق، تحليل تنافسي معمق، وإعادة تصميم الهيكل التسويقي للمؤسسات لضمان عائد مستقر طويل المدى ومضاعفة كفاءة المبيعات.",
+    detailsEn: [
+      "Comprehensive Go-To-Market trajectories and phased market entry roadmaps",
+      "In-depth competitor intelligence, gap analysis, and unexploited opportunity discovery",
+      "Sales funnel engineering, lead velocity acceleration, and conversion optimization",
+      "Strategic corporate marketing reorganization and growth governance frameworks",
+    ],
+    detailsAr: [
+      "رسم خرائط اختراق السوق والتوسع المدروس (GTM)",
+      "تحليل تنافسي معمق وتحديد الفجوات والفرص الاستثمارية",
+      "هندسة قمع المبيعات ورفع كفاءة معدلات التحويل التجاري",
+      "إعادة تصميم الهيكل التسويقي وحوكمة منظومة النمو",
+    ],
+  },
+  "marketing-management": {
+    category: "marketing",
+    titleEn: "Marketing Management & Growth",
+    titleAr: "إدارة التسويق ومضاعفة الأثر",
+    summaryEn: "Omnichannel performance leadership, disciplined budget allocation, advanced SEO architecture, and continuous ROI maximization across digital acquisition channels.",
+    summaryAr: "توجيه الإنفاق الإعلاني، إدارة منصات الاستحواذ، وهندسة رحلة العميل الرقمية لتقليل تكلفة الاستحواذ ومضاعفة القيمة التراكمية للعميل.",
+    detailsEn: [
+      "Disciplined ad spend allocation and financial efficiency across paid acquisition channels",
+      "Omnichannel performance campaigns (Meta, Google Search & Display, TikTok, LinkedIn)",
+      "Customer journey engineering, CAC reduction, and Lifetime Value (LTV) maximization",
+      "Technical SEO architecture, local search dominance, and high-intent inbound organic pipeline",
+    ],
+    detailsAr: [
+      "توجيه الإنفاق الإعلاني وإدارة الميزانيات بكفاءة مالية منضبطة",
+      "إدارة منصات الاستحواذ والحملات الإعلانية متعددة القنوات",
+      "هندسة رحلة العميل الرقمية وخفض تكلفة الاستحواذ (CAC)",
+      "مضاعفة القيمة التراكمية للعميل (LTV) وتحليل العائد (ROI)",
+    ],
+  },
+  "brand-identity": {
+    category: "creative",
+    titleEn: "Visual Brand Strategy & Systems",
+    titleAr: "بناء الهوية والأنظمة البصرية",
+    summaryEn: "Designing prestigious corporate visual identities that command authority, comprehensive typography systems, and institutional guidelines that protect brand equity.",
+    summaryAr: "تصميم لغات بصرية مؤسسية تفرض حضورها في السوق، وتوحيد الأصول المرئية والأدلة الإرشادية بما يعكس مكانة العلامة الحقيقية.",
+    detailsEn: [
+      "Corporate typographic systems, color theory, and high-contrast visual standards",
+      "Comprehensive brand guideline books and institutional design governance",
+      "Creative direction for commercial positioning and premium packaging",
+      "Cross-platform brand asset harmonization for web, physical spaces, and print",
+    ],
+    detailsAr: [
+      "تصميم لغات بصرية مؤسسية تفرض حضورها ومكانتها السوقية",
+      "توحيد الأصول المرئية والأدلة الإرشادية المتكاملة للعلامة",
+      "التوجيه الإبداعي والإنتاج السينمائي رفيع المستوى",
+      "حوكمة العلامة التجارية وتطوير أصول التموضع المؤسسي",
+    ],
+  },
+  "media-production": {
+    category: "media",
+    titleEn: "Media Production & Creative Direction",
+    titleAr: "الإنتاج الإبداعي والسينمائي",
+    summaryEn: "Cinema-grade video production, short-form viral storytelling (Reels & Shorts), and commercial narrative development tailored to hold modern attention.",
+    summaryAr: "إنتاج إعلاني وسينمائي رفيع المستوى، صناعة فيديوهات قصيرة سريعة الانتشار، وإخراج قصص بصرية تأسر انتباه الجمهور المستهدف.",
+    detailsEn: [
+      "Commercial film production and high-end video ad campaigns",
+      "High-velocity vertical video production (Reels, TikTok, Shorts)",
+      "Podcast studio setup, multi-camera filming, and sound design engineering",
+      "Art direction, set design, color grading, and broadcast-quality post-production",
+    ],
+    detailsAr: [
+      "إنتاج الأفلام التجارية والحملات الإعلانية السينمائية",
+      "إنتاج الفيديوهات الرأسية الإبداعية سريعة الانتشار (Reels & Shorts)",
+      "تسجيل وتصوير البودكاست المؤسسي بأنظمة متعددة الكاميرات وهندسة صوتية متقدمة",
+      "التوجيه الفني وتصحيح الألوان (Color Grading) وعمليات المونتاج الاحترافي",
+    ],
+  },
+  "training-and-development": {
+    category: "training",
+    titleEn: "Executive Training & Skill Acceleration",
+    titleAr: "تمكين القيادات وبناء الكفاءات",
+    summaryEn: "Practical hands-on training transferring senior growth frameworks, consultative sales workflows, and digital analytics mastery directly to your internal team.",
+    summaryAr: "نقل الخبرة المعرفية والعملية لفرق العمل الداخلية عبر ورش تطبيقية مكثفة في المبيعات الاستشارية، التحليل الرقمي، وإدارة المشاريع الرشيقة.",
+    detailsEn: [
+      "In-house capability transfer and marketing team leadership acceleration",
+      "Hands-on consultative sales training for complex high-ticket deals",
+      "Digital analytics workshops, KPI dashboards, and data-informed decision making",
+      "Agile marketing project delivery frameworks and sprint management",
+    ],
+    detailsAr: [
+      "نقل الخبرة المعرفية والعملية لفرق العمل الداخلية",
+      "برامج تدريب وتأهيل عملي في المبيعات الاستشارية المعقدة",
+      "التحليل الرقمي واستخلاص مؤشرات الأداء الحيوية (KPIs)",
+      "إدارة المشاريع بالمنهجيات الرشيقة وتسريع وتيرة التنفيذ",
+    ],
+  },
+};
+
+router.get(["/services/:slug", "/ar/services/:slug", "/en/services/:slug"], async (req, res) => {
+  const { isAr, lang, dir, prefix } = getLocaleInfo(req.path);
+  const slug = String(req.params.slug || "").trim();
+  const service = SSR_SERVICE_DATA[slug];
+
+  if (!service) {
+    res.status(404).type("html").send(
+      renderShell({
+        title: isAr ? "الخدمة غير موجودة — سبارك هب" : "Service Not Found — Spark Hub",
+        description: isAr ? "الخدمة المطلوبة غير متوفرة." : "The requested service could not be found.",
+        path: isAr ? `/ar/services/${slug}` : `/services/${slug}`,
+        bodyHtml: `
+<article>
+  <h1>${isAr ? "الخدمة غير موجودة (404)" : "Service Not Found"}</h1>
+  <p><a href="${prefix}/services">${isAr ? "العودة لكافة الخدمات ←" : "Back to Services ←"}</a></p>
+</article>`,
+        lang,
+        dir,
+      }),
+    );
+    return;
+  }
+
+  const title = isAr ? service.titleAr : service.titleEn;
+  const summary = isAr ? service.summaryAr : service.summaryEn;
+  const details = isAr ? service.detailsAr : service.detailsEn;
+
+  const body = isAr
+    ? `
+<article>
+  <header>
+    <h1>${esc(title)} | خدمات سبارك هب ستوديو</h1>
+    <p><strong>المنهجية ومسار التنفيذ:</strong> ${esc(summary)}</p>
+  </header>
+
+  <section>
+    <h2>نطاق المخرجات والقدرات الأساسية</h2>
+    <ul>
+      ${details.map((d) => `<li>${esc(d)}</li>`).join("\n")}
+    </ul>
+  </section>
+
+  <section class="cta-box">
+    <h2>هل أنت جاهز لتفعيل مسار ${esc(title)} في مؤسستك؟</h2>
+    <p>تحدث مع فريقنا الاستشاري لبناء خارطة طريق محكمة تناسب متطلبات وأهداف مؤسستك.</p>
+    <a href="${prefix}/contact" class="cta-btn">ابدأ محادثة عمل الآن</a>
+  </section>
+
+  <p><a href="${prefix}/services">← العودة إلى كافة الخدمات والقدرات الاستشارية</a></p>
+</article>`
+    : `
+<article>
+  <header>
+    <h1>${esc(title)} — Spark Hub Studio Capabilities</h1>
+    <p><strong>Methodology & Growth Architecture:</strong> ${esc(summary)}</p>
+  </header>
+
+  <section>
+    <h2>Core Deliverables & Execution Scope</h2>
+    <ul>
+      ${details.map((d) => `<li>${esc(d)}</li>`).join("\n")}
+    </ul>
+  </section>
+
+  <section class="cta-box">
+    <h2>Ready to Deploy ${esc(title)} on Your Business?</h2>
+    <p>Start a conversation with our leadership to build a customized growth roadmap.</p>
+    <a href="${prefix}/contact" class="cta-btn">Start a Conversation</a>
+  </section>
+
+  <p><a href="${prefix}/services">← Back to all capabilities</a></p>
+</article>`;
+
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": title,
+    "provider": {
+      "@type": "Organization",
+      "name": SITE_NAME,
+      "url": SITE_URL,
+    },
+    "description": summary,
+    "areaServed": [
+      { "@type": "Country", "name": "Egypt" },
+      { "@type": "Country", "name": "Saudi Arabia" },
+      { "@type": "AdministrativeArea", "name": "MENA Region" },
+    ],
+    "serviceType": service.category,
+  };
+
+  res.type("html").send(
+    renderShell({
+      title: `${title} — ${isAr ? "سبارك هب ستوديو" : SITE_NAME}`,
+      description: summary,
+      path: isAr ? `/ar/services/${slug}` : `/services/${slug}`,
+      bodyHtml: body,
+      lang,
+      dir,
+      schemas: [serviceSchema],
+      breadcrumbs: [
+        { name: isAr ? "الرئيسية" : "Home", url: isAr ? "/ar" : "/" },
+        { name: isAr ? "الخدمات" : "Services", url: isAr ? "/ar/services" : "/services" },
+        { name: title, url: isAr ? `/ar/services/${slug}` : `/services/${slug}` },
+      ],
+    }),
+  );
 });
 
 export default router;

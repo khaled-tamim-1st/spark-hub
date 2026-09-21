@@ -211,7 +211,8 @@ export function renderShell({
   // Organization Schema
   const defaultOrgSchema = {
     "@context": "https://schema.org",
-    "@type": "ProfessionalService",
+    "@type": "MarketingAgency",
+    "@id": `${SITE_URL}/#organization`,
     "name": "Spark Hub Studio | سبارك هب ستوديو",
     "alternateName": "Spark Agency Studio",
     "url": SITE_URL,
@@ -222,18 +223,18 @@ export function renderShell({
     "address": {
       "@type": "PostalAddress",
       "addressCountry": "EG",
-      "addressRegion": "Cairo",
+      "addressLocality": "Cairo",
+      "addressRegion": "Cairo Governorate",
     },
     "areaServed": [
+      { "@type": "Country", "name": "Egypt", "alternateName": "مصر" },
       { "@type": "Country", "name": "Saudi Arabia", "alternateName": "المملكة العربية السعودية" },
       { "@type": "Country", "name": "United Arab Emirates", "alternateName": "الإمارات العربية المتحدة" },
-      { "@type": "Country", "name": "Egypt", "alternateName": "مصر" },
       { "@type": "GeoShape", "name": "MENA Region" },
     ],
     "sameAs": [
-      "https://www.facebook.com",
-      "https://www.instagram.com",
-      "https://www.linkedin.com",
+      "https://www.instagram.com/sparkhubstudio",
+      "https://www.linkedin.com/company/spark-hub-studio",
     ],
     "priceRange": "$$",
   };

@@ -108,6 +108,9 @@ import {
   type Locale,
 } from '@/context/language-context';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { useSEO } from '@/hooks/useSEO';
+import { SEOBreadcrumbs } from '@/components/seo/SEOBreadcrumbs';
+import { RelatedBlogPosts } from '@/components/seo/RelatedBlogPosts';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -670,7 +673,7 @@ function SectionHead({
 
       <div>
         <Reveal delay={100}>
-          <h2 className="display text-2xl sm:text-3xl md:text-4xl font-bold leading-snug sm:leading-relaxed text-foreground tracking-normal">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold leading-snug sm:leading-normal text-foreground tracking-normal">
             {title}
           </h2>
         </Reveal>
@@ -781,6 +784,18 @@ function Home() {
   const services = useListServices();
   const testimonials = useListTestimonials();
   const clientLogos = useListClientLogos();
+
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'سبارك هب ستوديو — حيث تلتقي الاستراتيجية بالنمو | استوديو استشاري ووكالة تسويق'
+        : 'Spark Hub Studio — Where Strategy Meets Growth | Digital Agency & Consulting',
+    description:
+      locale === 'ar'
+        ? 'سبارك هب ستوديو: شريك نمو متكامل في مصر والشرق الأوسط. ندمج الاستراتيجية المؤسسية، إدارة التسويق الرقمي، الهوية البصرية، والإنتاج السينمائي لتحقيق نمو مستدام.'
+        : 'Spark Hub Studio is an independent growth studio in Egypt helping ambitious organizations integrate strategy, marketing, creative execution, and business development.',
+    ogType: 'website',
+  });
 
   const o = overview.data;
 
@@ -1127,9 +1142,11 @@ function WorkCard({
   item: any;
   featured?: boolean;
 }) {
+  const { localizePath } = useLanguage();
+
   return (
     <Link
-      href={`/work/${item.slug}`}
+      href={localizePath(`/work/${item.slug}`)}
       className={`group art-panel gold-glow-card block min-h-[300px] p-6 border border-border/60 rounded-xl transition-all duration-300 ${
         featured
           ? 'md:min-h-[400px]'
@@ -1178,15 +1195,36 @@ function WorkCard({
 }
 
 function Work() {
+  const { t, locale } = useLanguage();
   const query = useListCaseStudies();
+
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'سجل دراسات الحالة والنتائج التجارية — سبارك هب ستوديو'
+        : 'Selected Case Studies & Commercial Results — Spark Hub Studio',
+    description:
+      locale === 'ar'
+        ? 'استكشف دراسات الحالة والتحولات التجارية لعملاء سبارك هب ستوديو: استراتيجيات اختراق السوق، مضاعفة العائد الإعلاني، وبناء الهويات المؤسسية.'
+        : 'Explore case studies and verified business results achieved with Spark Hub Studio across strategic marketing, performance advertising, and visual brand systems.',
+  });
 
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'سجل الأعمال' : 'Work', href: '/work' },
+          ]}
+        />
+
         <SectionHead
-          kicker="Selected work / 2019—now"
-          title="Work that shifts the room."
-          intro="We partner at the point where a business needs more than a campaign: a new direction, a working system, or a story people can carry."
+          kicker={locale === 'ar' ? 'أعمال مختارة / 2019—الآن' : 'Selected work / 2019—now'}
+          title={locale === 'ar' ? 'أعمال تصنع فارقاً جوهرياً في مسار السوق.' : 'Work that shifts the room.'}
+          intro={locale === 'ar'
+            ? 'نشارك المؤسسات في اللحظة التي تتطلب أكثر من مجرد إعلان: رؤية استراتيجية جديدة، منظومة تشغيلية فعالة، وبصمة تعلق في الأذهان.'
+            : 'We partner at the point where a business needs more than a campaign: a new direction, a working system, or a story people can carry.'}
           typingIntro
         />
 
@@ -1220,21 +1258,54 @@ function WorkDetail() {
   const query = useGetCaseStudy(id);
   const item = query.data;
 
-  useEffect(() => {
-    if (item?.title) {
-      document.title = `${item.title} — Spark Hub Studio`;
-    }
-  }, [item?.title]);
+  useSEO({
+    title: item
+      ? `${item.title} — ${locale === 'ar' ? 'دراسة حالة' : 'Case Study'} | Spark Hub Studio`
+      : 'Case Study — Spark Hub Studio',
+    description:
+      item?.summary ||
+      (locale === 'ar'
+        ? 'دراسة حالة تفصيلية توثق التحدي والاستراتيجية والأثر التجاري المحقق.'
+        : 'Detailed case study documenting strategic challenge, execution, and commercial results achieved with Spark Hub Studio.'),
+    canonical: item ? `/work/${item.slug}` : undefined,
+    ogType: 'article',
+    ogImage: item?.imageUrl || undefined,
+    ogImageAlt: item?.imageAlt || item?.title,
+    schema: item
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: item.title,
+          description: item.summary,
+          image: item.imageUrl ? [item.imageUrl] : undefined,
+          about: { '@type': 'Thing', name: item.category },
+          author: { '@type': 'Organization', name: 'Spark Hub Studio' },
+          publisher: {
+            '@type': 'Organization',
+            name: 'Spark Hub Studio',
+            logo: { '@type': 'ImageObject', url: 'https://spark-hub.online/logo.png' },
+          },
+        }
+      : undefined,
+  });
 
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'سجل الأعمال' : 'Work', href: '/work' },
+            { label: item?.title || (locale === 'ar' ? 'دراسة حالة' : 'Case Study'), href: `/work/${id}` },
+          ]}
+        />
+
         <Link
-          href={localizePath('/posts')}
-          className="eyebrow text-primary inline-flex items-center gap-2"
+          href={localizePath('/work')}
+          className="eyebrow text-primary inline-flex items-center gap-2 mb-8"
           data-testid="link-back-work"
         >
-          {locale === 'ar' ? 'العودة للأعمال →' : '← Back to work'}
+          {locale === 'ar' ? '← العودة لسجل الأعمال' : '← Back to work'}
         </Link>
 
         <QueryState
@@ -1249,44 +1320,44 @@ function WorkDetail() {
         >
           {item && (
             <>
-              <div className="mt-14 max-w-5xl animate-rise text-start">
+              <div className="mt-8 max-w-5xl animate-rise text-start">
                 <p className="eyebrow text-primary">
                   {item.category} / {item.client}
                 </p>
 
-                <h1 className="display mt-5 text-6xl leading-[.92] tracking-[-.05em] rtl:tracking-normal md:text-9xl">
+                <h1 className="display mt-5 text-4xl sm:text-6xl md:text-8xl leading-[.95] tracking-[-.04em] rtl:tracking-normal">
                   {item.title}
                 </h1>
 
-                <p className="mt-10 max-w-2xl text-xl leading-8 text-muted-foreground">
+                <p className="mt-8 max-w-2xl text-lg sm:text-xl leading-8 text-muted-foreground">
                   {item.summary}
                 </p>
               </div>
 
-              <div className="art-panel mt-16 flex min-h-80 items-end p-7 md:min-h-[500px] md:p-12 text-start">
+              <div className="art-panel mt-14 flex min-h-72 items-end p-7 md:min-h-[460px] md:p-12 text-start rounded-2xl overflow-hidden border border-border/60">
                 <div className="relative z-10">
                   <p className="eyebrow text-primary">
                     {locale === 'ar' ? 'التحول المحقق' : 'The shift'}
                   </p>
 
-                  <p className="display mt-3 max-w-xl text-4xl" dir="ltr">
+                  <p className="display mt-3 max-w-xl text-3xl sm:text-5xl text-foreground font-bold" dir="ltr">
                     {item.metric}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-16 grid gap-12 md:grid-cols-3 text-start">
+              <div className="mt-14 grid gap-10 md:grid-cols-3 text-start">
                 {[
                   [locale === 'ar' ? 'التحدي والفرصة' : 'The question', item.problem],
                   [locale === 'ar' ? 'المسار الاستراتيجي' : 'The move', item.solution],
                   [locale === 'ar' ? 'النتائج والأثر' : 'The result', item.result],
                 ].map(([label, value]) => (
-                  <div key={label}>
-                    <p className="eyebrow text-primary">
+                  <div key={label} className="rounded-xl border border-border/50 bg-card/30 p-6">
+                    <p className="eyebrow text-primary text-xs">
                       {label}
                     </p>
 
-                    <p className="mt-5 text-base leading-8 text-muted-foreground">
+                    <p className="mt-4 text-sm sm:text-base leading-7 text-muted-foreground">
                       {value}
                     </p>
                   </div>
@@ -1368,12 +1439,32 @@ const localizedCoreServicesMap: Record<string, { title: string; summary: string;
 };
 
 function Services() {
-  const { t, locale } = useLanguage();
+  const { t, locale, localizePath } = useLanguage();
   const query = useListServices();
+  const blogQuery = useListBlogPosts();
+  const latestNotes = (blogQuery.data || []).slice(0, 3);
+
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'الخدمات الاستشارية وهندسة النمو المؤسسي — سبارك هب ستوديو'
+        : 'Consulting Capabilities & Growth Systems — Spark Hub Studio',
+    description:
+      locale === 'ar'
+        ? 'استكشف منظومة خدمات سبارك هب ستوديو: التخطيط الاستراتيجي، إدارة التسويق ومضاعفة الأثر، بناء الهوية البصرية، والإنتاج السينمائي والتدريب المؤسسي.'
+        : 'Explore Spark Hub Studio’s capabilities across institutional strategy, performance marketing, luxury brand identity, cinema-grade media, and executive training.',
+  });
 
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'الخدمات' : 'Services', href: '/services' },
+          ]}
+        />
+
         <SectionHead
           kicker={t('services.kicker', 'Capabilities / not packages')}
           title={t('services.title', 'The connective tissue of growth.')}
@@ -1420,37 +1511,58 @@ function Services() {
                   ? arData.details
                   : service.details || [];
 
+              const serviceSlug =
+                cat === 'strategy'
+                  ? 'strategy-and-planning'
+                  : cat === 'marketing'
+                  ? 'marketing-management'
+                  : cat === 'creative'
+                  ? 'brand-identity'
+                  : cat === 'media'
+                  ? 'media-production'
+                  : cat === 'training'
+                  ? 'training-and-development'
+                  : null;
+
               return (
                 <details
                   key={service.id}
-                  className="group py-7"
+                  className="group py-5 sm:py-6"
                   data-testid={`service-${service.id}`}
                 >
-                  <summary className="flex cursor-pointer list-none items-center gap-5">
-                    <span className="mono w-9 text-xs text-primary">
+                  <summary className="flex cursor-pointer list-none items-center gap-4 sm:gap-6">
+                    <span className="font-mono w-8 text-xs font-bold text-primary shrink-0">
                       {String(index + 1).padStart(2, '0')}
                     </span>
 
-                    <h2 className="display flex-1 text-2xl sm:text-3xl md:text-5xl">
+                    <h2 className="flex-1 text-lg sm:text-xl md:text-2xl font-bold text-foreground transition-colors group-hover:text-primary leading-snug">
                       {displayTitle}
                     </h2>
 
-                    <span className="eyebrow hidden text-muted-foreground md:block">
-                      {locale === 'ar'
-                        ? categoryLabelsAr[cat] || service.title
-                        : service.title}
-                    </span>
-
                     <ChevronDown
-                      className="text-primary transition-transform group-open:rotate-180"
-                      size={19}
+                      className="text-primary transition-transform group-open:rotate-180 shrink-0"
+                      size={18}
                     />
                   </summary>
 
-                  <div className="grid gap-6 ps-6 md:ps-14 pt-7 md:grid-cols-[1fr_1fr]">
-                    <p className="max-w-lg text-sm leading-7 text-muted-foreground">
-                      {displaySummary}
-                    </p>
+                  <div className="grid gap-6 ps-6 md:ps-14 pt-5 md:grid-cols-[1fr_1fr]">
+                    <div>
+                      <p className="max-w-lg text-sm leading-7 text-muted-foreground">
+                        {displaySummary}
+                      </p>
+
+                      {serviceSlug && (
+                        <div className="mt-5">
+                          <Link
+                            href={localizePath(`/services/${serviceSlug}`)}
+                            className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-primary hover:underline"
+                          >
+                            <span>{locale === 'ar' ? 'عرض تفاصيل المسار والمنهجية' : 'Deep-dive capability details'}</span>
+                            <ArrowUpRight size={13} className="rtl:-rotate-90" />
+                          </Link>
+                        </div>
+                      )}
+                    </div>
 
                     <ul className="space-y-3">
                       {displayDetails.map((detail) => (
@@ -1472,6 +1584,343 @@ function Services() {
             })}
           </div>
         </QueryState>
+
+        {/* Cross-linking: Latest field notes related to capabilities */}
+        {latestNotes.length > 0 && (
+          <section className="mt-24 border-t border-border/70 pt-16 text-start">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+              <div>
+                <p className="eyebrow text-primary text-xs font-mono">
+                  {locale === 'ar' ? 'رؤى وأفكار استراتيجية' : 'Thinking in Practice'}
+                </p>
+                <h3 className="display text-2xl sm:text-3xl font-bold text-foreground mt-2">
+                  {locale === 'ar' ? 'كيف نطبق هذه المفاهيم في الواقع؟' : 'Notes from the intersection of strategy & growth.'}
+                </h3>
+              </div>
+              <Link
+                href={localizePath('/blog')}
+                className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-primary hover:underline"
+              >
+                <span>{locale === 'ar' ? 'استكشف كافة المقالات' : 'View all field notes'}</span>
+                <ArrowUpRight size={13} className="rtl:-rotate-90" />
+              </Link>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {latestNotes.map((post) => (
+                <Link
+                  key={post.id}
+                  href={localizePath(`/blog/${post.slug}`)}
+                  className="group rounded-xl border border-border/60 bg-card/40 p-5 transition-all hover:border-primary/50 hover:bg-card/70"
+                >
+                  <span className="eyebrow text-primary text-[10px] font-mono">{post.category}</span>
+                  <h4 className="mt-2 font-bold text-base text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                    {post.title}
+                  </h4>
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    {post.excerpt}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+      </PageFrame>
+    </Shell>
+  );
+}
+
+const SERVICE_PILLARS_DATA: Record<
+  string,
+  {
+    category: string;
+    titleEn: string;
+    titleAr: string;
+    kickerEn: string;
+    kickerAr: string;
+    summaryEn: string;
+    summaryAr: string;
+    detailsEn: string[];
+    detailsAr: string[];
+    benefitsEn: { title: string; desc: string }[];
+    benefitsAr: { title: string; desc: string }[];
+  }
+> = {
+  'strategy-and-planning': {
+    category: 'strategy',
+    titleEn: 'Strategy & Planning',
+    titleAr: 'التخطيط المؤسسي وهندسة التوسع',
+    kickerEn: 'Market Entry & Growth Trajectories',
+    kickerAr: 'خرائط اختراق السوق وهندسة النمو',
+    summaryEn: 'Go-To-Market trajectories, in-depth competitor intelligence, sales funnel engineering, and strategic marketing reorganization designed for lasting compounding returns.',
+    summaryAr: 'رسم خرائط اختراق السوق، تحليل تنافسي معمق، وإعادة تصميم الهيكل التسويقي للمؤسسات لضمان عائد مستقر طويل المدى ومضاعفة كفاءة المبيعات.',
+    detailsEn: [
+      'Comprehensive Go-To-Market trajectories and phased market entry roadmaps',
+      'In-depth competitor intelligence, gap analysis, and unexploited opportunity discovery',
+      'Sales funnel engineering, lead velocity acceleration, and conversion optimization',
+      'Strategic corporate marketing reorganization and growth governance frameworks',
+    ],
+    detailsAr: [
+      'رسم خرائط اختراق السوق والتوسع المدروس (GTM)',
+      'تحليل تنافسي معمق وتحديد الفجوات والفرص الاستثمارية',
+      'هندسة قمع المبيعات ورفع كفاءة معدلات التحويل التجاري',
+      'إعادة تصميم الهيكل التسويقي وحوكمة منظومة النمو',
+    ],
+    benefitsEn: [
+      { title: 'Market Clarity', desc: 'Eliminate speculative guesswork with data-backed competitor intelligence and target ICP profiling.' },
+      { title: 'Funnel Optimization', desc: 'Plug leaky sales funnels and align sales teams with qualified marketing demand.' },
+      { title: 'Scalable Architecture', desc: 'Build governance frameworks that allow your organization to expand without operational chaos.' },
+    ],
+    benefitsAr: [
+      { title: 'وضوح استثماري وتسويقي', desc: 'القضاء على التخمين من خلال بيانات استخباراتية تنافسية وتحديد دقيق لشريحة العملاء المثالية.' },
+      { title: 'كفاءة قمع المبيعات', desc: 'معالجة تسرب الفرص البيعية وربط فرق المبيعات بطلب تسويقي عالي الجودة والجاهزية.' },
+      { title: 'هيكل نمو قابل للتوسع', desc: 'بناء أطر حوكمة تسمح بتوسع عمليات الشركة دون اختناقات إدارية أو إهدار للموارد.' },
+    ],
+  },
+  'marketing-management': {
+    category: 'marketing',
+    titleEn: 'Marketing Management & Growth',
+    titleAr: 'إدارة التسويق ومضاعفة الأثر',
+    kickerEn: 'Omnichannel Performance & ROI',
+    kickerAr: 'التسويق عالي الأداء وإدارة الميزانيات',
+    summaryEn: 'Omnichannel performance leadership, disciplined budget allocation, advanced SEO architecture, and continuous ROI maximization across digital acquisition channels.',
+    summaryAr: 'توجيه الإنفاق الإعلاني، إدارة منصات الاستحواذ، وهندسة رحلة العميل الرقمية لتقليل تكلفة الاستحواذ ومضاعفة القيمة التراكمية للعميل.',
+    detailsEn: [
+      'Disciplined ad spend allocation and financial efficiency across paid acquisition channels',
+      'Omnichannel performance campaigns (Meta, Google Search & Display, TikTok, LinkedIn)',
+      'Customer journey engineering, CAC reduction, and Lifetime Value (LTV) maximization',
+      'Technical SEO architecture, local search dominance, and high-intent inbound organic pipeline',
+    ],
+    detailsAr: [
+      'توجيه الإنفاق الإعلاني وإدارة الميزانيات بكفاءة مالية منضبطة',
+      'إدارة منصات الاستحواذ والحملات الإعلانية متعددة القنوات',
+      'هندسة رحلة العميل الرقمية وخفض تكلفة الاستحواذ (CAC)',
+      'مضاعفة القيمة التراكمية للعميل (LTV) وتحليل العائد (ROI)',
+    ],
+    benefitsEn: [
+      { title: 'Capital Efficiency', desc: 'Every dollar of ad spend is tied to verified pipeline metrics and incremental revenue.' },
+      { title: 'Organic Inbound Dominance', desc: 'Establish long-term keyword ownership that drives inbound leads with zero marginal ad cost.' },
+      { title: 'Unified Attribution', desc: 'Transparent multichannel analytics tracking first-touch to closed-won deals.' },
+    ],
+    benefitsAr: [
+      { title: 'انضباط مالي في الإنفاق', desc: 'ربط كل جنيه يُنفق بمؤشرات أداء واضحة وعائد تجاري مباشر وملموس.' },
+      { title: 'استدامة التدفق العضوي', desc: 'بناء حضور عضوي قوي عبر محركات البحث يولد عملاء مؤهلين دون تكلفة نقرة متكررة.' },
+      { title: 'شفافية التحليل والتقارير', desc: 'لوحات قياس موحدة تتبع رحلة العميل من أول تفاعل حتى إتمام التعاقد.' },
+    ],
+  },
+  'brand-identity': {
+    category: 'creative',
+    titleEn: 'Visual Brand Strategy & Systems',
+    titleAr: 'بناء الهوية والأنظمة البصرية',
+    kickerEn: 'Distinct Visual Language & Guidelines',
+    kickerAr: 'الهوية المؤسسية والأنظمة المرئية',
+    summaryEn: 'Designing prestigious corporate visual identities that command authority, comprehensive typography systems, and institutional guidelines that protect brand equity.',
+    summaryAr: 'تصميم لغات بصرية مؤسسية تفرض حضورها في السوق، وتوحيد الأصول المرئية والأدلة الإرشادية بما يعكس مكانة العلامة الحقيقية.',
+    detailsEn: [
+      'Corporate typographic systems, color theory, and high-contrast visual standards',
+      'Comprehensive brand guideline books and institutional design governance',
+      'Creative direction for commercial positioning and premium packaging',
+      'Cross-platform brand asset harmonization for web, physical spaces, and print',
+    ],
+    detailsAr: [
+      'تصميم لغات بصرية مؤسسية تفرض حضورها ومكانتها السوقية',
+      'توحيد الأصول المرئية والأدلة الإرشادية المتكاملة للعلامة',
+      'التوجيه الإبداعي والإنتاج السينمائي رفيع المستوى',
+      'حوكمة العلامة التجارية وتطوير أصول التموضع المؤسسي',
+    ],
+    benefitsEn: [
+      { title: 'Command Premium Pricing', desc: 'Elevate your visual perception to compete with category leaders and command higher margins.' },
+      { title: 'Cohesive Execution', desc: 'Ensure every internal team and external vendor follows an unambiguous brand guideline.' },
+      { title: 'Memorable Brand Equity', desc: 'Stand out from visual noise with tailored typography and distinctive art direction.' },
+    ],
+    benefitsAr: [
+      { title: 'تعزيز القيمة السعرية', desc: 'الارتقاء بالانطباع الذهني والمكانة البصرية للمنافسة بقوة وفرض أسعار تتناسب مع جودة الخدمة.' },
+      { title: 'اتساق كامل عبر جميع المنصات', desc: 'أدلة واضحة تضمن توافق كافة تصاميم الفريق الداخلي والشركاء مع روح العلامة.' },
+      { title: 'بصمة بصرية فريدة', desc: 'الخروج من التكرار والنمطية عبر خطوط مخصصة وتوجيه فني يعلق في ذهن الجمهور.' },
+    ],
+  },
+  'media-production': {
+    category: 'media',
+    titleEn: 'Media Production & Creative Direction',
+    titleAr: 'الإنتاج الإبداعي والسينمائي',
+    kickerEn: 'Moving Image & Cinematic Storytelling',
+    kickerAr: 'الإنتاج السينمائي والمحتوى عالي التأثير',
+    summaryEn: 'Cinema-grade video production, short-form viral storytelling (Reels & Shorts), and commercial narrative development tailored to hold modern attention.',
+    summaryAr: 'إنتاج إعلاني وسينمائي رفيع المستوى، صناعة فيديوهات قصيرة سريعة الانتشار، وإخراج قصص بصرية تأسر انتباه الجمهور المستهدف.',
+    detailsEn: [
+      'Commercial film production and high-end video ad campaigns',
+      'High-velocity vertical video production (Reels, TikTok, Shorts)',
+      'Podcast studio setup, multi-camera filming, and sound design engineering',
+      'Art direction, set design, color grading, and broadcast-quality post-production',
+    ],
+    detailsAr: [
+      'إنتاج الأفلام التجارية والحملات الإعلانية السينمائية',
+      'إنتاج الفيديوهات الرأسية الإبداعية سريعة الانتشار (Reels & Shorts)',
+      'تسجيل وتصوير البودكاست المؤسسي بأنظمة متعددة الكاميرات وهندسة صوتية متقدمة',
+      'التوجيه الفني وتصحيح الألوان (Color Grading) وعمليات المونتاج الاحترافي',
+    ],
+    benefitsEn: [
+      { title: 'Attention Retention', desc: 'Craft narratives engineered specifically to capture attention in the first 3 seconds.' },
+      { title: 'Cinema Aesthetics', desc: 'Give your brand the prestige of full cinema cameras, calibrated lighting, and pristine audio.' },
+      { title: 'Multi-Format Repurposing', desc: 'Turn one production shoot into dozens of high-performing micro-assets.' },
+    ],
+    benefitsAr: [
+      { title: 'اقتناص الانتباه الفوري', desc: 'صياغة هوك وافتتاحية مدروسة تأسر اهتمام المشاهد خلال أول 3 ثوانٍ وتمنع تخطي الإعلان.' },
+      { title: 'جودة سينمائية فائقة', desc: 'إبراز منتجاتك وخدماتك بكاميرات سينمائية متطورة وإضاءة مدروسة تعكس الاحترافية.' },
+      { title: 'إعادة تدوير الأصول الإبداعية', desc: 'تحويل يوم التصوير الواحد إلى عشرات المقاطع الإعلانية المتنوعة لمختلف القنوات.' },
+    ],
+  },
+  'training-and-development': {
+    category: 'training',
+    titleEn: 'Executive Training & Skill Acceleration',
+    titleAr: 'تمكين القيادات وبناء الكفاءات',
+    kickerEn: 'Capability Transfer & In-House Mastery',
+    kickerAr: 'نقل الخبرة العملية وتأهيل الكوادر',
+    summaryEn: 'Practical hands-on training transferring senior growth frameworks, consultative sales workflows, and digital analytics mastery directly to your internal team.',
+    summaryAr: 'نقل الخبرة المعرفية والعملية لفرق العمل الداخلية عبر ورش تطبيقية مكثفة في المبيعات الاستشارية، التحليل الرقمي، وإدارة المشاريع الرشيقة.',
+    detailsEn: [
+      'In-house capability transfer and marketing team leadership acceleration',
+      'Hands-on consultative sales training for complex high-ticket deals',
+      'Digital analytics workshops, KPI dashboards, and data-informed decision making',
+      'Agile marketing project delivery frameworks and sprint management',
+    ],
+    detailsAr: [
+      'نقل الخبرة المعرفية والعملية لفرق العمل الداخلية',
+      'برامج تدريب وتأهيل عملي في المبيعات الاستشارية المعقدة',
+      'التحليل الرقمي واستخلاص مؤشرات الأداء الحيوية (KPIs)',
+      'إدارة المشاريع بالمنهجيات الرشيقة وتسريع وتيرة التنفيذ',
+    ],
+    benefitsEn: [
+      { title: 'Self-Sustaining Teams', desc: 'Reduce reliance on external agencies by elevating the competency of your internal talent.' },
+      { title: 'Consultative Sales Lift', desc: 'Empower commercial teams to close enterprise contracts through strategic advisory methods.' },
+      { title: 'Data-Driven Culture', desc: 'Equip leadership with real-time KPI visibility to make proactive capital decisions.' },
+    ],
+    benefitsAr: [
+      { title: 'استقلالية الفريق الداخلي', desc: 'تقليل الاعتماد الدائم على جهات خارجية عبر رفع كفاءة كوادر شركتك الذاتية.' },
+      { title: 'مضاعفة إغلاق الصفقات المعقدة', desc: 'تمكين فريق المبيعات من التحاور الاستشاري مع صانعي القرار وإغلاق صفقات كبرى.' },
+      { title: 'ثقافة اتخاذ القرار بالبيانات', desc: 'تزويد الإدارة برؤية واضحة لمؤشرات الأداء لاتخاذ قرارات استثمارية استباقية ومربحة.' },
+    ],
+  },
+};
+
+function ServiceDetail() {
+  const { slug = '' } = useParams<{ slug: string }>();
+  const { locale, localizePath } = useLanguage();
+  const service = SERVICE_PILLARS_DATA[slug];
+
+  const title = service ? (locale === 'ar' ? service.titleAr : service.titleEn) : 'Service';
+  const kicker = service ? (locale === 'ar' ? service.kickerAr : service.kickerEn) : 'Service';
+  const summary = service ? (locale === 'ar' ? service.summaryAr : service.summaryEn) : '';
+  const details = service ? (locale === 'ar' ? service.detailsAr : service.detailsEn) : [];
+  const benefits = service ? (locale === 'ar' ? service.benefitsAr : service.benefitsEn) : [];
+
+  useSEO({
+    title: service
+      ? `${title} — ${locale === 'ar' ? 'خدمات سبارك هب ستوديو' : 'Spark Hub Studio Capabilities'}`
+      : 'Service — Spark Hub Studio',
+    description: summary,
+    canonical: `/services/${slug}`,
+    ogType: 'website',
+    schema: service
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: title,
+          provider: {
+            '@type': 'Organization',
+            name: 'Spark Hub Studio',
+            url: 'https://spark-hub.online',
+          },
+          description: summary,
+          areaServed: [
+            { '@type': 'Country', name: 'Egypt' },
+            { '@type': 'Country', name: 'Saudi Arabia' },
+            { '@type': 'AdministrativeArea', name: 'MENA Region' },
+          ],
+          serviceType: service.category,
+        }
+      : undefined,
+  });
+
+  if (!service) {
+    return <NotFound />;
+  }
+
+  return (
+    <Shell>
+      <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'الخدمات' : 'Services', href: '/services' },
+            { label: title, href: `/services/${slug}` },
+          ]}
+        />
+
+        <Link
+          href={localizePath('/services')}
+          className="eyebrow text-primary inline-flex items-center gap-2 mb-8"
+        >
+          {locale === 'ar' ? '← العودة لكافة الخدمات' : '← Back to all capabilities'}
+        </Link>
+
+        <div className="max-w-4xl text-start">
+          <p className="eyebrow text-primary font-mono">{kicker}</p>
+          <h1 className="display mt-4 text-4xl sm:text-6xl md:text-7xl font-extrabold leading-tight text-foreground">
+            {title}
+          </h1>
+          <p className="mt-6 text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed">
+            {summary}
+          </p>
+        </div>
+
+        {/* Benefits Grid */}
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 text-start">
+          {benefits.map((b, idx) => (
+            <div key={idx} className="rounded-2xl border border-border/60 bg-card/40 p-6">
+              <span className="mono text-xs text-primary font-bold">0{idx + 1}</span>
+              <h3 className="mt-3 font-bold text-lg text-foreground">{b.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Deliverables & Capabilities */}
+        <div className="mt-16 rounded-2xl border border-border/60 bg-card/20 p-8 md:p-12 text-start">
+          <h2 className="display text-2xl sm:text-3xl font-bold text-foreground mb-6">
+            {locale === 'ar' ? 'نطاق العمل والمخرجات الأساسية' : 'Key Deliverables & Execution Scope'}
+          </h2>
+          <ul className="grid gap-4 md:grid-cols-2">
+            {details.map((detail, idx) => (
+              <li key={idx} className="flex items-start gap-3 text-sm sm:text-base text-muted-foreground">
+                <Check className="mt-1 shrink-0 text-primary" size={16} />
+                <span>{detail}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Direct CTA */}
+        <div className="mt-20 border border-primary/40 bg-primary/5 rounded-2xl p-8 md:p-12 text-center">
+          <p className="eyebrow text-primary text-xs font-mono">
+            {locale === 'ar' ? 'شراكة نمو' : 'Growth Partnership'}
+          </p>
+          <h3 className="display text-3xl sm:text-4xl mt-2 text-foreground font-bold">
+            {locale === 'ar' ? `هل أنت جاهز لتفعيل مسار ${title}؟` : `Ready to deploy ${title} on your business?`}
+          </h3>
+          <p className="mt-3 text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
+            {locale === 'ar'
+              ? 'تحدث مع فريقنا الاستشاري لبناء خارطة طريق محكمة تناسب متطلبات وأهداف مؤسستك.'
+              : 'Start a conversation with our leadership to build a customized roadmap tailored to your specific commercial goals.'}
+          </p>
+          <Link
+            href={localizePath('/contact')}
+            className="mt-8 inline-flex items-center gap-2 border border-primary bg-primary px-8 py-3.5 text-xs font-bold uppercase tracking-[.14em] text-primary-foreground transition hover:bg-transparent hover:text-primary"
+          >
+            {locale === 'ar' ? 'ابدأ محادثة عمل الآن' : 'Start a conversation'}
+            <ArrowUpRight size={14} className="rtl:-rotate-90" />
+          </Link>
+        </div>
       </PageFrame>
     </Shell>
   );
@@ -1654,13 +2103,49 @@ function ReelLightbox({
 }
 
 function Reels() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const query = useListReels();
   const [active, setActive] = useState<any>(null);
+
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'ريلز وإنتاج إعلامي وسينمائي — سبارك هب ستوديو'
+        : 'Reels, Commercial Films & Media Production — Spark Hub Studio',
+    description:
+      locale === 'ar'
+        ? 'أعمال الإنتاج الإعلامي والحملات البصرية من سبارك هب ستوديو: أفلام تجارية، ريلز إبداعية، وقصص بصرية للعلامات التجارية.'
+        : 'Commercial video production, cinematic brand films, social reels, and moving visual systems crafted by Spark Hub Studio.',
+    schema:
+      query.data && query.data.length > 0
+        ? {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            itemListElement: query.data.slice(0, 12).map((reel, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              item: {
+                '@type': 'VideoObject',
+                name: reel.title,
+                description: `${reel.title} — ${reel.client || 'Spark Hub Studio'}`,
+                thumbnailUrl: resolveThumbnail(reel.thumbnailUrl, reel.videoUrl),
+                uploadDate: '2026-01-01',
+              },
+            })),
+          }
+        : undefined,
+  });
 
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'ريلز وإنتاج' : 'Reels', href: '/reels' },
+          ]}
+        />
+
         <SectionHead
           kicker={t('reels.kicker', 'Moving image')}
           title={t('reels.title', 'Stories with a pulse.')}
@@ -1887,13 +2372,31 @@ function PodcastLightbox({
 }
 
 function Podcasts() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const query = useListPodcasts();
   const [active, setActive] = useState<any>(null);
+
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'بودكاست وحوارات النمو الاستراتيجي — سبارك هب ستوديو'
+        : 'Podcasts & Strategic Growth Conversations — Spark Hub Studio',
+    description:
+      locale === 'ar'
+        ? 'بودكاست سبارك هب ستوديو: حوارات معمقة حول استراتيجيات العلامات التجارية، القيادة المؤسسية، والنمو المستدام مع رواد الصناعة.'
+        : 'In-depth podcast episodes and conversations on strategic leadership, brand building, culture, and sustainable business scaling.',
+  });
 
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'بودكاست وحوارات' : 'Podcasts', href: '/podcasts' },
+          ]}
+        />
+
         <SectionHead
           kicker={t('podcasts.kicker', 'Audio & Conversations')}
           title={t('podcasts.title', 'Ideas in conversation.')}
@@ -2004,6 +2507,17 @@ function Posts() {
     category: string;
   } | null>(null);
 
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'سجل الحملات الإعلانية والتصاميم الإبداعية — سبارك هب ستوديو'
+        : 'Creative Campaigns & Visual Direction Journal — Spark Hub Studio',
+    description:
+      locale === 'ar'
+        ? 'معرض الحملات الرقمية، تصاميم منصات التواصل، وتطوير الهويات البصرية المنفذة بواسطة استوديو سبارك هب لنخبة من العلامات التجارية.'
+        : 'A curated showcase of commercial campaigns, social media designs, and digital visual identities crafted by Spark Hub Studio.',
+  });
+
   const posts =
     query.data && query.data.length > 0
       ? query.data
@@ -2040,6 +2554,13 @@ function Posts() {
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'الأعمال الإبداعية' : 'Journal', href: '/posts' },
+          ]}
+        />
+
         <SectionHead
           kicker={t('posts.kicker', 'Social & Creative Direction')}
           title={t('posts.title', 'Campaigns & Visual Stories.')}
@@ -2789,6 +3310,18 @@ function About() {
   const overview = useGetOverview();
   const o = overview.data;
 
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'عن استوديو سبارك هب — الرؤية والمنهجية والقيادة المؤسسية'
+        : 'About Spark Hub Studio — Strategic Vision, Methods & Leadership',
+    description:
+      locale === 'ar'
+        ? 'سبارك هب ستوديو: شريك نمو متعدد التخصصات للمؤسسات الطموحة. نجمع الاستراتيجية والتسويق والإبداع في مسار واضح نحو النمو المستدام.'
+        : 'Spark Hub Studio is a multidisciplinary growth partner for ambitious organizations. We connect strategy, marketing, operations, and creative direction into one clear path forward.',
+    ogType: 'profile',
+  });
+
   const team = useListTeam();
   const rawMembers = team.data || [];
   const leaderList = rawMembers.filter(isLeadershipMember);
@@ -2797,6 +3330,13 @@ function About() {
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'عن الاستوديو' : 'About', href: '/about' },
+          ]}
+        />
+
         <SectionHead
           kicker={t('about.kicker', 'The studio')}
           title={t('about.title', 'Human judgment, made useful.')}
@@ -2962,9 +3502,21 @@ function About() {
 /* -------------------------------------------------------------------------- */
 
 function Team() {
-  const { t, localizePath } = useLanguage();
+  const { t, locale, localizePath } = useLanguage();
   const team = useListTeam();
   const [selectedDept, setSelectedDept] = useState<string>('all');
+
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'فريق العمل والكوادر التنفيذية — سبارك هب ستوديو'
+        : 'Meet The Team & Specialized Squads — Spark Hub Studio',
+    description:
+      locale === 'ar'
+        ? 'تعرف على كوادر وفريق سبارك هب ستوديو المتخصصين في المبيعات الاستشارية، الحملات الإعلانية الممولة، والإنتاج السينمائي وتصميم الهوية.'
+        : 'Meet the specialized teams behind Spark Hub Studio driving commercial sales, scaling performance marketing, producing cinema-grade media, and orchestrating operations.',
+    ogType: 'profile',
+  });
 
   const rawMembers = team.data || [];
   // Studio members (those strictly not in leadership)
@@ -2987,6 +3539,13 @@ function Team() {
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'فريق العمل' : 'Team', href: '/team' },
+          ]}
+        />
+
         <SectionHead
           kicker={t('team.kicker', 'The Collective')}
           title={t('team.title', 'Meet The Team.')}
@@ -3160,10 +3719,21 @@ const arabicWorkingRanges = [
 ];
 
 function Contact() {
-  const { t, localizePath, isRTL } = useLanguage();
+  const { t, locale, localizePath, isRTL } = useLanguage();
   const mutation = useCreateContactLead();
   const [sent, setSent] = useState(false);
   const [selectedBudgetTier, setSelectedBudgetTier] = useState<string>('شراكة نمو ربع سنوية');
+
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'ابدأ محادثة عمل وحجز استشارة نمو — سبارك هب ستوديو'
+        : 'Start a Growth Partnership Conversation — Spark Hub Studio',
+    description:
+      locale === 'ar'
+        ? 'تواصل مع فريق سبارك هب ستوديو لمناقشة أهداف شركتك، تقييم قنوات الاستحواذ الحالية، وتصميم شراكة نمو ربع سنوية أو تحول مؤسسي شامل.'
+        : 'Schedule a strategic discovery session with Spark Hub Studio. Tell us what you are trying to build or scale across Egypt and MENA.',
+  });
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -3190,6 +3760,13 @@ function Contact() {
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'تواصل معنا' : 'Contact', href: '/contact' },
+          ]}
+        />
+
         <div className="grid gap-16 md:grid-cols-[.8fr_1.2fr]">
           <div className="text-start">
             <p className="eyebrow text-primary">
@@ -3410,9 +3987,27 @@ function Blog() {
   const { t, localizePath, locale } = useLanguage();
   const query = useListBlogPosts();
 
+  useSEO({
+    title:
+      locale === 'ar'
+        ? 'مدونة الرؤى والأفكار الاستراتيجية — سبارك هب ستوديو'
+        : 'Strategic Notes, Field Insights & Growth Ideas — Spark Hub Studio',
+    description:
+      locale === 'ar'
+        ? 'مقالات ورؤى استراتيجية معمقة في التسويق الرقمي، تحسين محركات البحث، بناء العلامات التجارية، وتطوير المنظومات المؤسسية في مصر والشرق الأوسط.'
+        : 'Sharp observations, actionable frameworks, and strategic notes from the intersection of brand strategy, culture, performance marketing, and execution.',
+  });
+
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'الرؤى والأفكار' : 'Notes', href: '/blog' },
+          ]}
+        />
+
         <SectionHead
           kicker={t('blog.kicker', 'Notes / ideas in progress')}
           title={t('blog.title', 'A sharper way to look at the work.')}
@@ -3625,20 +4220,63 @@ function BlogDetail() {
   const query = useGetBlogPost(slug);
   const post = query.data;
 
-  useEffect(() => {
-    if (post?.title) {
-      document.title = `${post.title} — Spark Hub Studio`;
-    }
-  }, [post?.title]);
+  useSEO({
+    title: post
+      ? `${post.title} — Spark Hub Studio`
+      : 'Field Note — Spark Hub Studio',
+    description:
+      post?.excerpt ||
+      (locale === 'ar'
+        ? 'ملاحظات وتحليلات استراتيجية من سبارك هب ستوديو في التسويق وبناء العلامات التجارية.'
+        : 'Strategic observations and tactical analysis on growth, marketing, and brand building from Spark Hub Studio.'),
+    canonical: post ? `/blog/${post.slug}` : undefined,
+    ogType: 'article',
+    ogImage: post?.imageUrl || undefined,
+    ogImageAlt: post?.imageAlt || post?.title,
+    publishedTime: post?.publishedAt,
+    articleSection: post?.category,
+    schema: post
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: post.title,
+          description: post.excerpt,
+          image: post.imageUrl ? [post.imageUrl] : undefined,
+          datePublished: post.publishedAt,
+          articleSection: post.category,
+          author: {
+            '@type': 'Organization',
+            name: 'Spark Hub Studio',
+            url: 'https://spark-hub.online',
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: 'Spark Hub Studio',
+            logo: {
+              '@type': 'ImageObject',
+              url: 'https://spark-hub.online/logo.png',
+            },
+          },
+        }
+      : undefined,
+  });
 
   const parsedContent = post ? parseFaqFromContent(post.body) : null;
 
   return (
     <Shell>
       <PageFrame>
+        <SEOBreadcrumbs
+          items={[
+            { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: '/' },
+            { label: locale === 'ar' ? 'الرؤى والأفكار' : 'Notes', href: '/blog' },
+            { label: post?.title || slug, href: `/blog/${slug}` },
+          ]}
+        />
+
         <Link
           href={localizePath('/blog')}
-          className="eyebrow text-primary inline-flex items-center gap-2"
+          className="eyebrow text-primary inline-flex items-center gap-2 mb-8"
           data-testid="link-back-blog"
         >
           {t('blog.back', '← Back to field notes')}
@@ -3655,7 +4293,7 @@ function BlogDetail() {
           label="note"
         >
           {post && parsedContent && (
-            <article className="mx-auto mt-16 max-w-4xl text-start">
+            <article className="mx-auto mt-8 max-w-4xl text-start">
               <p className="eyebrow text-primary">
                 {post.category} /{' '}
                 {new Date(
@@ -3705,6 +4343,9 @@ function BlogDetail() {
                   </ReactMarkdown>
                 </div>
               )}
+
+              {/* Contextual Internal Linking */}
+              <RelatedBlogPosts currentSlug={slug} category={post.category} />
             </article>
           )}
         </QueryState>
@@ -5278,62 +5919,13 @@ function Admin() {
 /*                                   Router                                   */
 /* -------------------------------------------------------------------------- */
 
-function RedirectToServices() {
-  const [, setLocation] = useLocation();
-  const { localizePath } = useLanguage();
-  useEffect(() => {
-    setLocation(localizePath('/services'), { replace: true });
-  }, [setLocation, localizePath]);
-  return null;
-}
 
 function Router() {
   const [location] = useLocation();
-  const { locale } = useLanguage();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    const titlesEn: Record<string, string> = {
-      '/': 'Spark Hub Studio — Where Strategy Meets Growth',
-      '/services': 'Services — Spark Hub Studio',
-      '/team': 'Team — Spark Hub Studio',
-      '/reels': 'Reels & Media — Spark Hub Studio',
-      '/podcasts': 'Podcasts & Conversations — Spark Hub Studio',
-      '/posts': 'Journal & Campaigns — Spark Hub Studio',
-      '/about': 'About The Studio — Spark Hub Studio',
-      '/contact': 'Contact Us — Spark Hub Studio',
-      '/blog': 'Notes & Insights — Spark Hub Studio',
-      '/admin': 'Admin Workspace — Spark Hub Studio',
-      '/sign-in': 'Sign In — Spark Hub Studio',
-      '/sign-up': 'Sign Up — Spark Hub Studio',
-    };
-
-    const titlesAr: Record<string, string> = {
-      '/': 'سبارك هب ستوديو — حيث تلتقي الاستراتيجية بالنمو',
-      '/services': 'الخدمات الاستشارية — سبارك هب ستوديو',
-      '/team': 'فريق العمل — سبارك هب ستوديو',
-      '/reels': 'ريلز وميديا — سبارك هب ستوديو',
-      '/podcasts': 'بودكاست وحوارات — سبارك هب ستوديو',
-      '/posts': 'سجل الأعمال — سبارك هب ستوديو',
-      '/about': 'عن الاستوديو — سبارك هب ستوديو',
-      '/contact': 'تواصل معنا — سبارك هب ستوديو',
-      '/blog': 'رؤى وأفكار — سبارك هب ستوديو',
-      '/admin': 'لوحة التحكم — سبارك هب ستوديو',
-      '/sign-in': 'تسجيل الدخول — سبارك هب ستوديو',
-      '/sign-up': 'إنشاء حساب — سبارك هب ستوديو',
-    };
-
-    let clean = location;
-    if (clean === '/ar' || clean === '/en') clean = '/';
-    else if (clean.startsWith('/ar/')) clean = clean.slice(3);
-    else if (clean.startsWith('/en/')) clean = clean.slice(3);
-
-    const titles = locale === 'ar' ? titlesAr : titlesEn;
-    if (titles[clean]) {
-      document.title = titles[clean];
-    }
-  }, [location, locale]);
+  }, [location]);
 
   return (
     <ErrorBoundary resetKey={location}>
@@ -5352,30 +5944,30 @@ function Router() {
           component={Home}
         />
 
-        {/* Work (redirected to services) */}
+        {/* Work / Case Studies */}
         <Route
           path="/work"
-          component={RedirectToServices}
+          component={Work}
         />
         <Route
           path="/ar/work"
-          component={RedirectToServices}
+          component={Work}
         />
         <Route
           path="/en/work"
-          component={RedirectToServices}
+          component={Work}
         />
         <Route
           path="/work/:id"
-          component={RedirectToServices}
+          component={WorkDetail}
         />
         <Route
           path="/ar/work/:id"
-          component={RedirectToServices}
+          component={WorkDetail}
         />
         <Route
           path="/en/work/:id"
-          component={RedirectToServices}
+          component={WorkDetail}
         />
 
         {/* Services */}
@@ -5390,6 +5982,20 @@ function Router() {
         <Route
           path="/en/services"
           component={Services}
+        />
+
+        {/* Service Pillars / Detail */}
+        <Route
+          path="/services/:slug"
+          component={ServiceDetail}
+        />
+        <Route
+          path="/ar/services/:slug"
+          component={ServiceDetail}
+        />
+        <Route
+          path="/en/services/:slug"
+          component={ServiceDetail}
         />
 
         {/* Team */}
