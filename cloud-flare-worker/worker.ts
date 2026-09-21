@@ -29,9 +29,15 @@ function isAllowedSsrPath(pathname: string): boolean {
   else if (normalized.startsWith('/en/')) normalized = normalized.slice(3);
 
   if (ALLOWED_SSR_EXACT.has(normalized)) return true;
-  // Valid detail subpaths: only allow alphanumeric, hyphen, and underscore slugs
-  if (/^\/blog\/[a-zA-Z0-9_-]{1,100}$/.test(normalized)) return true;
-  if (/^\/work\/[a-zA-Z0-9_-]{1,100}$/.test(normalized)) return true;
+  // Valid detail subpaths: support alphanumeric, hyphen, underscore, percent-encoding, and unicode
+  try {
+    const decoded = decodeURIComponent(normalized);
+    if (/^\/blog\/[a-zA-Z0-9_\-\u0600-\u06FF]{1,200}$/.test(decoded) || /^\/blog\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
+    if (/^\/work\/[a-zA-Z0-9_\-\u0600-\u06FF]{1,200}$/.test(decoded) || /^\/work\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
+  } catch {
+    if (/^\/blog\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
+    if (/^\/work\/[a-zA-Z0-9_%\-]{1,200}$/.test(normalized)) return true;
+  }
   return false;
 }
 

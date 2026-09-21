@@ -522,11 +522,58 @@ router.get(["/services", "/ar/services", "/en/services"], async (req, res) => {
 <article>
   <header>
     <h1>Strategic Marketing & Growth Consulting Services — Spark Hub Studio</h1>
-    <p><strong>Integrated Business Expansion Framework:</strong> Full-service digital marketing solutions engineered to accelerate revenue, scale paid acquisition, and establish commanding search and brand presence.</p>
+    <p><strong>Integrated Business Expansion Framework:</strong> Full-service digital marketing solutions engineered to accelerate revenue, scale paid acquisition, and establish commanding search and brand presence across Saudi Arabia, UAE, and MENA.</p>
   </header>
 
   <section>
-    <h2>Integrated Service Pillars</h2>
+    <h2>Integrated Service Pillars & Capabilities</h2>
+    <p>Our solutions cover the entire customer lifecycle from initial brand discovery to repeat purchase and customer retention:</p>
+
+    <div class="grid-card">
+      <h3>1. Go-to-Market & Business Expansion Strategy (GTM)</h3>
+      <p>Market penetration roadmaps, competitor intelligence, sales funnel architecture, and scalable marketing department structuring.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>2. Performance Marketing & Paid Advertising</h3>
+      <p>Data-driven ad management across Google Ads (Search, Shopping, Display, YouTube), Meta Ads (Facebook & Instagram), Snapchat Ads, TikTok Ads, and LinkedIn Ads. Maximizing ROAS and minimizing CAC.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>3. Search Engine Optimization & Local Search (SEO)</h3>
+      <p>Technical SEO audits, on-page optimization, high-authority backlink architecture, e-commerce SEO (Salla, Zid, Shopify), and Google Maps local dominance across Riyadh, Jeddah, Dubai, and Cairo.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>4. Social Media Management & Editorial Leadership</h3>
+      <p>Strategic editorial planning, high-engagement content creation, community management, and active audience building across X, Instagram, LinkedIn, and Snapchat.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>5. Commercial Video & Reels Production</h3>
+      <p>Cinematic brand films, product commercials, and viral social-first Reels/TikToks designed with high-conversion hooks.</p>
+      <p><a href="/reels">Explore Video & Reels Portfolio ←</a></p>
+    </div>
+
+    <div class="grid-card">
+      <h3>6. Brand Identity & Visual Systems</h3>
+      <p>Corporate identity design, comprehensive Brand Guidelines, packaging design, and visual assets that command market authority.</p>
+      <p><a href="/posts">Explore Brand & Campaign Journal ←</a></p>
+    </div>
+
+    <div class="grid-card">
+      <h3>7. Web Development & Conversion Rate Optimization (CRO)</h3>
+      <p>High-converting landing pages, seamless checkout flows, performance speed optimization, and rigorous A/B testing.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>8. Leadership & Team Enablement</h3>
+      <p>Transferring institutional marketing and analytical capabilities to internal client teams through executive enablement sessions.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Certified Advisory & Execution Offerings</h2>
     <ul>
       ${rows
         .map(
@@ -537,12 +584,22 @@ router.get(["/services", "/ar/services", "/en/services"], async (req, res) => {
         <p>${esc(s.summary)}</p>
         <h4>Core Deliverables & Scope:</h4>
         <ul>
-          ${s.details.map((d) => `<li>${esc(d)}</li>`).join("")}
+          ${(s.details || []).map((d) => `<li>${esc(d)}</li>`).join("")}
         </ul>
       </li>`,
         )
         .join("\n")}
     </ul>
+  </section>
+
+  <section>
+    <h2>Our Proven Growth Methodology</h2>
+    <ol>
+      <li><strong>1. Strategic Discovery & Diagnostics:</strong> Comprehensive audit of current marketing performance, competitive landscape, and untapped acquisition channels.</li>
+      <li><strong>2. Strategy & Roadmap Architecture:</strong> Designing a tailored marketing plan defining channel mix, messaging frameworks, and budget allocation.</li>
+      <li><strong>3. Creative Execution & Campaign Launch:</strong> Crafting visual assets, launching optimized performance campaigns, and rolling out technical SEO enhancements.</li>
+      <li><strong>4. Analytics & Continuous Optimization:</strong> Rigorous KPI monitoring, continuous split testing, and performance scaling to maximize net ROI.</li>
+    </ol>
   </section>
 
   <section>
@@ -554,8 +611,8 @@ router.get(["/services", "/ar/services", "/en/services"], async (req, res) => {
 
   <section class="cta-box">
     <h2>Transform Your Marketing into a Predictable Growth Engine</h2>
-    <p>Partner with Spark Hub Studio to engineer sustainable market leadership.</p>
-    <a href="/contact" class="cta-btn">Get in Touch</a>
+    <p>Partner with Spark Hub Studio to engineer sustainable market leadership across Saudi Arabia, the UAE, and Egypt.</p>
+    <a href="/contact" class="cta-btn">Book Your Strategy Session</a>
   </section>
 </article>`;
 
@@ -597,20 +654,24 @@ router.get(["/services", "/ar/services", "/en/services"], async (req, res) => {
       keywords,
       schemas: [
         buildFaqSchema(serviceFaqs),
-        {
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          "itemListElement": rows.map((s, idx) => ({
-            "@type": "Service",
-            "position": idx + 1,
-            "name": s.title,
-            "description": s.summary,
-            "provider": {
-              "@type": "ProfessionalService",
-              "name": SITE_NAME,
-            },
-          })),
-        },
+        ...(rows.length > 0
+          ? [
+              {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "itemListElement": rows.map((s, idx) => ({
+                  "@type": "Service",
+                  "position": idx + 1,
+                  "name": s.title,
+                  "description": s.summary,
+                  "provider": {
+                    "@type": "ProfessionalService",
+                    "name": SITE_NAME,
+                  },
+                })),
+              },
+            ]
+          : []),
       ],
       breadcrumbs: [
         { name: isAr ? "الرئيسية" : "Home", url: isAr ? "/ar" : "/" },
@@ -718,11 +779,35 @@ router.get(["/reels", "/ar/reels", "/en/reels"], async (req, res) => {
 <article>
   <header>
     <h1>Commercial Video Production, Reels & Visual Storytelling — Spark Hub Studio</h1>
-    <p>Cinematic short-form video production, brand films, and social reels crafted to capture attention and convert viewers into loyal brand advocates.</p>
+    <p><strong>Cinematic Production & Media House:</strong> We craft immersive visual universes and commercial stories designed to captivate audiences and drive conversions across TikTok, Instagram Reels, and Snapchat Spotlight.</p>
   </header>
 
   <section>
+    <h2>Creative Production Capabilities</h2>
+    <div class="grid-card">
+      <h3>1. Social-First Short-Form Video (Reels & TikTok)</h3>
+      <p>High-tempo, algorithmically optimized short-form videos designed for organic virality and scalable paid social campaigns.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>2. Commercial & Product Shoots</h3>
+      <p>Showcasing product craftsmanship and brand value with cinema-grade cinematography, precision lighting, and tailored set designs.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>3. Creative Direction & Scriptwriting</h3>
+      <p>Compelling visual hooks, persuasive copywriting, and narrative arcs engineered to hold viewer retention through the conversion call-to-action.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>4. Post-Production & Motion Design</h3>
+      <p>Cinema color grading, custom sound design, VFX, and motion graphics that elevate brand perceived value.</p>
+    </div>
+  </section>
+
+  <section>
     <h2>Video Production Portfolio</h2>
+    <p>Selected commercial films, product shoots, and social campaign reels produced for our partners:</p>
     <ul>
       ${rows
         .map(
@@ -735,6 +820,7 @@ router.get(["/reels", "/ar/reels", "/en/reels"], async (req, res) => {
         )
         .join("\n")}
     </ul>
+    <p><a href="/services">Explore Integrated Marketing Services ←</a> | <a href="/posts">Explore Visual Identity & Campaigns ←</a></p>
   </section>
 
   <section>
@@ -746,6 +832,7 @@ router.get(["/reels", "/ar/reels", "/en/reels"], async (req, res) => {
 
   <section class="cta-box">
     <h2>Produce High-Impact Video Content with Spark Hub</h2>
+    <p>Partner with our production team to craft high-conversion video assets for your next campaign.</p>
     <a href="/contact" class="cta-btn">Start Your Production</a>
   </section>
 </article>`;
@@ -786,18 +873,22 @@ router.get(["/reels", "/ar/reels", "/en/reels"], async (req, res) => {
       keywords,
       schemas: [
         buildFaqSchema(reelsFaqs),
-        {
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          "itemListElement": rows.map((r, idx) => ({
-            "@type": "VideoObject",
-            "position": idx + 1,
-            "name": r.title,
-            "description": `${r.title} - ${r.client} (${r.category})`,
-            "thumbnailUrl": r.thumbnailUrl || `${SITE_URL}/og-image.png`,
-            "uploadDate": new Date().toISOString(),
-          })),
-        },
+        ...(rows.length > 0
+          ? [
+              {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "itemListElement": rows.map((r, idx) => ({
+                  "@type": "VideoObject",
+                  "position": idx + 1,
+                  "name": r.title,
+                  "description": `${r.title} - ${r.client} (${r.category})`,
+                  "thumbnailUrl": r.thumbnailUrl || `${SITE_URL}/og-image.png`,
+                  "uploadDate": new Date().toISOString(),
+                })),
+              },
+            ]
+          : []),
       ],
       breadcrumbs: [
         { name: isAr ? "الرئيسية" : "Home", url: isAr ? "/ar" : "/" },
@@ -876,11 +967,11 @@ router.get(["/podcasts", "/ar/podcasts", "/en/podcasts"], async (req, res) => {
 <article>
   <header>
     <h1>Spark Hub Podcasts — Executive Conversations on Business, Brand & Growth</h1>
-    <p>Deep strategic dialogues exploring modern business architecture, leadership, and scalable marketing systems with industry innovators.</p>
+    <p><strong>Deep Strategic Dialogues:</strong> Audio and video deep-dives with industry leaders, founders, and marketing innovators exploring sustainable business scaling and market positioning across MENA and global markets.</p>
   </header>
 
   <section>
-    <h2>Episodes Archive</h2>
+    <h2>Episodes Archive & Themes</h2>
     <ul>
       ${rows
         .map(
@@ -893,6 +984,7 @@ router.get(["/podcasts", "/ar/podcasts", "/en/podcasts"], async (req, res) => {
         )
         .join("\n")}
     </ul>
+    <p><a href="/blog">Explore Strategy Notes & Articles ←</a> | <a href="/services">Explore Consulting Services ←</a></p>
   </section>
 
   <section>
@@ -900,6 +992,12 @@ router.get(["/podcasts", "/ar/podcasts", "/en/podcasts"], async (req, res) => {
     ${podcastFaqs
       .map((f) => `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`)
       .join("\n")}
+  </section>
+
+  <section class="cta-box">
+    <h2>Interested in Guesting or Sponsoring an Episode?</h2>
+    <p>Connect with our media production team to discuss sponsorship opportunities and executive thought leadership features.</p>
+    <a href="/contact" class="cta-btn">Contact Production Team</a>
   </section>
 </article>`;
 
@@ -919,7 +1017,28 @@ router.get(["/podcasts", "/ar/podcasts", "/en/podcasts"], async (req, res) => {
       bodyHtml: body,
       lang,
       dir,
-      schemas: [buildFaqSchema(podcastFaqs)],
+      schemas: [
+        buildFaqSchema(podcastFaqs),
+        ...(rows.length > 0
+          ? [
+              {
+                "@context": "https://schema.org",
+                "@type": "PodcastSeries",
+                "name": isAr ? "بودكاست سبارك هب" : "Spark Hub Podcast",
+                "description": pageDesc,
+                "url": `${SITE_URL}${isAr ? "/ar/podcasts" : "/podcasts"}`,
+                "hasPart": rows.map((p, idx) => ({
+                  "@type": "AudioObject",
+                  "position": idx + 1,
+                  "name": p.title,
+                  "description": p.description || p.title,
+                  "duration": p.duration || undefined,
+                  "contentUrl": p.audioUrl || undefined,
+                })),
+              },
+            ]
+          : []),
+      ],
       breadcrumbs: [
         { name: isAr ? "الرئيسية" : "Home", url: isAr ? "/ar" : "/" },
         { name: isAr ? "بودكاست" : "Podcasts", url: isAr ? "/ar/podcasts" : "/podcasts" },
@@ -951,6 +1070,10 @@ router.get(["/posts", "/ar/posts", "/en/posts"], async (req, res) => {
           q: "What types of creative work are included in this showcase?",
           a: "The journal highlights multi-channel ad creatives, visual identity systems, performance creative kits, and campaign assets developed for leading enterprise clients.",
         },
+        {
+          q: "How does Spark Hub maintain visual consistency across channels?",
+          a: "We develop comprehensive design systems and strict brand guidelines ensuring color fidelity, typography hierarchy, and tone-of-voice alignment across all digital touchpoints.",
+        },
       ];
 
   const body = isAr
@@ -975,6 +1098,7 @@ router.get(["/posts", "/ar/posts", "/en/posts"], async (req, res) => {
         )
         .join("\n")}
     </ul>
+    <p><a href="${prefix}/services">استكشف خدمات التسويق والإعلانات ←</a> | <a href="${prefix}/reels">شاهد معرض إنتاج الفيديو والريلز ←</a></p>
   </section>
 
   <section>
@@ -994,7 +1118,7 @@ router.get(["/posts", "/ar/posts", "/en/posts"], async (req, res) => {
 <article>
   <header>
     <h1>Creative Campaigns & Work Journal — Spark Hub Studio</h1>
-    <p>A curated showcase of design systems, performance advertising creatives, and multi-channel brand campaigns executed for regional leaders.</p>
+    <p><strong>Curated Showcase of Creative Direction & Visual Systems:</strong> High-impact multi-channel ad campaigns, social media creative kits, and corporate identity systems engineered for brand authority and conversion velocity.</p>
   </header>
 
   <section>
@@ -1011,6 +1135,7 @@ router.get(["/posts", "/ar/posts", "/en/posts"], async (req, res) => {
         )
         .join("\n")}
     </ul>
+    <p><a href="/services">Explore Integrated Marketing Services ←</a> | <a href="/reels">Explore Video & Reels Production ←</a></p>
   </section>
 
   <section>
@@ -1018,6 +1143,12 @@ router.get(["/posts", "/ar/posts", "/en/posts"], async (req, res) => {
     ${postsFaqs
       .map((f) => `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`)
       .join("\n")}
+  </section>
+
+  <section class="cta-box">
+    <h2>Ready to Architect a Standout Brand Campaign?</h2>
+    <p>Partner with our creative and performance design team to bring your brand vision to life.</p>
+    <a href="/contact" class="cta-btn">Start Your Creative Project</a>
   </section>
 </article>`;
 
@@ -1037,7 +1168,25 @@ router.get(["/posts", "/ar/posts", "/en/posts"], async (req, res) => {
       bodyHtml: body,
       lang,
       dir,
-      schemas: [buildFaqSchema(postsFaqs)],
+      schemas: [
+        buildFaqSchema(postsFaqs),
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": isAr ? "سجل الأعمال والحملات الإعلانية" : "Creative Campaigns & Work Journal",
+          "description": pageDesc,
+          "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": rows.map((p, idx) => ({
+              "@type": "CreativeWork",
+              "position": idx + 1,
+              "name": `${p.client} - ${p.category}`,
+              "description": p.caption,
+              "image": p.imageUrls && p.imageUrls.length > 0 ? p.imageUrls[0] : undefined,
+            })),
+          },
+        },
+      ],
       breadcrumbs: [
         { name: isAr ? "الرئيسية" : "Home", url: isAr ? "/ar" : "/" },
         { name: isAr ? "سجل الأعمال" : "Work", url: isAr ? "/ar/posts" : "/posts" },
@@ -1133,11 +1282,11 @@ router.get(["/team", "/ar/team", "/en/team"], async (req, res) => {
 <article>
   <header>
     <h1>The Team & Leadership — Spark Hub Studio</h1>
-    <p>Multidisciplinary growth engineers, performance media specialists, creative directors, and business consultants dedicated to driving sustainable market expansion.</p>
+    <p><strong>Specialized Capabilities in Growth Engineering:</strong> A dedicated multidisciplinary team of business growth strategists, performance marketers, creative directors, and conversion architects partnering with ambitious enterprises across Saudi Arabia, UAE, and MENA.</p>
   </header>
 
   <section>
-    <h2>Team Leadership</h2>
+    <h2>Leadership & Advisory Team</h2>
     <ul>
       ${team
         .map(
@@ -1146,6 +1295,7 @@ router.get(["/team", "/ar/team", "/en/team"], async (req, res) => {
         <h2>${esc(t.name)}</h2>
         ${t.position ? `<p><strong>${esc(t.position)}</strong> ${t.department ? `(${esc(t.department)})` : ""}</p>` : ""}
         ${t.bio ? `<p>${esc(t.bio)}</p>` : ""}
+        ${t.linkedinUrl ? `<p><a href="${esc(t.linkedinUrl)}" target="_blank" rel="noopener noreferrer">Official LinkedIn Profile ←</a></p>` : ""}
       </li>`,
         )
         .join("\n")}
@@ -1153,10 +1303,36 @@ router.get(["/team", "/ar/team", "/en/team"], async (req, res) => {
   </section>
 
   <section>
+    <h2>Our Core Professional Pillars</h2>
+    <div class="grid-card">
+      <h3>Strategy & Growth Architecture</h3>
+      <p>Go-to-market planning, competitor intelligence, market penetration roadmaps, and revenue engineering.</p>
+    </div>
+    <div class="grid-card">
+      <h3>Performance & Paid Media</h3>
+      <p>Managing large-scale ad spend across Google, Meta, Snapchat, TikTok, and LinkedIn with laser focus on ROAS.</p>
+    </div>
+    <div class="grid-card">
+      <h3>Creative Direction & Commercial Media</h3>
+      <p>Transforming complex value propositions into compelling visual narratives, commercial videos, and social reels.</p>
+    </div>
+    <div class="grid-card">
+      <h3>SEO & Web Technology</h3>
+      <p>Commanding top organic search rankings, e-commerce SEO, and frictionless technical infrastructure.</p>
+    </div>
+  </section>
+
+  <section>
     <h2>Frequently Asked Questions</h2>
     ${teamFaqs
       .map((f) => `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`)
       .join("\n")}
+  </section>
+
+  <section class="cta-box">
+    <h2>Leverage Our Specialized Team to Accelerate Your Growth</h2>
+    <p>Connect with our senior team today to structure a dedicated team for your business expansion goals.</p>
+    <a href="/contact" class="cta-btn">Start a Conversation</a>
   </section>
 </article>`;
 
@@ -1232,6 +1408,10 @@ router.get(["/about", "/ar/about", "/en/about"], async (req, res) => {
           q: "Which geographic regions do you serve?",
           a: "We actively serve scaling enterprises across Saudi Arabia (Riyadh, Jeddah), the United Arab Emirates (Dubai, Abu Dhabi), Egypt (Cairo), and international markets remotely.",
         },
+        {
+          q: "How is Spark Hub different from traditional advertising agencies?",
+          a: "We operate as strategic growth partners taking joint accountability for commercial KPIs (ROAS, CAC, net revenue), connecting high-level corporate strategy directly to operational marketing execution.",
+        },
       ];
 
   const body = isAr
@@ -1306,22 +1486,40 @@ router.get(["/about", "/ar/about", "/en/about"], async (req, res) => {
 <article>
   <header>
     <h1>About Spark Hub Studio — Growth Strategy & Business Architecture</h1>
-    <p>An independent growth studio integrating strategy, marketing operations, brand systems, and creative excellence into sustainable market leadership.</p>
+    <p><strong>Independent Growth Consulting & Marketing Studio:</strong> We help ambitious enterprises transform growth targets into predictable trajectories through integrated strategy, performance marketing, and creative excellence.</p>
   </header>
 
   <section>
-    <h2>Vision & Operating Philosophy</h2>
-    <p><strong>Vision:</strong> The healthiest business growth feels less like reckless acceleration and more like complete alignment.</p>
-    <p><strong>Mission:</strong> We integrate strategy, marketing, operations, and human capabilities into one clear, sustainable path forward.</p>
+    <h2>Our Compass & Operating Philosophy</h2>
+    <div class="grid-card">
+      <h3>Vision</h3>
+      <p>We build the engine that powers your next phase of growth. The healthiest expansion feels less like reckless acceleration and more like complete alignment across all corporate pillars.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>Mission</h3>
+      <p>We integrate strategy, marketing operations, technology, and human capabilities into one clear, sustainable path forward.</p>
+    </div>
+
+    <div class="grid-card">
+      <h3>Operating Values</h3>
+      <p>Human insight backed by disciplined data analytics, capital stewardship, and ruthless focus on bottom-line business ROI rather than vanity metrics.</p>
+    </div>
   </section>
 
   <section>
-    <h2>Regional & Global Reach</h2>
-    <p>Serving ambitious enterprises across Saudi Arabia (Riyadh, Jeddah), the United Arab Emirates (Dubai, Abu Dhabi), Egypt (Cairo), and international markets.</p>
+    <h2>Regional Presence & Global Standards</h2>
+    <p>Spark Hub Studio delivers strategic consulting and execution across:</p>
+    <ul>
+      <li><strong>Saudi Arabia:</strong> Riyadh, Jeddah, Eastern Province, and major commercial hubs.</li>
+      <li><strong>United Arab Emirates:</strong> Dubai, Abu Dhabi, and Sharjah.</li>
+      <li><strong>Egypt:</strong> Cairo, Alexandria, and dynamic business ecosystems.</li>
+      <li><strong>Regional & International Markets:</strong> Delivered seamlessly via hybrid consulting engagements.</li>
+    </ul>
   </section>
 
   <section>
-    <h2>Leadership</h2>
+    <h2>Leadership & Advisory</h2>
     <ul>
       ${team
         .map(
@@ -1334,6 +1532,7 @@ router.get(["/about", "/ar/about", "/en/about"], async (req, res) => {
         )
         .join("\n")}
     </ul>
+    <p><a href="/team">Meet our Full Advisory & Leadership Team ←</a></p>
   </section>
 
   <section>
@@ -1341,6 +1540,12 @@ router.get(["/about", "/ar/about", "/en/about"], async (req, res) => {
     ${aboutFaqs
       .map((f) => `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`)
       .join("\n")}
+  </section>
+
+  <section class="cta-box">
+    <h2>Ready to Partner with a Strategy Studio that Understands Your Ambition?</h2>
+    <p>Let's initiate a strategic discovery dialogue regarding your company's expansion roadmap.</p>
+    <a href="/contact" class="cta-btn">Start a Strategic Conversation</a>
   </section>
 </article>`;
 
@@ -1411,6 +1616,10 @@ router.get(["/contact", "/ar/contact", "/en/contact"], async (req, res) => {
           q: "What is the onboarding process?",
           a: "We conduct an initial diagnostic review, follow with a strategic discovery call, present a tailored growth proposal, and initiate implementation upon agreement.",
         },
+        {
+          q: "Do you work with enterprises outside Saudi Arabia and Egypt?",
+          a: "Yes. We serve leading companies across the UAE, GCC, MENA, and international enterprises entering Middle Eastern markets.",
+        },
       ];
 
   const body = isAr
@@ -1464,15 +1673,34 @@ router.get(["/contact", "/ar/contact", "/en/contact"], async (req, res) => {
 <article>
   <header>
     <h1>Contact Spark Hub Studio — Start a Strategic Business Conversation</h1>
-    <p>Bring us a challenge. Connect with our senior consultants to discuss your business expansion goals and architect a tailored growth roadmap.</p>
+    <p><strong>Ready to Transform Strategy into Measurable Growth?</strong> Bring us a challenge or growth target. Connect with our senior consultants to assess your current marketing performance and architect a tailored roadmap.</p>
   </header>
 
   <section>
     <h2>Direct Contact Information</h2>
     <div class="grid-card">
-      <p><strong>Email:</strong> <a href="mailto:hello@spark-hub.online">hello@spark-hub.online</a></p>
+      <h3>Official Advisory & Partnerships Email</h3>
+      <p><a href="mailto:hello@spark-hub.online">hello@spark-hub.online</a></p>
       <p><em>We respond to all qualified business inquiries within 24 hours.</em></p>
     </div>
+
+    <div class="grid-card">
+      <h3>Regions & Markets Served</h3>
+      <p>Saudi Arabia (Riyadh, Jeddah), United Arab Emirates (Dubai, Abu Dhabi), Egypt (Cairo), and international markets via hybrid consulting.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Consulting & Service Pillars</h2>
+    <ul>
+      <li><strong>Growth Architecture & GTM:</strong> Market expansion strategies and sales funnel design.</li>
+      <li><strong>Performance Marketing:</strong> Scalable paid acquisition across Google, Meta, Snapchat, and TikTok.</li>
+      <li><strong>SEO & Local Search Dominance:</strong> E-commerce SEO and Google Maps authority.</li>
+      <li><strong>Brand Architecture:</strong> Comprehensive identity design and creative direction.</li>
+      <li><strong>Commercial Video & Reels:</strong> High-conversion social short-form and product commercials.</li>
+      <li><strong>E-Commerce Optimization (CRO):</strong> Checkout funnel engineering and revenue velocity.</li>
+    </ul>
+    <p><a href="/services">Explore Detailed Services & Deliverables ←</a></p>
   </section>
 
   <section>
@@ -1480,6 +1708,11 @@ router.get(["/contact", "/ar/contact", "/en/contact"], async (req, res) => {
     ${contactFaqs
       .map((f) => `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`)
       .join("\n")}
+  </section>
+
+  <section class="cta-box">
+    <h2>Let's Start a Strategic Growth Dialogue Today</h2>
+    <p>Send your project details to <a href="mailto:hello@spark-hub.online" style="color: #ffffff; font-weight: bold;">hello@spark-hub.online</a> to schedule your discovery session.</p>
   </section>
 </article>`;
 
@@ -1649,7 +1882,7 @@ router.get(["/blog/:slug", "/ar/blog/:slug", "/en/blog/:slug"], async (req, res)
     return;
   }
 
-  const paragraphs = row.body
+  const paragraphs = (row.body || "")
     .split("\n\n")
     .map((p) => p.trim())
     .filter(Boolean)
