@@ -968,9 +968,9 @@ function Home() {
       </section>
 
       <PageFrame>
-        <div className="mb-10 max-w-3xl text-start">
+        <div className="mb-8 max-w-2xl text-start">
           <Reveal>
-            <p className="eyebrow text-primary inline-flex items-center gap-2 mb-3 font-mono text-[11px] rtl:text-xs tracking-[.18em] rtl:tracking-normal">
+            <p className="eyebrow text-primary inline-flex items-center gap-2 mb-2 font-mono text-[10px] rtl:text-xs tracking-[.18em] rtl:tracking-normal">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(233,190,88,0.85)]" />
               {t('hero.premise_kicker', 'The premise')}
             </p>
@@ -978,13 +978,13 @@ function Home() {
 
           <div>
             <Reveal delay={100}>
-              <h2 className="display text-2xl sm:text-3xl md:text-4xl font-bold leading-snug sm:leading-relaxed text-foreground tracking-normal">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold leading-relaxed sm:leading-relaxed text-foreground">
                 {locale === 'ar' ? t('hero.vision') : (o?.vision || t('hero.vision'))}
               </h2>
             </Reveal>
 
             <Reveal delay={180}>
-              <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed rtl:leading-7 text-muted-foreground">
+              <p className="mt-3 max-w-xl text-xs sm:text-sm leading-relaxed rtl:leading-6 text-muted-foreground">
                 {locale === 'ar' ? t('hero.mission') : (o?.mission || t('hero.mission'))}
               </p>
             </Reveal>
@@ -3524,7 +3524,7 @@ function BlogDetail() {
                 })}
               </p>
 
-              <h1 className="display mt-6 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-snug text-foreground">
+              <h1 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-snug md:leading-normal text-foreground">
                 {post.title}
               </h1>
 
