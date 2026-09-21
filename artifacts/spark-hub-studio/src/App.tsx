@@ -3532,26 +3532,26 @@ function BlogDetail() {
                 })}
               </p>
 
-              <h1 className="mt-4 text-lg sm:text-xl md:text-2xl font-bold leading-relaxed text-foreground max-w-2xl">
+              <h1 className="mt-5 text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-extrabold leading-snug sm:leading-tight text-foreground max-w-3xl">
                 {post.title}
               </h1>
 
-              <p className="mt-4 text-sm sm:text-base leading-relaxed text-muted-foreground max-w-2xl">
+              <p className="mt-5 text-base sm:text-lg md:text-xl leading-relaxed text-muted-foreground max-w-3xl">
                 {post.excerpt}
               </p>
 
               {post.imageUrl && (
-                <div className="mt-8 overflow-hidden rounded-xl border border-border/60 bg-card">
+                <div className="mt-10 overflow-hidden rounded-2xl border border-border/60 bg-card">
                   <img
                     src={post.imageUrl}
                     alt={post.imageAlt || post.title}
-                    className="max-h-[380px] w-full object-cover"
+                    className="max-h-[480px] w-full object-cover"
                     loading='lazy'
                   />
                 </div>
               )}
 
-              <div className="prose prose-invert prose-headings:font-bold prose-headings:text-foreground prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3 prose-h3:text-base prose-h3:mt-6 prose-h3:mb-2 prose-p:text-muted-foreground prose-p:leading-7 prose-p:text-sm sm:prose-p:text-[15px] prose-strong:text-foreground prose-strong:font-semibold prose-li:text-muted-foreground prose-li:leading-6 prose-li:text-sm prose-ul:my-3 prose-ol:my-3 prose-blockquote:border-s-4 prose-blockquote:border-primary prose-blockquote:bg-card prose-blockquote:rounded-sm prose-blockquote:px-4 prose-blockquote:py-2.5 prose-blockquote:my-4 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-blockquote:text-sm prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-hr:border-border prose-table:text-xs prose-th:text-foreground prose-td:text-muted-foreground mt-8 max-w-3xl">
+              <div className="prose prose-invert prose-headings:font-bold prose-headings:text-foreground prose-h2:text-2xl sm:prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-4 prose-h3:text-xl sm:prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-muted-foreground prose-p:leading-8 prose-p:text-base sm:prose-p:text-[17px] prose-strong:text-foreground prose-strong:font-bold prose-li:text-muted-foreground prose-li:leading-8 prose-li:text-base sm:prose-li:text-[17px] prose-ul:my-4 prose-ol:my-4 prose-blockquote:border-s-4 prose-blockquote:border-primary prose-blockquote:bg-card prose-blockquote:rounded-md prose-blockquote:px-5 prose-blockquote:py-3.5 prose-blockquote:my-6 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-blockquote:text-base sm:prose-blockquote:text-[17px] prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-hr:border-border prose-table:text-sm sm:prose-table:text-base prose-th:text-foreground prose-td:text-muted-foreground mt-12 max-w-3xl">
                 <ReactMarkdown>
                   {post.body}
                 </ReactMarkdown>
