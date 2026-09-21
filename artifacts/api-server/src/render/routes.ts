@@ -10,7 +10,7 @@ import {
   blogPostsTable,
   teamTable,
 } from "@workspace/db";
-import { esc, renderShell, SITE_NAME, SITE_URL } from "./shell";
+import { esc, renderShell, renderMarkdownToHtml, SITE_NAME, SITE_URL } from "./shell";
 
 const router: IRouter = Router();
 
@@ -1882,12 +1882,7 @@ router.get(["/blog/:slug", "/ar/blog/:slug", "/en/blog/:slug"], async (req, res)
     return;
   }
 
-  const paragraphs = (row.body || "")
-    .split("\n\n")
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .map((p) => `<p>${esc(p)}</p>`)
-    .join("\n");
+  const articleHtml = renderMarkdownToHtml(row.body || "");
 
   const body = `
 <article>
@@ -1898,7 +1893,7 @@ router.get(["/blog/:slug", "/ar/blog/:slug", "/en/blog/:slug"], async (req, res)
   </header>
 
   <div class="article-content">
-    ${paragraphs}
+    ${articleHtml}
   </div>
 
   <hr style="border: 0; border-top: 1px solid #1f293d; margin: 2.5rem 0;" />

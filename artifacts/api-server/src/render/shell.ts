@@ -11,6 +11,130 @@ export function esc(value: string | number | null | undefined): string {
     .replace(/'/g, "&#039;");
 }
 
+export function formatInlineMarkdown(text: string): string {
+  let safe = esc(text);
+  // Bold: **text**
+  safe = safe.replace(/\*\*([^*]+?)\*\*/g, "<strong>$1</strong>");
+  // Italic: *text*
+  safe = safe.replace(/(^|[^*])\*([^*]+?)\*([^*]|$)/g, "$1<em>$2</em>$3");
+  // Inline code: `code`
+  safe = safe.replace(/`([^`]+)`/g, "<code>$1</code>");
+  // Links: [text](url)
+  safe = safe.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]+)\)/g, '<a href="$2">$1</a>');
+  return safe;
+}
+
+/**
+ * Converts raw Markdown content into clean, semantic HTML tags for search engine bots and AI crawlers.
+ */
+export function renderMarkdownToHtml(markdown: string): string {
+  if (!markdown) return "";
+
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  const htmlChunks: string[] = [];
+  let inList: "ul" | "ol" | null = null;
+  let paragraphBuffer: string[] = [];
+
+  function flushParagraph() {
+    if (paragraphBuffer.length > 0) {
+      const text = paragraphBuffer.join(" ").trim();
+      if (text) {
+        htmlChunks.push(`<p>${formatInlineMarkdown(text)}</p>`);
+      }
+      paragraphBuffer = [];
+    }
+  }
+
+  function flushList() {
+    if (inList) {
+      htmlChunks.push(`</${inList}>`);
+      inList = null;
+    }
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const line = rawLine.trim();
+
+    if (!line) {
+      flushParagraph();
+      flushList();
+      continue;
+    }
+
+    // Horizontal Rule
+    if (/^---+$|^___+$|^\*\*\*+$/.test(line)) {
+      flushParagraph();
+      flushList();
+      htmlChunks.push("<hr />");
+      continue;
+    }
+
+    // Headings
+    if (line.startsWith("### ")) {
+      flushParagraph();
+      flushList();
+      htmlChunks.push(`<h3>${formatInlineMarkdown(line.slice(4))}</h3>`);
+      continue;
+    }
+    if (line.startsWith("## ")) {
+      flushParagraph();
+      flushList();
+      htmlChunks.push(`<h2>${formatInlineMarkdown(line.slice(3))}</h2>`);
+      continue;
+    }
+    if (line.startsWith("# ")) {
+      flushParagraph();
+      flushList();
+      htmlChunks.push(`<h1>${formatInlineMarkdown(line.slice(2))}</h1>`);
+      continue;
+    }
+
+    // Blockquote
+    if (line.startsWith("> ")) {
+      flushParagraph();
+      flushList();
+      htmlChunks.push(`<blockquote><p>${formatInlineMarkdown(line.slice(2))}</p></blockquote>`);
+      continue;
+    }
+
+    // Unordered List (- or *)
+    const ulMatch = line.match(/^[-*]\s+(.*)$/);
+    if (ulMatch) {
+      flushParagraph();
+      if (inList !== "ul") {
+        flushList();
+        inList = "ul";
+        htmlChunks.push("<ul>");
+      }
+      htmlChunks.push(`<li>${formatInlineMarkdown(ulMatch[1])}</li>`);
+      continue;
+    }
+
+    // Ordered List (1. or 2.)
+    const olMatch = line.match(/^\d+\.\s+(.*)$/);
+    if (olMatch) {
+      flushParagraph();
+      if (inList !== "ol") {
+        flushList();
+        inList = "ol";
+        htmlChunks.push("<ol>");
+      }
+      htmlChunks.push(`<li>${formatInlineMarkdown(olMatch[1])}</li>`);
+      continue;
+    }
+
+    // Regular line
+    flushList();
+    paragraphBuffer.push(line);
+  }
+
+  flushParagraph();
+  flushList();
+
+  return htmlChunks.join("\n");
+}
+
 export type BreadcrumbItem = {
   name: string;
   url: string;
