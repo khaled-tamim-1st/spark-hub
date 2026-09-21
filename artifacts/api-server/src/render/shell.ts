@@ -59,6 +59,23 @@ ${extraHead}
 <meta name="twitter:description" content="${esc(description)}" />
 <meta name="twitter:image" content="${esc(ogImage)}" />
 <meta name="twitter:image:alt" content="${esc(title)}" />
+<link rel="canonical" href="${esc(url)}" />
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Tajawal', sans-serif; background: #0c111c; color: #e5e7eb; max-width: 860px; margin: 0 auto; padding: 2rem 1.25rem; line-height: 1.8; }
+  header { border-bottom: 1px solid #1f293d; padding-bottom: 1.25rem; margin-bottom: 2rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; }
+  header a { color: #f59e0b; text-decoration: none; font-weight: 800; font-size: 1.1rem; }
+  nav { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.9rem; }
+  nav a { color: #9ca3af; text-decoration: none; }
+  nav a:hover { color: #f59e0b; }
+  h1 { font-size: 2rem; color: #ffffff; line-height: 1.3; margin-top: 0; }
+  h2 { font-size: 1.45rem; color: #f59e0b; margin-top: 2rem; border-bottom: 1px solid #1f293d; padding-bottom: 0.5rem; }
+  h3 { font-size: 1.15rem; color: #ffffff; margin-top: 1.25rem; }
+  p, li { color: #d1d5db; font-size: 1rem; }
+  a { color: #f59e0b; }
+  blockquote { border-right: 4px solid #f59e0b; background: #131b2e; padding: 0.75rem 1.25rem; margin: 1.25rem 0; border-radius: 4px; color: #f3f4f6; }
+  img { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; border: 1px solid #1f293d; }
+  ul { padding-inline-start: 1.25rem; }
+</style>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -72,17 +89,14 @@ ${extraHead}
 </script>
 </head>
 <body>
-<header><a href="/">${esc(SITE_NAME)}</a>
-<nav>
-<a href="/work">Work</a>
-<a href="/services">Services</a>
-<a href="/reels">Reels</a>
-<a href="/podcasts">Podcasts</a>
-<a href="/posts">Posts</a>
-<a href="/about">About</a>
-<a href="/blog">Blog</a>
-<a href="/contact">Contact</a>
-</nav>
+<header>
+  <a href="${esc(SITE_URL)}/">${esc(SITE_NAME)}</a>
+  <nav>
+    <a href="${esc(SITE_URL)}/services">الخدمات</a>
+    <a href="${esc(SITE_URL)}/blog">المدونة</a>
+    <a href="${esc(SITE_URL)}/about">عن الاستوديو</a>
+    <a href="${esc(SITE_URL)}/contact">تواصل معنا</a>
+  </nav>
 </header>
 <main>
 ${bodyHtml}
