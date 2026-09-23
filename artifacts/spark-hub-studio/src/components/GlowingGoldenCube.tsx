@@ -34,18 +34,18 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
       if (!bloomPassRef.current || !faceMaterialRef.current) return;
 
       if (mode === 'subtle') {
-        bloomPassRef.current.strength = 0.25;
-        faceMaterialRef.current.emissiveIntensity = 0.1;
-        if (goldMaterialRef.current) goldMaterialRef.current.emissiveIntensity = 0.08;
-      } else if (mode === 'boosted') {
-        bloomPassRef.current.strength = 0.55;
-        faceMaterialRef.current.emissiveIntensity = 0.25;
-        if (goldMaterialRef.current) goldMaterialRef.current.emissiveIntensity = 0.2;
-      } else {
-        // balanced
         bloomPassRef.current.strength = 0.35;
-        faceMaterialRef.current.emissiveIntensity = 0.15;
-        if (goldMaterialRef.current) goldMaterialRef.current.emissiveIntensity = 0.1;
+        faceMaterialRef.current.emissiveIntensity = 0.25;
+        if (goldMaterialRef.current) goldMaterialRef.current.emissiveIntensity = 0.12;
+      } else if (mode === 'boosted') {
+        bloomPassRef.current.strength = 0.75;
+        faceMaterialRef.current.emissiveIntensity = 0.65;
+        if (goldMaterialRef.current) goldMaterialRef.current.emissiveIntensity = 0.28;
+      } else {
+        // balanced: elegant, warm, visible but never overblown
+        bloomPassRef.current.strength = 0.48;
+        faceMaterialRef.current.emissiveIntensity = 0.40;
+        if (goldMaterialRef.current) goldMaterialRef.current.emissiveIntensity = 0.18;
       }
       onGlowModeChange?.(mode);
     };
@@ -156,15 +156,15 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.05;
+      renderer.toneMappingExposure = 1.10;
 
-      // 3. Post-processing Composer (Soft & Warm Bloom Pass)
+      // 3. Post-processing Composer (Balanced Warm Gold Bloom Pass)
       const renderPass = new RenderPass(scene, camera);
       const bloomPass = new UnrealBloomPass(
         new THREE.Vector2(width, height),
-        0.35, // Soft balanced bloom strength
-        0.35, // Soft radius
-        0.55  // Higher threshold so reflections soften without red burst flaring
+        0.48, // Balanced, natural golden bloom
+        0.40, // Soft radius
+        0.36  // Catches metallic facet edges cleanly without overblowing
       );
       bloomPassRef.current = bloomPass;
 
@@ -172,21 +172,21 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
       composer.addPass(renderPass);
       composer.addPass(bloomPass);
 
-      // 4. Pure Warm Luxury Gold Lighting (Eliminating Any Reddish Glare)
-      const warmAmbient = new THREE.AmbientLight(0xfff4db, 0.85);
+      // 4. Pure Warm Luxury Gold Lighting (Balanced & Metallic)
+      const warmAmbient = new THREE.AmbientLight(0xffeedd, 0.90);
       scene.add(warmAmbient);
 
-      const dirLight1 = new THREE.DirectionalLight(0xfff0c7, 2.2);
+      const dirLight1 = new THREE.DirectionalLight(0xffeaad, 2.4);
       dirLight1.position.set(5, 8, 4);
       scene.add(dirLight1);
 
-      // Replaced reddish 0xffaa22 with soft champagne gold
-      const rimLightGold = new THREE.PointLight(0xffe199, 1.3, 20);
+      // Soft warm rim light
+      const rimLightGold = new THREE.PointLight(0xffd277, 1.5, 20);
       rimLightGold.position.set(-6, -2, -4);
       scene.add(rimLightGold);
 
       // Soft warm fill light
-      const fillLight = new THREE.DirectionalLight(0xffeec2, 0.9);
+      const fillLight = new THREE.DirectionalLight(0xd99b42, 1.0);
       fillLight.position.set(-4, 5, -2);
       scene.add(fillLight);
 
@@ -204,13 +204,13 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
       };
       updateCubeRootPosition();
 
-      // 1. خامة الذهب الفاخر (Pure Champagne Gold Metal)
+      // 1. خامة الذهب الفاخر البرونزي (Warm Brushed Metallic Gold)
       const goldMaterial = new THREE.MeshStandardMaterial({
-        color: 0xc8963e,           // درجة ذهب شامبين دافئ وأنيق
-        emissive: 0x221a06,        // توهج ذهبي هادئ نقي بدون أي احمرار
-        emissiveIntensity: 0.1,    // شدة خفيفة تبرز التجسيم
-        metalness: 0.92,           // طابع معدني صريح
-        roughness: 0.22            // تشتيت أنعم للضوء يمنع الوهج الحاد
+        color: 0xc8963e,           // درجة ذهب شامبين وبرونز دافئ وأنيق
+        emissive: 0x332208,        // توهج كهرماني خافت هادئ
+        emissiveIntensity: 0.18,   // تجسيم معدني صريح غير معتم
+        metalness: 0.92,           // طابع معدني فاخر
+        roughness: 0.20            // ملمس معدن مصقول عاكس
       });
       goldMaterialRef.current = goldMaterial;
 
@@ -219,21 +219,21 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
         color: 0x111115,
       });
 
-      // Luminous Gold Face Plates Material (Polished gold facet plates)
+      // Luminous Gold Face Plates Material (Warm radiant facet plates)
       const facePlateMaterial = new THREE.MeshStandardMaterial({
         color: 0xd6a44d,
-        emissive: 0x2e2208,        // لون ذهبي نقي خالي من أي صبغة حمراء
-        emissiveIntensity: 0.15,
-        metalness: 0.90,
-        roughness: 0.20,
+        emissive: 0x664410,        // توهج ذهبي دافئ نقي وواضح
+        emissiveIntensity: 0.40,   // متوازن: مضيء بوضوح بدون أن يكون فاقعاً
+        metalness: 0.88,
+        roughness: 0.16,
       });
       faceMaterialRef.current = facePlateMaterial;
 
       // Sophisticated metallic outline seams
       const edgeLineMaterial = new THREE.LineBasicMaterial({
-        color: 0xba852e,
+        color: 0xdfaa45,
         transparent: true,
-        opacity: 0.32,
+        opacity: 0.45,
       });
 
       const cubieSize = 0.84;
@@ -279,10 +279,10 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
 
       const ringGeometry = new THREE.RingGeometry(2.7, 2.75, 64);
       const ringMaterial = new THREE.MeshBasicMaterial({
-        color: 0xc8963e,
+        color: 0xffd255,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.22,
+        opacity: 0.32,
         blending: THREE.AdditiveBlending,
       });
 
@@ -294,13 +294,13 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
 
       energySpheresGroup.add(ring1, ring2, ring3);
 
-      // Wireframe geodesic aura sphere in warm bronze
+      // Wireframe geodesic aura sphere in luminous gold
       const sphereGeo = new THREE.IcosahedronGeometry(2.9, 2);
       const sphereWireGeo = new THREE.WireframeGeometry(sphereGeo);
       const sphereWireMat = new THREE.LineBasicMaterial({
-        color: 0x9e6c24,
+        color: 0xffbf30,
         transparent: true,
-        opacity: 0.12,
+        opacity: 0.18,
         blending: THREE.AdditiveBlending,
       });
       const wireSphere = new THREE.LineSegments(sphereWireGeo, sphereWireMat);
