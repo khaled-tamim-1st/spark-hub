@@ -468,6 +468,18 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
           particleSwarm.rotation.y = -elapsedTime * 0.05;
         }
 
+        // Hide cube smoothly when approaching the footer so the footer remains 100% clear
+        const footerEl = document.querySelector('footer');
+        let cubeOpacity = 1;
+        if (footerEl) {
+          const rect = footerEl.getBoundingClientRect();
+          const vh = window.innerHeight;
+          if (rect.top < vh + 120) {
+            cubeOpacity = Math.max(0, Math.min(1, (rect.top - 60) / 220));
+          }
+        }
+        renderer.domElement.style.opacity = String(cubeOpacity);
+
         composer.render();
       };
       animate();
