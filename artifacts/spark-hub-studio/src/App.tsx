@@ -111,6 +111,7 @@ import { LanguageSwitcher } from '@/components/language-switcher';
 import { useSEO } from '@/hooks/useSEO';
 import { SEOBreadcrumbs } from '@/components/seo/SEOBreadcrumbs';
 import { RelatedBlogPosts } from '@/components/seo/RelatedBlogPosts';
+import { GlowingGoldenCube } from '@/components/GlowingGoldenCube';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -915,40 +916,21 @@ function Home() {
             </div>
           </div>
 
-          {/* Golden technical geometric HUD graphic over studio scene with integrated studio quote */}
+          {/* 3D Glowing Golden Cube (Interactive Three.js Experience) */}
           <div className="hidden animate-rise delay-2 md:flex md:flex-col md:items-center md:justify-center md:gap-4 lg:gap-5 md:opacity-100">
-            <div className="relative h-64 w-64 md:h-72 md:w-72 lg:h-80 lg:w-80 border border-primary/40 rounded-xl p-4 bg-card/20 backdrop-blur-[2px]">
+            <div className="relative h-64 w-64 md:h-72 md:w-72 lg:h-80 lg:w-80 border border-primary/30 rounded-2xl p-1 bg-gradient-to-b from-card/40 to-card/10 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden group">
               {/* Ambient radial gold backlight */}
-              <div className="absolute -inset-8 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+              <div className="absolute -inset-4 rounded-full bg-primary/15 blur-2xl pointer-events-none" />
 
-              {/* Rotating dashed ring */}
-              <div className="absolute inset-5 rounded-full border border-dashed border-primary/40 animate-hud-spin" />
+              {/* Three.js Interactive Canvas Container */}
+              <GlowingGoldenCube className="w-full h-full z-10" />
 
-              {/* Pulsing inner ring */}
-              <div className="absolute inset-12 lg:inset-14 rounded-full border border-primary/60 animate-hud-pulse shadow-[0_0_20px_rgba(233,190,88,0.2)]" />
-
-              {/* Inner core circle */}
-              <div className="absolute inset-20 lg:inset-24 rounded-full border border-primary/30" />
-
-              {/* Crosshairs */}
-              <div className="absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 -rotate-45 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-              <div className="absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 rotate-45 bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
-
-              {/* Center pulsing core dot */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary shadow-[0_0_12px_rgba(233,190,88,0.9)] animate-ping" />
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rounded-full bg-primary" />
-
-              <p className="absolute bottom-4 left-4 font-mono text-[10px] tracking-wider text-primary font-semibold">
-                SM / 2024-25
-              </p>
-
-              <p className="absolute right-4 top-4 font-mono text-[10px] tracking-wider text-muted-foreground">
-                01° / 31° N
-              </p>
-
-              <p className="absolute left-4 top-4 font-mono text-[9px] tracking-widest text-primary/80 uppercase">
-                REC ●
-              </p>
+              {/* Minimalist interactive hint watermark */}
+              <div className="absolute bottom-2.5 inset-x-0 text-center pointer-events-none z-20">
+                <span className="font-mono text-[9px] tracking-widest text-primary/60 uppercase bg-background/60 px-2 py-0.5 rounded-full backdrop-blur-sm border border-primary/20">
+                  {locale === 'ar' ? 'اسحب للتدوير ✦ 3D' : 'Drag to Rotate ✦ 3D'}
+                </span>
+              </div>
             </div>
 
             {/* Desktop Studio Perspective Quote Card */}
