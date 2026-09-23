@@ -491,6 +491,12 @@ function RevealOnScroll({
 }
 
 function GoldenDust() {
+  // Toggle to disable/enable falling golden rain dust across the site. Kept intact to re-enable anytime.
+  const ENABLE_GOLDEN_DUST = false;
+  if (!ENABLE_GOLDEN_DUST) {
+    return null;
+  }
+
   const [location] = useLocation();
   const cleanLoc = location.replace(/^\/(?:ar|en)/, '');
   const isBlog = cleanLoc === '/blog' || cleanLoc.startsWith('/blog');

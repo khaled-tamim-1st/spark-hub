@@ -265,31 +265,36 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
       const wireSphere = new THREE.LineSegments(sphereWireGeo, sphereWireMat);
       energySpheresGroup.add(wireSphere);
 
-      // Golden Dust / Ember Particles
-      const particleCount = 120;
-      const particleGeo = new THREE.BufferGeometry();
-      const posArray = new Float32Array(particleCount * 3);
+      // Golden Dust / Ember Particles (Restored)
+      const ENABLE_DUST_PARTICLES = true;
+      let particleSwarm: THREE.Points | null = null;
 
-      for (let i = 0; i < particleCount * 3; i += 3) {
-        const radius = 2.1 + Math.random() * 3.5;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(Math.random() * 2 - 1);
+      if (ENABLE_DUST_PARTICLES) {
+        const particleCount = 120;
+        const particleGeo = new THREE.BufferGeometry();
+        const posArray = new Float32Array(particleCount * 3);
 
-        posArray[i] = radius * Math.sin(phi) * Math.cos(theta);
-        posArray[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
-        posArray[i + 2] = radius * Math.cos(phi);
+        for (let i = 0; i < particleCount * 3; i += 3) {
+          const radius = 2.1 + Math.random() * 3.5;
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.acos(Math.random() * 2 - 1);
+
+          posArray[i] = radius * Math.sin(phi) * Math.cos(theta);
+          posArray[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
+          posArray[i + 2] = radius * Math.cos(phi);
+        }
+
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particleMat = new THREE.PointsMaterial({
+          color: 0xd9a44b,
+          size: 0.045,
+          transparent: true,
+          opacity: 0.65,
+          blending: THREE.AdditiveBlending,
+        });
+        particleSwarm = new THREE.Points(particleGeo, particleMat);
+        cubeRootGroup.add(particleSwarm);
       }
-
-      particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-      const particleMat = new THREE.PointsMaterial({
-        color: 0xd9a44b,
-        size: 0.045,
-        transparent: true,
-        opacity: 0.65,
-        blending: THREE.AdditiveBlending,
-      });
-      const particleSwarm = new THREE.Points(particleGeo, particleMat);
-      cubeRootGroup.add(particleSwarm);
 
       // 7. Non-blocking Pointer Drag Rotation with Inertia (Preserving Vertical Page Scroll)
       let isDragging = false;
@@ -400,8 +405,10 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
         ring3.rotation.x = -elapsedTime * 0.2;
         wireSphere.rotation.y = elapsedTime * 0.06;
 
-        // Swirling dust particles
-        particleSwarm.rotation.y = -elapsedTime * 0.05;
+        // Swirling dust particles (if active)
+        if (particleSwarm) {
+          particleSwarm.rotation.y = -elapsedTime * 0.05;
+        }
 
         composer.render();
       };
