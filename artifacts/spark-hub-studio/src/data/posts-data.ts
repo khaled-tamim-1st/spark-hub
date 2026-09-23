@@ -36,7 +36,7 @@ export const allPostsData: BrandPost[] = [
     "client": "HEROINERA",
     "category": "Creative Campaign & Wellness",
     "imageUrls": [
-      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0052.jpg"
+      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0032.jpg"
     ],
     "imageAlt": "HEROINERA - كل حاجة ماشية إلا إنتِ",
     "caption": "كل حاجة ماشية.. إلا إنتِ! تغلبي على ضغوطات اليوم واستعيدي نشاطك وقوتك.",
@@ -47,7 +47,7 @@ export const allPostsData: BrandPost[] = [
     "client": "HEROINERA",
     "category": "Creative Campaign & Wellness",
     "imageUrls": [
-      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0055.jpg"
+      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0038.jpg"
     ],
     "imageAlt": "HEROINERA - حبك لنفسك مش أنانية",
     "caption": "حبك لنفسك مش أنانية.. دي ضرورة! اهتمامك بصحتك هو أول خطوة للاهتمام باللي حواليكي.",
@@ -58,7 +58,7 @@ export const allPostsData: BrandPost[] = [
     "client": "HEROINERA",
     "category": "Creative Campaign & Wellness",
     "imageUrls": [
-      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0057.jpg"
+      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0039.jpg"
     ],
     "imageAlt": "HEROINERA - ثقتك بنفسك",
     "caption": "ثقتك بنفسك مش هتيجي.. إنتي اللي هتبنيها كل يوم بخطوات صغيرة ومستمرة.",
@@ -69,7 +69,7 @@ export const allPostsData: BrandPost[] = [
     "client": "HEROINERA",
     "category": "Creative Campaign & Wellness",
     "imageUrls": [
-      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0056.jpg"
+      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0040.jpg"
     ],
     "imageAlt": "HEROINERA - جمالك وطاقتك في طبق سلطة",
     "caption": "جمالك وطاقتك في طبق سلطة! التغذية الصحية المتوازنة هي سر الإشراق والنشاط اليومي.",
@@ -179,7 +179,7 @@ export const allPostsData: BrandPost[] = [
     "client": "Roots New Edition",
     "category": "F&B & Hospitality",
     "imageUrls": [
-      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0053.jpg"
+      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0050.jpg"
     ],
     "imageAlt": "Roots - عرض الشلة",
     "caption": "عرض الشلة بـ 270 جنيه: فرستينو مانجا + تشيكن وايت موكا + سموزي أناناس + كوكيز شوكولاتة ساخنة.",
@@ -190,7 +190,7 @@ export const allPostsData: BrandPost[] = [
     "client": "Roots New Edition",
     "category": "F&B & Hospitality",
     "imageUrls": [
-      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0054.jpg"
+      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0061.jpg"
     ],
     "imageAlt": "Roots - عيد أضحى مبارك",
     "caption": "عيد أضحى مبارك من روتس كافيه! شاركونا فرحة العيد بألذ المشروبات المثلجة والحلويات المميزة.",
@@ -201,7 +201,7 @@ export const allPostsData: BrandPost[] = [
     "client": "Roots New Edition",
     "category": "F&B & Hospitality",
     "imageUrls": [
-      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0058.jpg"
+      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0063.jpg"
     ],
     "imageAlt": "Roots - كل درينك هيظبطلك مودك",
     "caption": "في Roots كل درينك هيظبطلك مودك في جو الصيف.. تشكيلة سموزي وموخيتو منعشة جداً.",
@@ -520,7 +520,7 @@ export const allPostsData: BrandPost[] = [
     "client": "Era Egypt Pharma",
     "category": "Pharmaceutical & Health",
     "imageUrls": [
-      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0034.jpg"
+      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0044.jpg"
     ],
     "imageAlt": "Era Egypt - Methyl ERA",
     "caption": "ودع التنميل والحرقان وأهتم بأعصابك مع Methyl ERA: مكمل غذائي لدعم تكوين كرات الدم وصحة الجهاز العصبي.",
@@ -707,7 +707,7 @@ export const allPostsData: BrandPost[] = [
     "client": "DR.CARS",
     "category": "Automotive & Tuning",
     "imageUrls": [
-      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0036.jpg"
+      "https://res.cloudinary.com/lgbve8cd/image/upload/f_auto,q_auto/v1789186048/IMG-20260912-WA0013.jpg"
     ],
     "imageAlt": "DR.CARS - دكاترة في التعديل",
     "caption": "DR.CARS دكاترة في التعديل: توريد وتركيب أحدث الجنوط والإطارات الرياضية وضبط الزوايا بأحدث أجهزة الليزر.",

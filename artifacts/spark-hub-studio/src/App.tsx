@@ -2709,6 +2709,9 @@ function Posts() {
                   src={activeImageModal.url}
                   alt={activeImageModal.alt}
                   className="max-h-[75vh] w-auto max-w-full object-contain rounded-lg"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/media/spark-brand-poster.png';
+                  }}
                 />
               </div>
 
@@ -2757,20 +2760,32 @@ function PostCard({
   post: any;
   onOpen: () => void;
 }) {
+  const [imgError, setImgError] = useState(false);
+  const hasImage = post.imageUrls?.[0] && !imgError;
+
   return (
     <article
       className="group relative flex flex-col justify-between rounded-xl border border-border/70 bg-card/90 overflow-hidden transition-all duration-300 hover:border-primary/60 hover:shadow-[0_8px_30px_rgba(233,190,88,0.15)] cursor-pointer"
       onClick={onOpen}
       data-testid={`card-post-${post.id}`}
     >
-      <div className="relative aspect-square w-full overflow-hidden bg-black/40">
-        {post.imageUrls?.[0] && (
+      <div className="relative aspect-square w-full overflow-hidden bg-black/40 flex items-center justify-center">
+        {hasImage ? (
           <img
             src={post.imageUrls[0]}
             alt={post.imageAlt || post.caption}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
+            onError={() => setImgError(true)}
           />
+        ) : (
+          <div className="h-full w-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#0c121e] via-[#080d17] to-black border-b border-border/50">
+            <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary font-mono text-base font-bold mb-3 shadow-[0_0_15px_rgba(233,190,88,0.15)]">
+              {post.client ? post.client.slice(0, 2).toUpperCase() : 'SH'}
+            </div>
+            <span className="eyebrow text-[10px] text-primary mb-1">{post.category}</span>
+            <p className="text-xs text-foreground/80 font-medium line-clamp-2">{post.client}</p>
+          </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
           <span className="mono text-xs text-primary font-semibold flex items-center gap-1.5">
