@@ -6,9 +6,9 @@ export function ConversionCta() {
   const { t, localizePath, isRTL } = useLanguage();
 
   return (
-    <section className="relative overflow-hidden border-t border-border/60 bg-background py-16 md:py-24 lg:py-28">
+    <section className="relative overflow-hidden bg-transparent py-8 md:py-12">
       <div className="mx-auto max-w-[1440px] px-5 md:px-10">
-        <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#8f6217] via-[#b88628] to-[#e5b95c] p-8 sm:p-12 md:p-16 lg:p-20 shadow-[0_25px_60px_-15px_rgba(184,134,40,0.35)] border border-[#fff3d1]/30">
+        <div className="relative z-10 overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#8f6217] via-[#b88628] to-[#e5b95c] p-8 sm:p-12 md:p-16 lg:p-20 shadow-[0_25px_60px_-15px_rgba(184,134,40,0.35)] border border-[#fff3d1]/30">
           {/* Concentric growth ripple rings radiating from edge */}
           <div
             className={`pointer-events-none absolute inset-y-0 ${

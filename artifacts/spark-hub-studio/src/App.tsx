@@ -796,9 +796,6 @@ function Home() {
   const testimonials = useListTestimonials();
   const clientLogos = useListClientLogos();
 
-  const cubeRef = useRef<GlowingGoldenCubeHandle>(null);
-  const [cubeGlowMode, setCubeGlowMode] = useState<GlowMode>('balanced');
-
   useSEO({
     title:
       locale === 'ar'
@@ -855,10 +852,8 @@ function Home() {
     <Shell>
       {/* 3D Three.js Interactive Persistent Background Canvas */}
       <GlowingGoldenCube
-        ref={cubeRef}
         isRTL={isRTL}
-        glowMode={cubeGlowMode}
-        onGlowModeChange={setCubeGlowMode}
+        glowMode="balanced"
       />
 
       <section className="editorial-grid hero-grid-bg relative min-h-0 md:min-h-[640px] lg:min-h-[720px] border-b border-border bg-transparent">
@@ -910,55 +905,10 @@ function Home() {
                   ? 'ندمج الفكر الاستراتيجي، منظومة التسويق، العمليات التشغيلية، وصناعة المحتوى في مسار عملي واحد ومستدام.'
                   : 'We engineer high-impact brand narratives, scalable growth architectures, and multi-channel acquisition funnels designed for market leadership.'}
               </p>
-
-              {/* Interactive 3D Cube HUD Controls Bar */}
-              <div className="mt-7 flex flex-wrap items-center gap-3 font-mono text-[11px]">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-card/60 border border-primary/20 backdrop-blur-md">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="text-emerald-300 font-semibold tracking-wider">
-                    {locale === 'ar' ? 'محرك 3D تفاعلي' : 'INTERACTIVE 3D ENGINE'}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => cubeRef.current?.cycleGlowMode()}
-                  className="px-3 py-1.5 rounded-md bg-primary/10 border border-primary/40 text-primary hover:bg-primary hover:text-black transition-all duration-200 cursor-pointer"
-                >
-                  {locale === 'ar'
-                    ? `التوهج [${cubeGlowMode === 'balanced' ? 'متوازن' : cubeGlowMode === 'subtle' ? 'هادئ' : 'فائق'}]`
-                    : `GLOW [${cubeGlowMode.toUpperCase()}]`}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => cubeRef.current?.resetRotation()}
-                  className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 hover:border-primary/40 text-foreground/80 hover:text-primary transition-all duration-200 cursor-pointer"
-                >
-                  {locale === 'ar' ? 'إعادة ضبط الدوران ↺' : 'RESET ROTATION ↺'}
-                </button>
-              </div>
             </div>
 
-            {/* Right Column: Spatial Interactive Tactical Hint */}
-            <div className="lg:col-span-5 relative h-48 sm:h-72 lg:h-[460px] flex items-start justify-end pointer-events-none">
-              <div className="pointer-events-auto tactical-card rounded-xl px-4 py-2.5 flex items-center gap-3 shadow-[0_0_25px_rgba(0,0,0,0.6)]">
-                <div
-                  className="w-6 h-6 rounded-full border border-primary/40 flex items-center justify-center text-primary animate-spin"
-                  style={{ animationDuration: '6s' }}
-                >
-                  ✦
-                </div>
-                <div className="text-start">
-                  <div className="text-[10px] font-mono text-primary font-bold uppercase tracking-wider">
-                    {locale === 'ar' ? 'اسحب بالماوس أو اللمس' : 'Touch / Drag Background'}
-                  </div>
-                  <div className="text-[11px] text-muted-foreground font-mono">
-                    {locale === 'ar' ? 'دوران حر 360° في الفضاء' : 'Full 360° Free Space Rotation'}
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Right Column: Spatial 3D Cube Canvas Area */}
+            <div className="lg:col-span-5 relative h-24 sm:h-48 lg:h-[420px] pointer-events-none" />
           </div>
 
           {/* Bottom Tactical Bar: Status Indicators & Bill Gates Quote Card */}
