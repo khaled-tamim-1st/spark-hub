@@ -5,7 +5,7 @@ export function FloatingWhatsApp() {
   const { locale, isRTL } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
-  const phoneNumber = '201559646676';
+  const phoneNumber = '201554637673';
   const defaultMessage =
     locale === 'ar'
       ? 'مرحباً، أود الاستفسار عن خدمات واستشارات استوديو سبارك هب.'
