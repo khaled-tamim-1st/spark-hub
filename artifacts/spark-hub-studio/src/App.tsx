@@ -853,15 +853,15 @@ function Home() {
 
   return (
     <Shell>
-      <section className="editorial-grid hero-grid-bg relative min-h-0 md:min-h-[640px] lg:min-h-[720px] overflow-hidden border-b border-border bg-[#06080d]">
-        {/* 3D Three.js Interactive Background Canvas */}
-        <GlowingGoldenCube
-          ref={cubeRef}
-          isRTL={isRTL}
-          glowMode={cubeGlowMode}
-          onGlowModeChange={setCubeGlowMode}
-        />
+      {/* 3D Three.js Interactive Persistent Background Canvas */}
+      <GlowingGoldenCube
+        ref={cubeRef}
+        isRTL={isRTL}
+        glowMode={cubeGlowMode}
+        onGlowModeChange={setCubeGlowMode}
+      />
 
+      <section className="editorial-grid hero-grid-bg relative min-h-0 md:min-h-[640px] lg:min-h-[720px] border-b border-border bg-transparent">
         {/* Radial Vignette Overlay to blend cube smoothly with typography */}
         <div className="absolute inset-0 w-full h-full z-[1] vignette-overlay pointer-events-none" />
 

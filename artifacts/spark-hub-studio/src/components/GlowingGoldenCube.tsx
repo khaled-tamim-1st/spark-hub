@@ -87,18 +87,62 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
 
       const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
 
-      const updateCameraLayout = () => {
-        const w = container.clientWidth || window.innerWidth;
-        const isMobile = w < 1024;
-        if (isMobile) {
-          camera.position.set(0, 0.6, 9.6);
-          camera.lookAt(0, 0.3, 0);
+      const getResponsiveMetrics = (w: number) => {
+        const isSmallPhone = w < 480;
+        const isPhone = w < 768;
+        const isTablet = w < 1024;
+
+        if (isSmallPhone) {
+          return {
+            scale: 0.28,        // Down drastically to fit small mobile elegantly
+            baseX: 0,
+            baseY: 0.6,
+            camX: 0,
+            camY: 0.2,
+            camZ: 10.2,
+            travelY: 2.2,       // Descent distance when scrolling
+          };
+        } else if (isPhone) {
+          return {
+            scale: 0.34,        // Refined size on larger phones
+            baseX: 0,
+            baseY: 0.5,
+            camX: 0,
+            camY: 0.22,
+            camZ: 9.8,
+            travelY: 2.0,
+          };
+        } else if (isTablet) {
+          return {
+            scale: 0.50,
+            baseX: isRTL ? -1.8 : 1.8,
+            baseY: 0.2,
+            camX: isRTL ? -2.0 : 2.0,
+            camY: 0.25,
+            camZ: 9.2,
+            travelY: 1.6,
+          };
         } else {
-          // Centered toward target hemisphere, comfortably positioned away from typography
-          const targetX = isRTL ? -2.7 : 2.7;
-          camera.position.set(isRTL ? -3.1 : 3.1, 0.35, 8.5);
-          camera.lookAt(targetX * 0.92, 0.05, 0);
+          // Desktop (w >= 1024)
+          return {
+            scale: 0.72,
+            baseX: isRTL ? -2.7 : 2.7,
+            baseY: 0.1,
+            camX: isRTL ? -3.1 : 3.1,
+            camY: 0.35,
+            camZ: 8.5,
+            travelY: 1.5,
+          };
         }
+      };
+
+      const metrics = getResponsiveMetrics(width);
+
+      const updateCameraLayout = () => {
+        const w = window.innerWidth;
+        const m = getResponsiveMetrics(w);
+        camera.position.set(m.camX, m.camY, m.camZ);
+        camera.lookAt(m.baseX * 0.92, 0.05, 0);
       };
       updateCameraLayout();
 
@@ -145,21 +189,17 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
       fillLight.position.set(-4, 5, -2);
       scene.add(fillLight);
 
-      // 5. Rubik's Cube Assembly (Reduced by 20% for optimal balance)
+      // 5. Rubik's Cube Assembly
       const cubeRootGroup = new THREE.Group();
-      cubeRootGroup.scale.set(0.8, 0.8, 0.8);
+      cubeRootGroup.scale.set(metrics.scale, metrics.scale, metrics.scale);
+      cubeRootGroup.position.set(metrics.baseX, metrics.baseY, 0);
       scene.add(cubeRootGroup);
 
       const updateCubeRootPosition = () => {
-        const w = container.clientWidth || window.innerWidth;
-        if (w < 1024) {
-          cubeRootGroup.position.set(0, 0.35, 0);
-          cubeRootGroup.scale.set(0.72, 0.72, 0.72);
-        } else {
-          // Anchored on the right side in LTR, left in RTL
-          cubeRootGroup.position.set(isRTL ? -2.7 : 2.7, 0.1, 0);
-          cubeRootGroup.scale.set(0.8, 0.8, 0.8);
-        }
+        const w = window.innerWidth;
+        const m = getResponsiveMetrics(w);
+        cubeRootGroup.scale.set(m.scale, m.scale, m.scale);
+        cubeRootGroup.position.x = m.baseX;
       };
       updateCubeRootPosition();
 
@@ -355,11 +395,20 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
       window.addEventListener('pointerup', onPointerUp);
       window.addEventListener('pointercancel', onPointerUp);
 
-      // 8. Resize Handling
+      // 8. Scroll Tracking (Cube travels down with page scroll)
+      let currentScrollY = window.scrollY;
+      let targetScrollY = window.scrollY;
+
+      const handleScroll = () => {
+        targetScrollY = window.scrollY;
+      };
+      window.addEventListener('scroll', handleScroll, { passive: true });
+
+      // 9. Resize Handling
       const handleResize = () => {
         if (!container) return;
-        const w = container.clientWidth || window.innerWidth;
-        const h = container.clientHeight || window.innerHeight;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
@@ -369,7 +418,7 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
       };
       window.addEventListener('resize', handleResize);
 
-      // 9. Animation Loop
+      // 10. Animation Loop
       let animationFrameId: number;
       const clock = new THREE.Clock();
 
@@ -378,10 +427,14 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
 
         const elapsedTime = clock.getElapsedTime();
 
-        // Idle orbit rotation
+        // Smooth scroll interpolation
+        currentScrollY += (targetScrollY - currentScrollY) * 0.08;
+        const scrollDelta = targetScrollY - currentScrollY;
+
+        // Idle orbit rotation + subtle scroll spin
         if (!isDragging) {
-          targetRotationRef.current.y += 0.0032;
-          targetRotationRef.current.x += Math.sin(elapsedTime * 0.5) * 0.0006;
+          targetRotationRef.current.y += 0.0030 + scrollDelta * 0.0006;
+          targetRotationRef.current.x += Math.sin(elapsedTime * 0.5) * 0.0005 + scrollDelta * 0.0003;
         }
 
         // Smooth damping / inertia
@@ -392,12 +445,17 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
         mouseParallax.x += (mouseParallax.targetX - mouseParallax.x) * 0.04;
         mouseParallax.y += (mouseParallax.targetY - mouseParallax.y) * 0.04;
 
-        const baseCamX = window.innerWidth < 1024 ? 0 : (isRTL ? -3.1 : 3.1);
-        camera.position.x += (mouseParallax.x * 0.6 - (camera.position.x - baseCamX)) * 0.04;
+        const w = window.innerWidth;
+        const m = getResponsiveMetrics(w);
+        camera.position.x = m.camX + mouseParallax.x * 0.5;
 
-        // Gentle floating levitation
-        const baseCubeY = window.innerWidth < 1024 ? 0.35 : 0.1;
-        cubeRootGroup.position.y += (Math.sin(elapsedTime * 1.5) * 0.1 - (cubeRootGroup.position.y - baseCubeY)) * 0.08;
+        // Scroll descent: As the user scrolls down, cube descends with the content
+        const scrollProgress = Math.min(1.0, Math.max(0, currentScrollY / 1000));
+        const descentY = scrollProgress * m.travelY;
+
+        // Gentle floating levitation + scroll descent
+        cubeRootGroup.position.x = m.baseX;
+        cubeRootGroup.position.y = m.baseY - descentY + Math.sin(elapsedTime * 1.5) * 0.06;
 
         // Orbital energy rings counter-rotation
         ring1.rotation.z = elapsedTime * 0.22;
@@ -410,6 +468,14 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
           particleSwarm.rotation.y = -elapsedTime * 0.05;
         }
 
+        // Dissolve near bottom of page so footer is clean
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight > 0) {
+          const scrollRatio = currentScrollY / docHeight;
+          const opacity = scrollRatio > 0.88 ? Math.max(0, 1 - (scrollRatio - 0.88) / 0.1) : 1;
+          renderer.domElement.style.opacity = String(opacity);
+        }
+
         composer.render();
       };
       animate();
@@ -420,6 +486,7 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('pointerup', onPointerUp);
         window.removeEventListener('pointercancel', onPointerUp);
+        window.removeEventListener('scroll', handleScroll);
         window.removeEventListener('resize', handleResize);
         cancelAnimationFrame(animationFrameId);
         renderer.dispose();
@@ -429,7 +496,7 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
     return (
       <div
         ref={containerRef}
-        className={`absolute inset-0 w-full h-full overflow-hidden pointer-events-none ${className}`}
+        className={`fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0 ${className}`}
         style={{ touchAction: 'pan-y' }}
       >
         <canvas
