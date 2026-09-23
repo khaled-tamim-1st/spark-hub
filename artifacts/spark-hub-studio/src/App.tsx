@@ -111,7 +111,11 @@ import { LanguageSwitcher } from '@/components/language-switcher';
 import { useSEO } from '@/hooks/useSEO';
 import { SEOBreadcrumbs } from '@/components/seo/SEOBreadcrumbs';
 import { RelatedBlogPosts } from '@/components/seo/RelatedBlogPosts';
-import { GlowingGoldenCube } from '@/components/GlowingGoldenCube';
+import {
+  GlowingGoldenCube,
+  type GlowingGoldenCubeHandle,
+  type GlowMode,
+} from '@/components/GlowingGoldenCube';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -786,6 +790,9 @@ function Home() {
   const testimonials = useListTestimonials();
   const clientLogos = useListClientLogos();
 
+  const cubeRef = useRef<GlowingGoldenCubeHandle>(null);
+  const [cubeGlowMode, setCubeGlowMode] = useState<GlowMode>('balanced');
+
   useSEO({
     title:
       locale === 'ar'
@@ -840,118 +847,153 @@ function Home() {
 
   return (
     <Shell>
-      <section className="editorial-grid relative min-h-0 md:min-h-[580px] lg:min-h-[660px] overflow-hidden border-b border-border bg-[#080c14]">
-        <PageFrame className="relative z-10 min-h-0 md:min-h-[580px] lg:min-h-[660px] pb-10 pt-20 md:pb-20 md:pt-28 md:grid md:grid-cols-[1.1fr_.9fr] md:items-center md:gap-8">
-          <div className="animate-rise text-start">
-            <p className="eyebrow mb-6 text-primary tracking-[.22em] rtl:tracking-normal font-mono text-[11px] rtl:text-xs inline-flex items-center gap-2">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
-              {locale === 'ar' ? t('hero.eyebrow') : (o?.eyebrow || t('hero.eyebrow'))}
-            </p>
+      <section className="editorial-grid hero-grid-bg relative min-h-0 md:min-h-[640px] lg:min-h-[720px] overflow-hidden border-b border-border bg-[#06080d]">
+        {/* 3D Three.js Interactive Background Canvas */}
+        <GlowingGoldenCube
+          ref={cubeRef}
+          isRTL={isRTL}
+          glowMode={cubeGlowMode}
+          onGlowModeChange={setCubeGlowMode}
+        />
 
-            <h1 className="display max-w-4xl text-[clamp(3.8rem,9.5vw,8.5rem)] rtl:text-[clamp(3.2rem,8vw,6.8rem)] font-extrabold leading-[0.85] rtl:leading-[1.18] tracking-[-0.05em] rtl:tracking-normal text-foreground">
-              {locale === 'ar' ? (
-                <>
-                  <span className="hero-line block pb-1">
-                    <span className="hero-word hero-word-1 inline-block">
-                      حيث تلتقي
-                    </span>
-                  </span>
+        {/* Radial Vignette Overlay to blend cube smoothly with typography */}
+        <div className="absolute inset-0 w-full h-full z-[1] vignette-overlay pointer-events-none" />
 
-                  <span className="hero-line block pb-1">
-                    <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
-                      الاستراتيجية
-                    </span>
-                  </span>
-
-                  <span className="hero-line block pb-1">
-                    <span className="hero-word hero-word-3 inline-block">
-                      بالنمو.
-                    </span>
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="hero-line block pb-1">
-                    <span className="hero-word hero-word-1 inline-block">
-                      Where
-                    </span>
-                  </span>
-
-                  <span className="hero-line block pb-1">
-                    <span className="strategy-gold hero-word hero-word-2 inline-block font-extrabold">
-                      strategy
-                    </span>
-                  </span>
-
-                  <span className="hero-line block pb-1">
-                    <span className="hero-word hero-word-3 inline-block">
-                      meets
-                    </span>
-                  </span>
-
-                  <span className="hero-line block pb-1">
-                    <span className="hero-word hero-word-4 inline-block">
-                      growth.
-                    </span>
-                  </span>
-                </>
-              )}
-            </h1>
-
-            {/* Editorial Quote (Mobile only) */}
-            <div className="md:hidden animate-fade delay-3 mt-7 max-w-xl border-s-2 border-primary/60 ps-4 py-1">
-              <p className="font-sans text-sm sm:text-base italic text-muted-foreground/90 leading-relaxed rtl:leading-relaxed">
-                {t('hero.quote')}
+        <PageFrame className="relative z-10 min-h-0 md:min-h-[640px] lg:min-h-[720px] pb-10 pt-16 md:pb-16 md:pt-24 flex flex-col justify-between pointer-events-none">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mt-2 sm:mt-6">
+            {/* Left Column: Headlines & 3D HUD Controls */}
+            <div className="lg:col-span-7 flex flex-col justify-center text-start pointer-events-auto">
+              <p className="eyebrow mb-6 text-primary tracking-[.22em] rtl:tracking-normal font-mono text-[11px] rtl:text-xs inline-flex items-center gap-2">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
+                {locale === 'ar' ? t('hero.eyebrow') : (o?.eyebrow || t('hero.eyebrow'))}
               </p>
-              <div className="mt-2.5 flex items-center gap-2">
-                <span className="h-px w-5 bg-primary/60" />
-                <span className="mono rtl:font-sans text-[11px] uppercase tracking-widest text-primary font-semibold">
-                  {t('hero.quote_author')}
-                </span>
-                <span className="text-[10px] text-muted-foreground/50">/</span>
-                <span className="text-[10px] text-muted-foreground tracking-wider">
-                  {t('hero.quote_role')}
-                </span>
+
+              <h1 className="display max-w-4xl text-[clamp(3.5rem,8.5vw,7.5rem)] rtl:text-[clamp(3.2rem,8vw,6.8rem)] font-extrabold leading-[0.88] rtl:leading-[1.18] tracking-[-0.05em] rtl:tracking-normal text-foreground">
+                {locale === 'ar' ? (
+                  <>
+                    <span className="hero-line block pb-1">
+                      <span className="hero-word hero-word-1 inline-block">حيث تلتقي</span>
+                    </span>
+                    <span className="hero-line block pb-1">
+                      <span className="strategy-gold gold-glow-title hero-word hero-word-2 inline-block font-extrabold">الاستراتيجية</span>
+                    </span>
+                    <span className="hero-line block pb-1">
+                      <span className="hero-word hero-word-3 inline-block">بالنمو.</span>
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="hero-line block pb-1">
+                      <span className="hero-word hero-word-1 inline-block">Where</span>
+                    </span>
+                    <span className="hero-line block pb-1">
+                      <span className="strategy-gold gold-glow-title hero-word hero-word-2 inline-block font-extrabold">strategy</span>
+                    </span>
+                    <span className="hero-line block pb-1">
+                      <span className="hero-word hero-word-3 inline-block">meets</span>
+                    </span>
+                    <span className="hero-line block pb-1">
+                      <span className="hero-word hero-word-4 inline-block">growth.</span>
+                    </span>
+                  </>
+                )}
+              </h1>
+
+              <p className="mt-6 sm:mt-7 max-w-lg text-foreground/70 text-sm sm:text-base leading-relaxed font-normal">
+                {locale === 'ar'
+                  ? 'ندمج الفكر الاستراتيجي، منظومة التسويق، العمليات التشغيلية، وصناعة المحتوى في مسار عملي واحد ومستدام.'
+                  : 'We engineer high-impact brand narratives, scalable growth architectures, and multi-channel acquisition funnels designed for market leadership.'}
+              </p>
+
+              {/* Interactive 3D Cube HUD Controls Bar */}
+              <div className="mt-7 flex flex-wrap items-center gap-3 font-mono text-[11px]">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-card/60 border border-primary/20 backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="text-emerald-300 font-semibold tracking-wider">
+                    {locale === 'ar' ? 'محرك 3D تفاعلي' : 'INTERACTIVE 3D ENGINE'}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => cubeRef.current?.cycleGlowMode()}
+                  className="px-3 py-1.5 rounded-md bg-primary/10 border border-primary/40 text-primary hover:bg-primary hover:text-black transition-all duration-200 cursor-pointer"
+                >
+                  {locale === 'ar'
+                    ? `التوهج [${cubeGlowMode === 'balanced' ? 'متوازن' : cubeGlowMode === 'subtle' ? 'هادئ' : 'فائق'}]`
+                    : `GLOW [${cubeGlowMode.toUpperCase()}]`}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => cubeRef.current?.resetRotation()}
+                  className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 hover:border-primary/40 text-foreground/80 hover:text-primary transition-all duration-200 cursor-pointer"
+                >
+                  {locale === 'ar' ? 'إعادة ضبط الدوران ↺' : 'RESET ROTATION ↺'}
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column: Spatial Interactive Tactical Hint */}
+            <div className="lg:col-span-5 relative h-48 sm:h-72 lg:h-[460px] flex items-start justify-end pointer-events-none">
+              <div className="pointer-events-auto tactical-card rounded-xl px-4 py-2.5 flex items-center gap-3 shadow-[0_0_25px_rgba(0,0,0,0.6)]">
+                <div
+                  className="w-6 h-6 rounded-full border border-primary/40 flex items-center justify-center text-primary animate-spin"
+                  style={{ animationDuration: '6s' }}
+                >
+                  ✦
+                </div>
+                <div className="text-start">
+                  <div className="text-[10px] font-mono text-primary font-bold uppercase tracking-wider">
+                    {locale === 'ar' ? 'اسحب بالماوس أو اللمس' : 'Touch / Drag Background'}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground font-mono">
+                    {locale === 'ar' ? 'دوران حر 360° في الفضاء' : 'Full 360° Free Space Rotation'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 3D Glowing Golden Cube (Interactive Three.js Experience) */}
-          <div className="hidden animate-rise delay-2 md:flex md:flex-col md:items-center md:justify-center md:gap-4 lg:gap-5 md:opacity-100">
-            <div className="relative h-64 w-64 md:h-72 md:w-72 lg:h-80 lg:w-80 border border-primary/30 rounded-2xl p-1 bg-gradient-to-b from-card/40 to-card/10 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden group">
-              {/* Ambient radial gold backlight */}
-              <div className="absolute -inset-4 rounded-full bg-primary/15 blur-2xl pointer-events-none" />
-
-              {/* Three.js Interactive Canvas Container */}
-              <GlowingGoldenCube className="w-full h-full z-10" />
-
-              {/* Minimalist interactive hint watermark */}
-              <div className="absolute bottom-2.5 inset-x-0 text-center pointer-events-none z-20">
-                <span className="font-mono text-[9px] tracking-widest text-primary/60 uppercase bg-background/60 px-2 py-0.5 rounded-full backdrop-blur-sm border border-primary/20">
-                  {locale === 'ar' ? 'اسحب للتدوير ✦ 3D' : 'Drag to Rotate ✦ 3D'}
-                </span>
+          {/* Bottom Tactical Bar: Status Indicators & Bill Gates Quote Card */}
+          <div className="mt-10 sm:mt-14 w-full flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-6 pointer-events-auto">
+            {/* System Coordinates & Status Indicator */}
+            <div className="hidden md:flex items-center gap-6 font-mono text-[11px] text-muted-foreground/60 text-start">
+              <div>
+                <span className="text-primary/90 block font-semibold text-[10px] tracking-wider">TIMEZONE</span>
+                <span>CAIRO GMT+3 // RIYADH GMT+3</span>
+              </div>
+              <div className="w-px h-6 bg-border/60" />
+              <div>
+                <span className="text-primary/90 block font-semibold text-[10px] tracking-wider">COORDINATES</span>
+                <span>30.0444° N, 31.2357° E</span>
+              </div>
+              <div className="w-px h-6 bg-border/60" />
+              <div>
+                <span className="text-primary/90 block font-semibold text-[10px] tracking-wider">SYSTEM STATUS</span>
+                <span className="text-emerald-400 font-bold">100% OPERATIONAL</span>
               </div>
             </div>
 
-            {/* Desktop Studio Perspective Quote Card */}
-            <div className="w-64 md:w-72 lg:w-80 rounded-xl border border-primary/30 bg-card/40 backdrop-blur-md p-4 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all hover:border-primary/50 text-start">
-              <div className="flex items-center justify-between border-b border-primary/20 pb-2 mb-2.5">
-                <span className="mono text-[9px] uppercase tracking-widest text-primary flex items-center gap-1.5 font-semibold">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(233,190,88,0.8)]" />
-                  {t('hero.perspective', 'PERSPECTIVE')}
-                </span>
-                <span className="mono text-[9px] text-muted-foreground/80">
-                  {t('hero.ref', 'REF // 01')}
-                </span>
+            {/* Tactical Perspective Quote Card */}
+            <div className="w-full sm:w-[420px] tactical-card rounded-2xl p-5 shadow-2xl text-start">
+              <div className="flex items-center justify-between text-[11px] font-mono text-primary font-semibold tracking-wider pb-2.5 border-b border-border/40">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-primary">◆</span>
+                  <span>{t('hero.perspective', 'PERSPECTIVE')}</span>
+                </div>
+                <span className="text-muted-foreground/70">{t('hero.ref', 'REF // 01')}</span>
               </div>
-              <p className="font-sans text-xs italic text-foreground/90 leading-relaxed rtl:leading-relaxed">
+
+              <blockquote className="mt-3 text-xs sm:text-[13px] leading-relaxed text-foreground/90 italic font-sans font-medium">
                 {t('hero.quote')}
-              </p>
-              <div className="mt-3 flex items-center justify-between pt-2 border-t border-border/40 text-[10px]">
-                <span className="mono rtl:font-sans font-semibold text-primary tracking-wider uppercase">
+              </blockquote>
+
+              <div className="mt-3 flex items-center justify-between font-mono text-[11px] pt-2 border-t border-border/30">
+                <span className="font-bold text-primary tracking-wide uppercase">
                   {t('hero.quote_author')}
                 </span>
-                <span className="text-muted-foreground/70 font-mono text-[9px]">
+                <span className="text-muted-foreground/70 text-[10px]">
                   {t('hero.quote_role')}
                 </span>
               </div>
@@ -959,8 +1001,9 @@ function Home() {
           </div>
         </PageFrame>
 
+        {/* Marquee ticker */}
         <div
-          className={`marquee py-3 text-muted-foreground border-t border-border/40 ${
+          className={`marquee py-3 text-muted-foreground border-t border-border/40 relative z-10 bg-background/80 backdrop-blur-sm ${
             isRTL ? 'text-xs font-semibold tracking-normal' : 'text-[11px] font-bold tracking-[.2em]'
           }`}
         >
