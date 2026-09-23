@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useMemo,
 } from 'react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -2499,10 +2500,26 @@ function Posts() {
         : 'A curated showcase of commercial campaigns, social media designs, and digital visual identities crafted by Spark Hub Studio.',
   });
 
-  const posts =
-    query.data && query.data.length > 0
-      ? query.data
-      : (allPostsData as any[]).map((p, idx) => ({ id: idx + 1, ...p }));
+  // Merge all 109 curated brand posts with any live updates from query.data so all 8 brands are displayed
+  const posts = useMemo(() => {
+    const postMap = new Map<number, any>();
+    (allPostsData as any[]).forEach((p, idx) => {
+      const id = p.id ?? idx + 1;
+      postMap.set(id, { id, ...p });
+    });
+
+    if (query.data && Array.isArray(query.data)) {
+      query.data.forEach((p: any) => {
+        if (p && p.id) {
+          postMap.set(p.id, { ...postMap.get(p.id), ...p });
+        }
+      });
+    }
+
+    return Array.from(postMap.values()).sort(
+      (a, b) => (a.displayOrder ?? a.id) - (b.displayOrder ?? b.id)
+    );
+  }, [query.data]);
 
   // Extract unique brands with their count and category
   const brandsMap = new Map<string, { count: number; category: string }>();
