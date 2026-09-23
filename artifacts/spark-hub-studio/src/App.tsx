@@ -102,6 +102,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { ConversionCta } from '@/components/conversion-cta';
+import { FloatingWhatsApp } from '@/components/FloatingWhatsApp';
 import { allPostsData } from '@/data/posts-data';
 import {
   LanguageProvider,
@@ -318,6 +319,7 @@ function Shell({
       {showCta && <ConversionCta />}
 
       <Footer />
+      <FloatingWhatsApp />
     </div>
   );
 }

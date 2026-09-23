@@ -993,3 +993,38 @@ body,
   border-bottom: 1.5px solid #c8963e;
   border-right: 1.5px solid #c8963e;
 }
+
+/* =========================================================
+   FLOATING WHATSAPP GOLDEN RADAR & AURA RIPPLES
+   ========================================================= */
+
+@keyframes gold-wave {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+    box-shadow: 0 0 10px rgba(233, 190, 88, 0.5);
+  }
+  50% {
+    opacity: 0.45;
+    box-shadow: 0 0 25px rgba(233, 190, 88, 0.35);
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+    box-shadow: 0 0 45px rgba(233, 190, 88, 0);
+  }
+}
+
+.animate-gold-wave-1 {
+  animation: gold-wave 3s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+.animate-gold-wave-2 {
+  animation: gold-wave 3s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  animation-delay: 1s;
+}
+
+.animate-gold-wave-3 {
+  animation: gold-wave 3s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  animation-delay: 2s;
+}
