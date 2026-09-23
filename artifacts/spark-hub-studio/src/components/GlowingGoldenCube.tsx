@@ -468,14 +468,6 @@ export const GlowingGoldenCube = forwardRef<GlowingGoldenCubeHandle, GlowingGold
           particleSwarm.rotation.y = -elapsedTime * 0.05;
         }
 
-        // Dissolve only near the very bottom footer so CTA remains 100% illuminated
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        if (docHeight > 0) {
-          const scrollRatio = currentScrollY / docHeight;
-          const opacity = scrollRatio > 0.94 ? Math.max(0, 1 - (scrollRatio - 0.94) / 0.05) : 1;
-          renderer.domElement.style.opacity = String(opacity);
-        }
-
         composer.render();
       };
       animate();

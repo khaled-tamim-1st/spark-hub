@@ -329,7 +329,7 @@ function Footer() {
   const { t, localizePath } = useLanguage();
 
   return (
-    <footer className="border-t border-border bg-sidebar px-5 py-14 md:px-10">
+    <footer className="relative z-10 border-t border-border bg-sidebar px-5 py-14 md:px-10">
       <div className="mx-auto grid max-w-[1440px] gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo />
